@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, CheckCircle, Circle } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import './Modal.css';
@@ -32,15 +32,15 @@ export default function AcademicYearsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('✅ ' + data.message);
+        setMessage('' + data.message);
         loadYears();
         setForm({ nom: '' });
         setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
       } else {
-        setMessage('❌ ' + data.error);
+        setMessage('' + data.error);
       }
     } catch {
-      setMessage('❌ Erreur de connexion');
+      setMessage('Erreur de connexion');
     }
   };
 
@@ -120,7 +120,7 @@ export default function AcademicYearsPage() {
               <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>✕</button>
             </div>
             <div className="modal-body">
-              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: message.startsWith('✅') ? '#d1fae5' : '#fee2e2', color: message.startsWith('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
+              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
               <form onSubmit={handleCreate}>
                 <div className="modal-form-group">
                   <label>Année (ex: 2024-2025)</label>
@@ -138,3 +138,5 @@ export default function AcademicYearsPage() {
     </div>
   );
 }
+
+

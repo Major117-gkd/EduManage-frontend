@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Users } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
@@ -53,10 +53,10 @@ export default function ClassesPage() {
         setDeleteConfirmId(null);
       } else {
         const data = await res.json();
-        alert('❌ ' + (data.error || 'Erreur lors de la suppression'));
+        alert('' + (data.error || 'Erreur lors de la suppression'));
       }
     } catch {
-      alert("❌ Impossible de contacter le serveur");
+      alert("Impossible de contacter le serveur");
     }
   };
 
@@ -69,12 +69,12 @@ export default function ClassesPage() {
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, capacite: parseInt(form.capacite) }) });
       const data = await res.json();
       if (res.ok) { 
-        setMessage(editingId ? '✅ Classe modifiée avec succès' : '✅ Classe créée avec succès'); 
+        setMessage(editingId ? 'Classe modifiée avec succès' : 'Classe créée avec succès'); 
         loadData(); 
         setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500); 
       }
-      else setMessage('❌ ' + (data.error || 'Erreur'));
-    } catch { setMessage('❌ Impossible de contacter le serveur'); }
+      else setMessage('' + (data.error || 'Erreur'));
+    } catch { setMessage('Impossible de contacter le serveur'); }
     setSubmitting(false);
   };
 
@@ -144,7 +144,7 @@ export default function ClassesPage() {
               <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: message.startsWith('✅') ? '#d1fae5' : '#fee2e2', color: message.startsWith('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
+              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
               <form id="classeForm" onSubmit={handleSubmit}>
                 <div className="modal-form-row">
                   <div className="modal-form-group"><label>Nom de la classe</label><input type="text" value={form.nom} onChange={e => setForm({...form, nom: e.target.value})} placeholder="Ex: 6ème A" required /></div>
@@ -196,3 +196,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+

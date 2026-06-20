@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BookOpen, Users, Save, CheckCircle } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 
@@ -92,13 +92,13 @@ export default function TeacherDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('✅ ' + data.message);
+        setMessage('' + data.message);
         setNotes({});
       } else {
-        setMessage('❌ ' + data.error);
+        setMessage('' + data.error);
       }
     } catch {
-      setMessage('❌ Erreur de connexion');
+      setMessage('Erreur de connexion');
     }
     setSubmitting(false);
   };
@@ -238,8 +238,8 @@ export default function TeacherDashboard() {
             </div>
             
             {message && (
-              <div style={{ margin: '1.5rem', padding: '1rem', borderRadius: '8px', background: message.startsWith('✅') ? '#dcfce7' : '#fee2e2', color: message.startsWith('✅') ? '#166534' : '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {message.startsWith('✅') ? <CheckCircle size={20} /> : null}
+              <div style={{ margin: '1.5rem', padding: '1rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#dcfce7' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#166534' : '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {!message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? <CheckCircle size={20} /> : null}
                 {message}
               </div>
             )}
@@ -255,3 +255,5 @@ export default function TeacherDashboard() {
     </div>
   );
 }
+
+

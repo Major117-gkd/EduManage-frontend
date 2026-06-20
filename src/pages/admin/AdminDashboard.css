@@ -381,3 +381,41 @@
 }
 .taux-count--success { background: #d1fae5; color: #065f46; }
 .taux-count--echec   { background: #fee2e2; color: #991b1b; }
+
+/* ── PRINT STYLES ── */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Hide sidebar and top header globally */
+  .admin-sidebar, .admin-header, .sidebar-overlay {
+    display: none !important;
+  }
+  
+  /* Make main content take full width */
+  .admin-main, .admin-content, .admin-layout {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Remove shadows and borders for printing */
+  .admin-panel {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Specific class to hide elements during print */
+  .print-hide {
+    display: none !important;
+  }
+  
+  /* Ensure table rows do not break across pages */
+  tr {
+    page-break-inside: avoid;
+  }
+}

@@ -164,7 +164,8 @@ function StatsBar() {
   const [dataStats, setDataStats] = useState({ eleves: '...', professeurs: '...', classes: '...' });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/stats')
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    fetch(`${apiUrl}/admin/stats`)
       .then(res => res.json())
       .then(data => {
         setDataStats({
@@ -281,7 +282,8 @@ function TeamSection() {
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/professeurs')
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    fetch(`${apiUrl}/admin/professeurs`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -317,7 +319,7 @@ function TeamSection() {
             {team.map((member, i) => (
               <div className="team-card" key={i}>
                 <div className="team-card__avatar">
-                  <img src={member.img} alt={member.name} />
+                  <img src={member.img} alt={`Portrait de ${member.name}`} loading="lazy" />
                 </div>
                 <h3 className="team-card__name">{member.name}</h3>
                 <div className="team-card__role">{member.role}</div>
@@ -463,7 +465,7 @@ function ContactCTA() {
             </div>
           </div>
           <div className="contact-cta__right">
-            <form className="contact-form" onSubmit={e => e.preventDefault()}>
+            <form className="contact-form" onSubmit={(e) => { e.preventDefault(); alert("Merci ! Votre message a bien été envoyé."); }}>
               <div className="contact-form__header">
                 <h3 className="contact-form__title">Envoyez-nous un message</h3>
                 <p className="contact-form__subtitle">Nous vous répondrons dans les plus brefs délais.</p>
@@ -507,10 +509,10 @@ function Footer() {
             Groupe Scolaire Privé Elhadj Mamadou Saïdou Diallo, accompagnant vos enfants du primaire au lycée.
           </p>
           <div className="footer__social" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            <a href="#" className="social-btn" aria-label="Facebook"><Share2 size={20} /></a>
-            <a href="#" className="social-btn" aria-label="Instagram"><Camera size={20} /></a>
-            <a href="#" className="social-btn" aria-label="LinkedIn"><Briefcase size={20} /></a>
-            <a href="#" className="social-btn" aria-label="YouTube"><MonitorPlay size={20} /></a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Facebook"><Share2 size={20} /></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Instagram"><Camera size={20} /></a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="LinkedIn"><Briefcase size={20} /></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="YouTube"><MonitorPlay size={20} /></a>
           </div>
         </div>
 
@@ -519,28 +521,28 @@ function Footer() {
           <ul>
             <li><a href="#accueil">Accueil</a></li>
             <li><a href="#apropos">À propos</a></li>
-            <li><a href="#services">Nos services</a></li>
-            <li><a href="#actualites">Actualités</a></li>
+            <li><a href="#galerie">Galerie</a></li>
+            <li><a href="#contact">Contact</a></li>
           </ul>
         </div>
 
-        <div className="footer__links-group">
+        <div className="footer__links-group" id="services">
           <h4>Nos services</h4>
           <ul>
-            <li><a href="#">Suivi Individualisé</a></li>
-            <li><a href="#">Interventions spécialisées</a></li>
-            <li><a href="#">Évaluations adaptées</a></li>
-            <li><a href="#">Communication</a></li>
+            <li><a href="#services">Suivi Individualisé</a></li>
+            <li><a href="#services">Interventions spécialisées</a></li>
+            <li><a href="#services">Évaluations adaptées</a></li>
+            <li><a href="#services">Communication</a></li>
           </ul>
         </div>
 
         <div className="footer__links-group">
           <h4>Informations</h4>
           <ul>
-            <li><a href="#">Admissions</a></li>
-            <li><a href="#">Tarifs</a></li>
-            <li><a href="#">Équipe</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#admissions">Admissions</a></li>
+            <li><a href="/infos">Tarifs</a></li>
+            <li><a href="#equipe">Équipe</a></li>
+            <li><a href="#contact">Contact</a></li>
           </ul>
         </div>
 

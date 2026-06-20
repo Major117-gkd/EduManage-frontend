@@ -41,15 +41,15 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        setTeacherMessage('✅ Professeur ajouté avec succès !');
+        setTeacherMessage('Professeur ajouté avec succès !');
         setTeacherForm({ prenom: '', nom: '', matiere: '', email: '' });
         refreshData();
         setTimeout(() => { setIsTeacherModalOpen(false); setTeacherMessage(''); }, 1500);
       } else {
-        setTeacherMessage('❌ ' + (data.error || 'Erreur'));
+        setTeacherMessage('' + (data.error || 'Erreur'));
       }
     } catch {
-      setTeacherMessage('❌ Impossible de contacter le serveur');
+      setTeacherMessage('Impossible de contacter le serveur');
     }
     setTeacherSubmitting(false);
   };
@@ -66,15 +66,15 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('✅ ' + data.message);
+        setMessage('' + data.message);
         setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', classeId: '', annee_scolaire: '2024-2025' });
         refreshData();
         setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
       } else {
-        setMessage('❌ ' + (data.error || 'Erreur'));
+        setMessage('' + (data.error || 'Erreur'));
       }
     } catch {
-      setMessage('❌ Impossible de contacter le serveur');
+      setMessage('Impossible de contacter le serveur');
     }
     setSubmitting(false);
   };
@@ -368,7 +368,7 @@ export default function AdminDashboard() {
             
             <div className="modal-body">
               {message && (
-                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: message.startsWith('✅') ? '#d1fae5' : '#fee2e2', color: message.startsWith('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
+                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
                   {message}
                 </div>
               )}
@@ -469,7 +469,7 @@ export default function AdminDashboard() {
             </div>
             <div className="modal-body">
               {teacherMessage && (
-                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: teacherMessage.startsWith('✅') ? '#d1fae5' : '#fee2e2', color: teacherMessage.startsWith('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
+                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !teacherMessage.toLowerCase().includes('erreur') && !teacherMessage.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !teacherMessage.toLowerCase().includes('erreur') && !teacherMessage.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
                   {teacherMessage}
                 </div>
               )}
@@ -508,3 +508,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { UserPlus, Search, Eye, Edit, Trash2, X, Mail } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
@@ -29,15 +29,15 @@ export default function TeachersPage() {
         // Edit existing teacher's subjects
         const res = await fetch(`${API}/api/admin/professeurs/${editingId}/affectations`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ matieresIds: form.matieresIds }) });
         const data = await res.json();
-        if (res.ok) { setMessage('✅ Affectations mises à jour.'); loadData(); setTimeout(() => { closeModal(); }, 2000); }
-        else setMessage('❌ ' + (data.error || 'Erreur'));
+        if (res.ok) { setMessage('Affectations mises à jour.'); loadData(); setTimeout(() => { closeModal(); }, 2000); }
+        else setMessage('' + (data.error || 'Erreur'));
       } else {
         const res = await fetch(`${API}/api/admin/professeurs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
         const data = await res.json();
-        if (res.ok) { setMessage('✅ Professeur créé. Mot de passe par défaut: Prof2024'); loadData(); setTimeout(() => { closeModal(); }, 2000); }
-        else setMessage('❌ ' + (data.error || 'Erreur'));
+        if (res.ok) { setMessage('Professeur créé. Mot de passe par défaut: Prof2024'); loadData(); setTimeout(() => { closeModal(); }, 2000); }
+        else setMessage('' + (data.error || 'Erreur'));
       }
-    } catch { setMessage('❌ Impossible de contacter le serveur'); }
+    } catch { setMessage('Impossible de contacter le serveur'); }
     setSubmitting(false);
   };
 
@@ -123,7 +123,7 @@ export default function TeachersPage() {
               <button className="modal-close-btn" onClick={closeModal}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: message.startsWith('✅') ? '#d1fae5' : '#fee2e2', color: message.startsWith('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
+              {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
               <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '8px' }}>
                 ℹ️ Un compte de connexion sera automatiquement créé avec le mot de passe par défaut : <strong>Prof2024</strong>
               </p>
@@ -181,3 +181,5 @@ export default function TeachersPage() {
     </div>
   );
 }
+
+

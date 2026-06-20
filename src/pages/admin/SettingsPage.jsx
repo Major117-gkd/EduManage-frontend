@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { School, Lock, Bell, Shield, Save } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 
@@ -33,7 +33,7 @@ export default function SettingsPage() {
               <div className="modal-form-group"><label>Email</label><input type="email" value={schoolForm.email} onChange={e => setSchoolForm({...schoolForm, email: e.target.value})} placeholder="contact@gsp.edu" /></div>
             </div>
             <button className="btn-submit" style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', width: 'fit-content' }} onClick={() => handleSave('school')}>
-              <Save size={16} /> {saved === 'school' ? '✅ Enregistré !' : 'Enregistrer'}
+              <Save size={16} /> {saved === 'school' ? 'Enregistré !' : 'Enregistrer'}
             </button>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function SettingsPage() {
             <div className="modal-form-group"><label>Nouveau mot de passe</label><input type="password" value={pwForm.next} onChange={e => setPwForm({...pwForm, next: e.target.value})} /></div>
             <div className="modal-form-group"><label>Confirmer le nouveau mot de passe</label><input type="password" value={pwForm.confirm} onChange={e => setPwForm({...pwForm, confirm: e.target.value})} /></div>
             <button className="btn-submit" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', width: 'fit-content' }} onClick={() => handleSave('password')}>
-              <Save size={16} /> {saved === 'password' ? '✅ Mot de passe mis à jour !' : 'Changer le mot de passe'}
+              <Save size={16} /> {saved === 'password' ? 'Mot de passe mis à jour !' : 'Changer le mot de passe'}
             </button>
           </div>
         </div>
@@ -71,3 +71,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

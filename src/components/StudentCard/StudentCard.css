@@ -1,0 +1,546 @@
+/* src/components/StudentCard/StudentCard.css */
+
+.id-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.id-card {
+  width: 1000px;
+  height: 600px;
+  background: white;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  zoom: 0.68; /* Shrinks the card AND its layout footprint */
+}
+
+/* ─── FRONT CARD STYLES ─── */
+.front-bg-blue-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 440px;
+  height: 100%;
+  background: #0A2F6B;
+  border-bottom-right-radius: 80% 30%;
+  z-index: 1;
+}
+
+.front-bg-blue-dark {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 500px;
+  height: 300px;
+  background: #061c42;
+  border-top-right-radius: 100% 80%;
+  z-index: 0;
+}
+
+.front-bg-gold-wave {
+  position: absolute;
+  top: -100px;
+  left: 320px;
+  width: 250px;
+  height: 120%;
+  border-left: 35px solid #C59B27;
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.9;
+}
+
+.front-top-right-gold {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 120px;
+  background: #C59B27;
+  border-bottom-left-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  z-index: 2;
+}
+
+.id-card-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 40px); /* Leave room for footer */
+  display: flex;
+  z-index: 3;
+}
+
+.front-col-left {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem 2rem;
+  color: white;
+}
+
+.front-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.logo-circle {
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: white;
+  border: 6px solid #C59B27;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #0A2F6B;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.logo-gsp {
+  font-size: 4rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+  font-family: 'Georgia', serif;
+}
+
+.logo-sub {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0 0;
+  font-family: 'Georgia', serif;
+}
+
+.logo-ribbon {
+  position: absolute;
+  bottom: -20px;
+  background: #0A2F6B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 2px solid #C59B27;
+  white-space: nowrap;
+}
+
+.front-motto {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+}
+
+.motto-gold {
+  color: #C59B27;
+  font-size: 1.25rem;
+}
+
+.front-col-right {
+  flex: 1;
+  padding: 3rem 4rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.front-title {
+  color: #0A2F6B;
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.front-year {
+  color: #0A2F6B;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+}
+
+.front-details-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.front-photo-frame {
+  width: 180px;
+  height: 220px;
+  border: 4px solid #C59B27;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.front-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.front-info-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+}
+
+.info-label {
+  color: #0A2F6B;
+  font-weight: 700;
+  font-size: 1.05rem;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.info-nom {
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.front-qr {
+  margin-left: auto;
+  align-self: center;
+  border: 2px solid #e2e8f0;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: white;
+}
+
+.id-card-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: #0A2F6B;
+  border-top: 2px solid #C59B27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 3;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.footer-divider {
+  color: #C59B27;
+  font-weight: bold;
+}
+
+/* ─── BACK CARD STYLES ─── */
+.id-card-back {
+  display: flex;
+}
+
+.back-col-left {
+  width: 440px;
+  background: #0A2F6B;
+  padding: 3rem 2.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.back-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.back-brand h2 {
+  font-size: 3rem;
+  margin: 0;
+  font-family: 'Georgia', serif;
+  color: white;
+}
+
+.back-brand p {
+  font-size: 1.1rem;
+  margin: 0;
+  font-family: 'Georgia', serif;
+}
+
+.back-values {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.value-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.value-item h4 {
+  color: white;
+  font-size: 0.8rem;
+  margin: 0.75rem 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.value-item p {
+  font-size: 0.65rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.value-divider {
+  width: 1px;
+  height: 100px;
+  background: rgba(255,255,255,0.2);
+}
+
+.back-contact-box {
+  margin-top: auto;
+  border-top: 1px solid rgba(197, 155, 39, 0.5);
+  padding-top: 1.5rem;
+}
+
+.contact-box-title {
+  color: #C59B27;
+  font-size: 0.85rem;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.contact-box-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.back-col-right {
+  flex: 1;
+  background: white;
+  padding: 3rem 4rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.rules-header {
+  background: #0A2F6B;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 100px;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.rules-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.rules-list {
+  padding-left: 1.5rem;
+  font-size: 1.1rem;
+  color: #0f172a;
+  line-height: 1.8;
+  margin-bottom: 4rem;
+}
+
+.rules-list li::marker {
+  color: #0A2F6B;
+  font-size: 1.2em;
+}
+
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.label {
+  color: #0A2F6B;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.value {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #0f172a;
+  margin: 0;
+}
+
+.signature-block {
+  text-align: center;
+  margin-right: 2rem;
+}
+
+.stamp-box {
+  position: absolute;
+  right: -10px;
+  bottom: -40px;
+  transform: rotate(-15deg);
+}
+
+.stamp-circle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px dashed #0A2F6B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0A2F6B;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.stamp-inner {
+  border: 2px solid #0A2F6B;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stamp-inner strong {
+  font-size: 1.5rem;
+  font-family: 'Georgia', serif;
+}
+
+.stamp-inner small {
+  font-size: 0.6rem;
+  font-family: 'Georgia', serif;
+}
+
+.back-bottom-gold {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: #C59B27;
+  border-bottom-right-radius: 24px;
+}
+
+.back-bottom-text {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  text-align: center;
+  color: #0A2F6B;
+  font-weight: 800;
+  font-size: 1.05rem;
+  z-index: 2;
+  letter-spacing: 0.05em;
+}
+
+/* ─── PRINT MEDIA QUERY ─── */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  /* Force browser to print all colors, gradients, backgrounds exactly as on screen */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body.printing-card {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.printing-card * {
+    visibility: hidden;
+  }
+
+  body.printing-card .id-card-wrapper,
+  body.printing-card .id-card-wrapper * {
+    visibility: visible;
+  }
+
+  body.printing-card .id-card-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 297mm;
+    height: 210mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6mm;
+    padding: 6mm;
+    box-sizing: border-box;
+  }
+
+  body.printing-card .id-card {
+    width: 270mm !important;
+    height: 85mm !important;
+    zoom: 1 !important;           /* Reset zoom for print */
+    transform: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 5mm !important;
+    page-break-inside: avoid;
+    flex-shrink: 0;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-card .page-break-print {
+    display: none;
+  }
+}
