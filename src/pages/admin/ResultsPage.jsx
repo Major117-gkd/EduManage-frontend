@@ -94,7 +94,11 @@ export default function ResultsPage() {
       </div>
 
       {/* Class + Period Selector */}
-      <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+      <div className="admin-panel" style={{ marginBottom: '1rem' }}>
+        <div style={{ padding: '1rem 1.5rem', background: '#eff6ff', borderBottom: '1px solid #bfdbfe', color: '#1e40af', fontSize: '0.88rem' }}>
+          <strong>Moy. matière</strong> (sans coeff.) = (D1 + D2 + 2×Compo) / 4 ·{' '}
+          <strong>Moy. générale &amp; classement</strong> = Σ(moy. matière × coeff.) / Σ(coeff.)
+        </div>
         <div className="admin-panel__header">
           <h2 className="admin-panel__title">Filtres</h2>
         </div>
@@ -192,7 +196,7 @@ export default function ResultsPage() {
                   <th>Prof. responsable</th>
                   <th>Coefficient</th>
                   <th>Notes</th>
-                  <th>Moyenne</th>
+                  <th title="Sans coefficient de la matière">Moy. matière</th>
                   <th>Mention</th>
                 </tr>
               </thead>
@@ -214,11 +218,11 @@ export default function ResultsPage() {
                         ))}
                       </div>
                     </td>
-                    <td>
-                      <span style={{ fontWeight: 700, fontSize: '1.05rem', color: getMentionColor(m.moyenne) }}>
-                        {m.moyenne ? `${m.moyenne}/20` : '—'}
-                      </span>
-                    </td>
+                        <td>
+                          <span style={{ fontWeight: 700, fontSize: '1.05rem', color: getMentionColor(m.moyenne) }}>
+                            {m.moyenne !== null && m.moyenne !== undefined ? `${Number(m.moyenne).toFixed(2)}/20` : '—'}
+                          </span>
+                        </td>
                     <td>
                       {m.moyenne && (
                         <span style={{ padding: '0.2rem 0.65rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600, background: getMentionColor(m.moyenne) + '18', color: getMentionColor(m.moyenne) }}>
@@ -270,27 +274,28 @@ export default function ResultsPage() {
                 </thead>
                 <tbody>
                   {[...bulletins].sort((a, b) => {
-                    if (a.moyenneGenerale === null) return 1;
-                    if (b.moyenneGenerale === null) return -1;
-                    return parseFloat(b.moyenneGenerale) - parseFloat(a.moyenneGenerale);
-                  }).map((b, i) => {
-                    const moy = parseFloat(b.moyenneGenerale);
+                    if (a.rang === null && b.rang === null) return 0;
+                    if (a.rang === null) return 1;
+                    if (b.rang === null) return -1;
+                    return a.rang - b.rang;
+                  }).map((b) => {
+                    const moy = b.moyenneGenerale !== null ? parseFloat(b.moyenneGenerale) : NaN;
                     return (
-                      <tr key={b.eleveId} style={{ background: i === 0 && b.moyenneGenerale ? '#fffbeb' : 'transparent' }}>
+                      <tr key={b.eleveId} style={{ background: b.rang === 1 ? '#fffbeb' : 'transparent' }}>
                         <td>
-                          {i === 0 && b.moyenneGenerale ? (
+                          {b.rang === 1 ? (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <Trophy size={14} color="#f59e0b" /> <strong style={{ color: '#f59e0b' }}>1er</strong>
+                              <Trophy size={14} color="#f59e0b" /> <strong style={{ color: '#f59e0b' }}>{b.rang}{b.rang === 1 ? 'er' : ''}</strong>
                             </span>
                           ) : (
-                            <span style={{ color: '#64748b' }}>{b.moyenneGenerale ? i + 1 : '—'}</span>
+                            <span style={{ color: '#64748b' }}>{b.rang ?? '—'}</span>
                           )}
                         </td>
                         <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{b.matricule}</td>
                         <td style={{ fontWeight: 600, color: '#0f172a' }}>{b.nom} {b.prenom}</td>
                         <td>
                           <span style={{ fontWeight: 700, fontSize: '1.05rem', color: getMentionColor(b.moyenneGenerale) }}>
-                            {b.moyenneGenerale ? `${b.moyenneGenerale}/20` : <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Aucune note</span>}
+                            {b.moyenneGenerale !== null && b.moyenneGenerale !== undefined ? `${Number(b.moyenneGenerale).toFixed(2)}/20` : <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Aucune note</span>}
                           </span>
                         </td>
                         <td>

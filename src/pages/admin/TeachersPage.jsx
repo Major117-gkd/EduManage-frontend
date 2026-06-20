@@ -34,7 +34,12 @@ export default function TeachersPage() {
       } else {
         const res = await fetch(`${API}/api/admin/professeurs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
         const data = await res.json();
-        if (res.ok) { setMessage('Professeur créé. Mot de passe par défaut: Prof2024'); loadData(); setTimeout(() => { closeModal(); }, 2000); }
+        if (res.ok) {
+          const pwdInfo = data.motDePasseTemporaire ? ` Mot de passe : ${data.motDePasseTemporaire}` : '';
+          setMessage(`Professeur et compte créés (${data.utilisateur?.email || form.email}).${pwdInfo}`);
+          loadData();
+          setTimeout(() => { closeModal(); }, 2500);
+        }
         else setMessage('' + (data.error || 'Erreur'));
       }
     } catch { setMessage('Impossible de contacter le serveur'); }
@@ -93,7 +98,7 @@ export default function TeachersPage() {
         <div className="table-responsive">
           <table className="admin-table">
             <thead>
-              <tr><th>Nom Complet</th><th>Spécialité</th><th>Contact</th><th>Compte</th><th>Actions</th></tr>
+              <tr><th>Nom Complet</th><th>Spécialité</th><th>Contact</th><th>Compte utilisateur</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
@@ -102,8 +107,22 @@ export default function TeachersPage() {
                 <tr key={p.id}>
                   <td style={{ fontWeight: 600, color: '#0f172a' }}>{p.prenom} {p.nom}</td>
                   <td>{p.specialite || '—'}</td>
-                  <td style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b' }}><Mail size={14} />{p.contact || '—'}</td>
-                  <td><span className="status-badge status-badge--success">Actif</span></td>
+                  <td style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b' }}>
+                    <Mail size={14} />
+                    {p.contact || '—'}
+                  </td>
+                  <td>
+                    {p.utilisateur ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 500 }}>
+                          {p.utilisateur.email}
+                        </span>
+                        <span className="status-badge status-badge--success">PROFESSEUR</span>
+                      </div>
+                    ) : (
+                      <span className="status-badge status-badge--warning">Sans compte</span>
+                    )}
+                  </td>
                   <td style={{ display: 'flex', gap: '0.5rem' }}>
                     <button className="action-btn action-btn--edit" title="Gérer les affectations / Modifier" onClick={() => openModal(p)}><Edit size={16} /></button>
                     <button className="action-btn action-btn--delete" title="Supprimer"><Trash2 size={16} /></button>
@@ -125,7 +144,8 @@ export default function TeachersPage() {
             <div className="modal-body">
               {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
               <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '8px' }}>
-                ℹ️ Un compte de connexion sera automatiquement créé avec le mot de passe par défaut : <strong>Prof2024</strong>
+                Un compte utilisateur <strong>PROFESSEUR</strong> sera créé avec l&apos;email saisi
+                (nom complet : Prénom + Nom). Mot de passe par défaut : <strong>Prof2024</strong>
               </p>
               <form id="teacherForm" onSubmit={handleSubmit}>
                 {/* General Info (only for creation currently, backend route is missing full PUT, so disable for edit) */}

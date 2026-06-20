@@ -119,3 +119,359 @@
   cursor: not-allowed;
   background-color: transparent;
 }
+
+.grade-row--dirty td {
+  background-color: #fffbeb !important;
+}
+
+.grade-row--dirty td:last-child {
+  background-color: #fffbeb !important;
+}
+
+.grade-row--saved td {
+  animation: gradeSavedFlash 1.2s ease;
+}
+
+.grade-row--error td {
+  background-color: #fef2f2 !important;
+}
+
+.grade-row--error td:last-child {
+  background-color: #fef2f2 !important;
+}
+
+.grade-input--invalid {
+  box-shadow: inset 0 0 0 2px #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+@keyframes gradeSavedFlash {
+  0% { background-color: #d1fae5; }
+  100% { background-color: transparent; }
+}
+
+.grades-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.grades-btn-primary {
+  background: #0A2F6B !important;
+  color: white !important;
+  border: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grades-btn-secondary {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grades-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.grades-badge--warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.grades-alert {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.grades-alert--success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.grades-alert--error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.grades-alert--info {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.grades-step-panel {
+  margin-bottom: 1.5rem;
+}
+
+.grades-step-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grades-step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.grades-step-badge.active {
+  background: #0A2F6B;
+  color: white;
+}
+
+.grades-step-value {
+  color: #0A2F6B;
+  font-weight: 700;
+}
+
+.grades-chip-row,
+.grades-step-content,
+.grades-params-row {
+  padding: 1.25rem 1.5rem;
+}
+
+.grades-chip-row,
+.grades-params-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.grades-chip {
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: white;
+  color: #0f172a;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.grades-chip.active {
+  background: #0A2F6B;
+  color: white;
+  border-color: #0A2F6B;
+}
+
+.grades-select {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.grades-param-field {
+  margin-bottom: 0;
+  min-width: 160px;
+}
+
+.grades-empty-hint {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.grades-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.grades-period-label {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.grades-table-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.grades-progress-label {
+  font-weight: 600;
+  color: #0A2F6B;
+}
+
+.grades-summary-bar {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(2, minmax(100px, 0.6fr)) minmax(220px, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem 0;
+  align-items: center;
+}
+
+.grades-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.grades-summary-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.grades-progress-track {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.grades-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0A2F6B, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.grades-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+.grades-search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.85rem;
+  background: transparent;
+}
+
+.grades-keyboard-hint {
+  padding: 0.75rem 1.5rem 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.grades-keyboard-hint kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #f8fafc;
+  font-size: 0.72rem;
+}
+
+.grades-table-wrap {
+  margin: 0.75rem 1.5rem 1.5rem;
+}
+
+.grades-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.grades-weight {
+  display: block;
+  font-size: 0.65rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.grades-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 0.4rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  vertical-align: middle;
+}
+
+.grades-average-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: center;
+}
+
+.grades-mention {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1;
+}
+
+.grades-row-actions {
+  display: flex;
+  gap: 0.15rem;
+  padding: 0 0.25rem;
+  justify-content: center;
+}
+
+.grades-action-reset {
+  color: #64748b !important;
+}
+
+.grades-action-reset:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.grades-formula-note {
+  margin: 0 1.5rem 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-left: 3px solid #0A2F6B;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+@media (max-width: 900px) {
+  .grades-summary-bar {
+    grid-template-columns: 1fr;
+  }
+}

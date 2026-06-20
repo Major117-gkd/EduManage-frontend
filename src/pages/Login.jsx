@@ -3,23 +3,56 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Handshake, Heart, BookOpen, Star, Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import './Login.css';
 
+const API = 'http://localhost:5000';
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email.includes('admin')) {
-      navigate('/admin');
-    } else {
-      navigate('/teacher');
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`${API}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Identifiants incorrects.');
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('authUser', JSON.stringify(data.user));
+
+      if (data.user.role === 'ADMIN') {
+        navigate('/admin');
+      } else if (data.user.role === 'PROFESSEUR') {
+        navigate('/teacher');
+      } else {
+        setError('Rôle non pris en charge pour cette application.');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+      }
+    } catch {
+      setError('Impossible de contacter le serveur.');
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="login-container">
-      {/* Left Side - Image/Branding */}
       <div className="login-left">
         <div className="login-left-overlay">
           <Link to="/" className="login-back-home">
@@ -62,7 +95,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side - Form */}
       <div className="login-right">
         <div className="login-form-container">
           <div className="login-header-mobile">
@@ -77,6 +109,12 @@ export default function Login() {
             <h2>Bienvenue !</h2>
             <p>Connectez-vous à votre espace pour continuer.</p>
           </div>
+
+          {error && (
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#fee2e2', color: '#991b1b', fontSize: '0.9rem' }}>
+              {error}
+            </div>
+          )}
 
           <form className="login-form" onSubmit={handleLogin}>
             <div className="input-group">
@@ -99,8 +137,10 @@ export default function Login() {
               <div className="input-wrapper">
                 <span className="input-icon"><Lock size={18} /></span>
                 <input 
-                  type={showPassword ? "text" : "password"} 
-                  id="password" 
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Entrez votre mot de passe" 
                   required
                 />
@@ -121,8 +161,9 @@ export default function Login() {
               </label>
             </div>
 
-            <button type="submit" className="btn-login">
-              <span className="btn-icon"><ArrowRight size={18} /></span> Se connecter
+            <button type="submit" className="btn-login" disabled={loading}>
+              <span className="btn-icon"><ArrowRight size={18} /></span>
+              {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
 

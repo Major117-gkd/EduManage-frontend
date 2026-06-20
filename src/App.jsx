@@ -6,7 +6,9 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import StudentsPage from './pages/admin/StudentsPage'
 import TeachersPage from './pages/admin/TeachersPage'
 import ClassesPage from './pages/admin/ClassesPage'
+import GradesLayout from './pages/admin/GradesLayout'
 import GradesPage from './pages/admin/GradesPage'
+import GradesViewPage from './pages/admin/GradesViewPage'
 import ResultsPage from './pages/admin/ResultsPage'
 import SubjectsPage from './pages/admin/SubjectsPage'
 import AcademicYearsPage from './pages/admin/AcademicYearsPage'
@@ -29,8 +31,11 @@ function App() {
           <Route path="classes" element={<ClassesPage />} />
           <Route path="subjects" element={<SubjectsPage />} />
           <Route path="years" element={<AcademicYearsPage />} />
-          <Route path="grades" element={<GradesPage />} />
-          <Route path="grades/results" element={<ResultsPage />} />
+          <Route path="grades" element={<GradesLayout />}>
+            <Route index element={<GradesPage />} />
+            <Route path="consultation" element={<GradesViewPage />} />
+            <Route path="results" element={<ResultsPage />} />
+          </Route>
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="/teacher" element={<TeacherLayout />}>

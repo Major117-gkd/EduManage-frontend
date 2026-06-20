@@ -13,7 +13,13 @@ export default function AdminDashboard() {
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
   const [classes, setClasses] = useState([]);
   const [form, setForm] = useState({ prenom: '', nom: '', date_naissance: '', adresse: '', classeId: '', annee_scolaire: '2024-2025' });
-  const [teacherForm, setTeacherForm] = useState({ prenom: '', nom: '', matiere: '', email: '' });
+  const [teacherForm, setTeacherForm] = useState({
+    prenom: '',
+    nom: '',
+    specialite: '',
+    email: '',
+    contact: '',
+  });
   const [submitting, setSubmitting] = useState(false);
   const [teacherSubmitting, setTeacherSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -34,15 +40,27 @@ export default function AdminDashboard() {
     setTeacherSubmitting(true);
     setTeacherMessage('');
     try {
+      const payload = {
+        prenom: teacherForm.prenom.trim(),
+        nom: teacherForm.nom.trim(),
+        email: teacherForm.email.trim(),
+        specialite: teacherForm.specialite.trim(),
+        contact: teacherForm.contact.trim(),
+      };
       const res = await fetch(`${API}/api/admin/professeurs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(teacherForm)
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok) {
-        setTeacherMessage('Professeur ajouté avec succès !');
-        setTeacherForm({ prenom: '', nom: '', matiere: '', email: '' });
+        const pwdInfo = data.motDePasseTemporaire
+          ? ` Mot de passe temporaire : ${data.motDePasseTemporaire}`
+          : '';
+        setTeacherMessage(
+          `Professeur et compte créés (${data.utilisateur?.email || teacherForm.email}).${pwdInfo}`
+        );
+        setTeacherForm({ prenom: '', nom: '', specialite: '', email: '', contact: '' });
         refreshData();
         setTimeout(() => { setIsTeacherModalOpen(false); setTeacherMessage(''); }, 1500);
       } else {
@@ -473,6 +491,10 @@ export default function AdminDashboard() {
                   {teacherMessage}
                 </div>
               )}
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '8px' }}>
+                Un compte utilisateur <strong>PROFESSEUR</strong> sera créé automatiquement avec l&apos;email saisi.
+                Mot de passe par défaut : <strong>Prof2024</strong>
+              </p>
               <form id="addTeacherForm" onSubmit={handleTeacherSubmit}>
                 <div className="modal-form-row">
                   <div className="modal-form-group">
@@ -484,14 +506,18 @@ export default function AdminDashboard() {
                     <input type="text" value={teacherForm.nom} onChange={e => setTeacherForm({...teacherForm, nom: e.target.value})} placeholder="Ex: Diallo" required />
                   </div>
                 </div>
+                <div className="modal-form-group">
+                  <label>Adresse e-mail (identifiant de connexion)</label>
+                  <input type="email" value={teacherForm.email} onChange={e => setTeacherForm({...teacherForm, email: e.target.value})} placeholder="Ex: prof@ecole.com" required />
+                </div>
                 <div className="modal-form-row">
                   <div className="modal-form-group">
-                    <label>Matière enseignée</label>
-                    <input type="text" value={teacherForm.matiere} onChange={e => setTeacherForm({...teacherForm, matiere: e.target.value})} placeholder="Ex: Mathématiques" required />
+                    <label>Spécialité / Matière</label>
+                    <input type="text" value={teacherForm.specialite} onChange={e => setTeacherForm({...teacherForm, specialite: e.target.value})} placeholder="Ex: Mathématiques" />
                   </div>
                   <div className="modal-form-group">
-                    <label>Email (optionnel)</label>
-                    <input type="email" value={teacherForm.email} onChange={e => setTeacherForm({...teacherForm, email: e.target.value})} placeholder="Ex: prof@ecole.com" />
+                    <label>Téléphone</label>
+                    <input type="text" value={teacherForm.contact} onChange={e => setTeacherForm({...teacherForm, contact: e.target.value})} placeholder="Ex: +224 620 000 000" />
                   </div>
                 </div>
               </form>

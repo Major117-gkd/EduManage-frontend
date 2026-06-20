@@ -29,7 +29,7 @@ export default function TeacherDashboard() {
     });
 
     // 2. Récupérer les matières du prof
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     fetch(`${API}/api/teacher/matieres`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -46,7 +46,7 @@ export default function TeacherDashboard() {
     setMessage('');
     setNotes({});
     if (activeYear) {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       fetch(`${API}/api/teacher/matieres/${m.id}/eleves?annee_scolaire=${activeYear}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -75,7 +75,7 @@ export default function TeacherDashboard() {
     }));
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const res = await fetch(`${API}/api/teacher/notes`, {
         method: 'POST',
         headers: { 

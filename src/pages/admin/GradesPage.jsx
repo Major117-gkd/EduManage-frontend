@@ -1,346 +1,628 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Plus, Save, ChevronRight, Users, X, Trash2, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import {
+  Save,
+  Users,
+  BarChart3,
+  Search,
+  RotateCcw,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
 import './ExcelTable.css';
+import {
+  PERIODES,
+  GRADE_COLUMNS,
+  buildGradesMap,
+  cloneGradesMap,
+  normalizeGradeInput,
+  finalizeGradeValue,
+  isValidGradeValue,
+  calculateSubjectAverage,
+  formatAverage,
+  getMention,
+  getMentionColor,
+  applyAutoAppreciation,
+  rowHasSavedNotes,
+  isRowDirty,
+  countDirtyRows,
+  getClassStats,
+  getCompletionStats,
+  getNextInputId,
+  getPrevInputId,
+  saveStudentGrades,
+  validateRowBeforeSave,
+  createEmptyGradeRow,
+} from '../../utils/gradeEntry';
 
 const API = 'http://localhost:5000';
 
-const PERIODES = ['Trimestre 1', 'Trimestre 2', 'Trimestre 3', 'Semestre 1', 'Semestre 2'];
-const TYPES_EVAL = ['Devoir', 'Composition', 'Interrogation', 'TP', 'Projet'];
-
 export default function GradesPage() {
   const navigate = useNavigate();
+  const tableRef = useRef(null);
 
-  // Step 0: Select level
   const [selectedNiveau, setSelectedNiveau] = useState('');
-
-  // Step 1: Select class
   const [classes, setClasses] = useState([]);
   const [selectedClasse, setSelectedClasse] = useState(null);
-
-  // Step 2: Select subject
   const [matieres, setMatieres] = useState([]);
   const [selectedMatiere, setSelectedMatiere] = useState(null);
-
-  // Step 3: Select period & params
   const [periode, setPeriode] = useState('Trimestre 1');
-  const [annee, setAnnee] = useState('2024-2025');
+  const [annee, setAnnee] = useState('');
+  const [annees, setAnnees] = useState([]);
 
-  // Step 4: Students + grades
   const [eleves, setEleves] = useState([]);
-  const [grades, setGrades] = useState({}); // { eleveId: { valeur, appreciation } }
-  const [savingIds, setSavingIds] = useState({});
-  const [saveMsg, setSaveMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [grades, setGrades] = useState({});
+  const [snapshot, setSnapshot] = useState({});
+  const [search, setSearch] = useState('');
 
-  // Load classes
+  const [loading, setLoading] = useState(false);
+  const [savingIds, setSavingIds] = useState({});
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [rowStatus, setRowStatus] = useState({});
+  const [saveMsg, setSaveMsg] = useState('');
+  const [saveMsgType, setSaveMsgType] = useState('success');
+
+  const studentIds = useMemo(() => eleves.map((e) => e.eleveId), [eleves]);
+  const dirtyCount = useMemo(() => countDirtyRows(grades, snapshot), [grades, snapshot]);
+  const completion = useMemo(() => getCompletionStats(grades, studentIds), [grades, studentIds]);
+  const classStats = useMemo(() => getClassStats(grades, studentIds), [grades, studentIds]);
+
+  const filteredEleves = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return eleves;
+    return eleves.filter((e) =>
+      `${e.nom} ${e.prenom} ${e.matricule}`.toLowerCase().includes(q)
+    );
+  }, [eleves, search]);
+
+  const showMessage = (text, type = 'success') => {
+    setSaveMsg(text);
+    setSaveMsgType(type);
+    if (type === 'success') {
+      setTimeout(() => setSaveMsg(''), 3500);
+    }
+  };
+
+  const resetSelection = () => {
+    setSelectedClasse(null);
+    setSelectedMatiere(null);
+    setEleves([]);
+    setGrades({});
+    setSnapshot({});
+    setRowStatus({});
+  };
+
+  const confirmIfDirty = () => {
+    if (dirtyCount === 0) return true;
+    return window.confirm(
+      `${dirtyCount} ligne(s) contiennent des modifications non enregistrées. Continuer sans sauvegarder ?`
+    );
+  };
+
   useEffect(() => {
-    fetch(`${API}/api/admin/classes`).then(r => r.json()).then(d => { if (Array.isArray(d)) setClasses(d); }).catch(() => {});
+    fetch(`${API}/api/admin/classes`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) setClasses(d);
+      })
+      .catch(() => {});
+
+    fetch(`${API}/api/admin/annees`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!Array.isArray(d)) return;
+        setAnnees(d);
+        const active = d.find((y) => y.active);
+        if (active) setAnnee(active.nom);
+      })
+      .catch(() => {});
   }, []);
 
-  // Derived: unique levels from all classes
-  const niveaux = [...new Set(classes.map(c => c.niveau))].sort();
-  // Derived: classes filtered by selected level
-  const classesFiltrees = selectedNiveau ? classes.filter(c => c.niveau === selectedNiveau) : [];
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (dirtyCount > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [dirtyCount]);
 
-  // Load subjects when class is selected
+  const niveaux = [...new Set(classes.map((c) => c.niveau))].sort();
+  const classesFiltrees = selectedNiveau ? classes.filter((c) => c.niveau === selectedNiveau) : [];
+
   const selectClasse = (c) => {
+    if (!confirmIfDirty()) return;
     setSelectedClasse(c);
     setSelectedMatiere(null);
     setEleves([]);
     setGrades({});
-    fetch(`${API}/api/admin/classes/${c.id}/matieres`).then(r => r.json()).then(d => { if (Array.isArray(d)) setMatieres(d); }).catch(() => {});
+    setSnapshot({});
+    setRowStatus({});
+    fetch(`${API}/api/admin/classes/${c.id}/matieres`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) setMatieres(d);
+      })
+      .catch(() => {});
   };
 
-  // Load students + grades when subject+period selected
-  const loadEleves = () => {
-    if (!selectedClasse || !selectedMatiere) return;
+  const loadEleves = useCallback(() => {
+    if (!selectedClasse || !selectedMatiere || !annee) return;
+
     setLoading(true);
-    fetch(`${API}/api/admin/classes/${selectedClasse.id}/matieres/${selectedMatiere.id}/notes?periode=${encodeURIComponent(periode)}`)
-      .then(r => r.json())
-      .then(data => {
+    const params = new URLSearchParams({
+      periode,
+      annee_scolaire: annee,
+    });
+
+    fetch(
+      `${API}/api/admin/classes/${selectedClasse.id}/matieres/${selectedMatiere.id}/notes?${params}`
+    )
+      .then((r) => r.json())
+      .then((data) => {
         if (Array.isArray(data)) {
           setEleves(data);
-          const g = {};
-          data.forEach(e => {
-            const d1 = e.notes.find(n => n.type_evaluation === 'Devoir 1');
-            const d2 = e.notes.find(n => n.type_evaluation === 'Devoir 2');
-            const compo = e.notes.find(n => n.type_evaluation === 'Composition');
-            const app = compo?.appreciation || d2?.appreciation || d1?.appreciation || '';
-            g[e.eleveId] = {
-              d1: d1 ? d1.valeur : '', d1Id: d1 ? d1.id : null,
-              d2: d2 ? d2.valeur : '', d2Id: d2 ? d2.id : null,
-              compo: compo ? compo.valeur : '', compoId: compo ? compo.id : null,
-              appreciation: app
-            };
-          });
-          setGrades(g);
+          const map = buildGradesMap(data, { periode, anneeScolaire: annee });
+          setGrades(map);
+          setSnapshot(cloneGradesMap(map));
+          setRowStatus({});
         }
-        setLoading(false);
-      }).catch(() => setLoading(false));
-  };
+      })
+      .catch(() => showMessage('Impossible de charger les élèves.', 'error'))
+      .finally(() => setLoading(false));
+  }, [selectedClasse, selectedMatiere, periode, annee]);
 
-  useEffect(() => { if (selectedMatiere) loadEleves(); }, [selectedMatiere, periode]);
+  useEffect(() => {
+    if (selectedMatiere && annee) loadEleves();
+  }, [selectedMatiere, periode, annee, loadEleves]);
 
-  const handleGradeChange = (eleveId, field, value) => {
-    if (field !== 'appreciation' && value !== '') {
-      let num = parseFloat(value);
-      if (num > 20) value = '20';
-      if (num < 0) value = '0';
-    }
-    setGrades(g => ({ ...g, [eleveId]: { ...g[eleveId], [field]: value } }));
-  };
+  const updateGradeField = (eleveId, field, rawValue) => {
+    setGrades((prev) => {
+      const current = prev[eleveId] || createEmptyGradeRow();
+      let next = { ...current };
 
-  const handleSaveSingle = async (eleveId) => {
-    const g = grades[eleveId];
-    if (!g) return;
-    setSavingIds(prev => ({ ...prev, [eleveId]: true }));
-    setSaveMsg('');
+      if (field === 'appreciation') {
+        next.appreciation = rawValue;
+        next.appreciationManual = true;
+      } else {
+        const normalized = normalizeGradeInput(rawValue);
+        if (normalized === null) return prev;
+        next[field] = normalized;
 
-    const saveNote = async (valeur, type, idToDelete) => {
-      if (valeur === '' || valeur === null) {
-        if (idToDelete) await fetch(`${API}/api/admin/notes/${idToDelete}`, { method: 'DELETE' }).catch(()=>{});
-        return;
+        if (!next.appreciationManual) {
+          next = applyAutoAppreciation(next);
+        }
       }
-      await fetch(`${API}/api/admin/notes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          eleveId: eleveId,
-          matiereId: selectedMatiere.id,
-          valeur: parseFloat(valeur),
-          type_evaluation: type,
-          periode,
-          annee_scolaire: annee,
-          appreciation: g.appreciation || ''
-        })
-      });
-    };
+
+      return { ...prev, [eleveId]: next };
+    });
+
+    setRowStatus((prev) => ({ ...prev, [eleveId]: undefined }));
+  };
+
+  const finalizeGradeField = (eleveId, field) => {
+    if (field === 'appreciation') return;
+
+    setGrades((prev) => {
+      const current = prev[eleveId];
+      if (!current) return prev;
+
+      const finalized = finalizeGradeValue(current[field]);
+      let next = { ...current, [field]: finalized };
+
+      if (!next.appreciationManual) {
+        next = applyAutoAppreciation(next);
+      }
+
+      return { ...prev, [eleveId]: next };
+    });
+  };
+
+  const discardRow = (eleveId) => {
+    if (!snapshot[eleveId]) return;
+    setGrades((prev) => ({ ...prev, [eleveId]: { ...snapshot[eleveId] } }));
+    setRowStatus((prev) => ({ ...prev, [eleveId]: undefined }));
+  };
+
+  const handleSaveSingle = useCallback(async (eleveId, { silent = false, reload = true } = {}) => {
+    const row = grades[eleveId];
+    if (!row || !selectedMatiere) return { ok: false };
+
+    const errors = validateRowBeforeSave(row);
+    if (errors.length > 0) {
+      if (!silent) showMessage(errors[0], 'error');
+      setRowStatus((prev) => ({ ...prev, [eleveId]: 'error' }));
+      return { ok: false };
+    }
+
+    setSavingIds((prev) => ({ ...prev, [eleveId]: true }));
 
     try {
-      await Promise.all([
-        saveNote(g.d1, 'Devoir 1', g.d1Id),
-        saveNote(g.d2, 'Devoir 2', g.d2Id),
-        saveNote(g.compo, 'Composition', g.compoId)
-      ]);
-      setSaveMsg('Notes enregistrées avec succès !');
-      loadEleves();
-      setTimeout(() => setSaveMsg(''), 3000);
-    } catch {
-      setSaveMsg('Erreur lors de la sauvegarde.');
+      await saveStudentGrades({
+        apiBase: API,
+        eleveId,
+        matiereId: selectedMatiere.id,
+        periode,
+        anneeScolaire: annee,
+        row,
+      });
+
+      setRowStatus((prev) => ({ ...prev, [eleveId]: 'saved' }));
+      setTimeout(() => {
+        setRowStatus((prev) => ({ ...prev, [eleveId]: undefined }));
+      }, 2000);
+
+      if (!silent) showMessage('Notes enregistrées avec succès.');
+      if (reload) await loadEleves();
+      return { ok: true };
+    } catch (err) {
+      setRowStatus((prev) => ({ ...prev, [eleveId]: 'error' }));
+      if (!silent) showMessage(err.message || 'Erreur lors de la sauvegarde.', 'error');
+      return { ok: false };
+    } finally {
+      setSavingIds((prev) => ({ ...prev, [eleveId]: false }));
     }
-    setSavingIds(prev => ({ ...prev, [eleveId]: false }));
-  };
+  }, [grades, selectedMatiere, periode, annee, loadEleves]);
 
-  const handleKeyDown = (e, index, field) => {
-    if (e.key === 'ArrowDown' || e.key === 'Enter') {
-      e.preventDefault();
-      const nextInput = document.getElementById(`input-${field}-${index + 1}`);
-      if (nextInput) nextInput.focus();
-      else if (e.key === 'Enter') handleSaveSingle(eleves[index].eleveId);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      const prevInput = document.getElementById(`input-${field}-${index - 1}`);
-      if (prevInput) prevInput.focus();
+  const handleSaveAll = useCallback(async () => {
+    const dirtyIds = studentIds.filter((id) => isRowDirty(grades[id], snapshot[id]));
+    if (dirtyIds.length === 0) {
+      showMessage('Aucune modification à enregistrer.', 'info');
+      return;
+    }
+
+    setBulkSaving(true);
+    let success = 0;
+    let failed = 0;
+
+    for (const eleveId of dirtyIds) {
+      const result = await handleSaveSingle(eleveId, { silent: true, reload: false });
+      if (result.ok) success += 1;
+      else failed += 1;
+    }
+
+    await loadEleves();
+    setBulkSaving(false);
+
+    if (failed === 0) {
+      showMessage(`${success} ligne(s) enregistrée(s) avec succès.`);
+    } else {
+      showMessage(`${success} enregistrée(s), ${failed} en échec.`, 'error');
+    }
+  }, [studentIds, grades, snapshot, handleSaveSingle, loadEleves]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (dirtyCount > 0 && !bulkSaving) handleSaveAll();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dirtyCount, bulkSaving, handleSaveAll]);
+
+  const focusInput = (id) => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) {
+      el.focus();
+      el.select?.();
     }
   };
 
-  const getMoyenne = (eleveId) => {
-    const g = grades[eleveId];
-    if (!g) return '—';
-    let sum = 0, count = 0;
-    if (g.d1 !== '') { sum += parseFloat(g.d1); count++; }
-    if (g.d2 !== '') { sum += parseFloat(g.d2); count++; }
-    if (g.compo !== '') { sum += parseFloat(g.compo) * 2; count += 2; }
-    return count > 0 ? (sum / count).toFixed(2) : '—';
+  const handleKeyDown = (e, index, field, eleveId) => {
+    const moveNext = () => focusInput(getNextInputId(field, index));
+    const movePrev = () => focusInput(getPrevInputId(field, index));
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        handleSaveSingle(eleveId);
+        return;
+      }
+      moveNext();
+      return;
+    }
+
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault();
+      moveNext();
+      return;
+    }
+
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      movePrev();
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusInput(`input-${field}-${index + 1}`);
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusInput(`input-${field}-${index - 1}`);
+    }
   };
 
-  const getMentionColor = (val) => {
-    const v = parseFloat(val);
-    if (isNaN(v)) return '#94a3b8';
-    if (v >= 16) return '#059669';
-    if (v >= 14) return '#10b981';
-    if (v >= 10) return '#d97706';
-    return '#dc2626';
+  const handleNiveauChange = (n) => {
+    if (!confirmIfDirty()) return;
+    setSelectedNiveau(n);
+    resetSelection();
   };
 
-  const getMention = (val) => {
-    const v = parseFloat(val);
-    if (isNaN(v)) return '';
-    if (v >= 16) return 'Très Bien';
-    if (v >= 14) return 'Bien';
-    if (v >= 12) return 'Assez Bien';
-    if (v >= 10) return 'Passable';
-    return 'Insuffisant';
+  const handleMatiereChange = (m) => {
+    if (!confirmIfDirty()) return;
+    setSelectedMatiere(m);
+  };
+
+  const handlePeriodeChange = (value) => {
+    if (!confirmIfDirty()) return;
+    setPeriode(value);
+  };
+
+  const getRowClassName = (eleveId) => {
+    const classes = [];
+    if (rowHasSavedNotes(grades[eleveId])) classes.push('selected-row');
+    if (isRowDirty(grades[eleveId], snapshot[eleveId])) classes.push('grade-row--dirty');
+    if (rowStatus[eleveId] === 'saved') classes.push('grade-row--saved');
+    if (rowStatus[eleveId] === 'error') classes.push('grade-row--error');
+    return classes.join(' ');
   };
 
   return (
     <div className="admin-dashboard">
-      {/* Header */}
-      <div className="admin-dashboard__header">
-        <h1 className="admin-title">Saisie des Notes</h1>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="admin-dashboard__header grades-page-header">
+        <div className="grades-toolbar">
+          {selectedClasse && selectedMatiere && dirtyCount > 0 && (
+            <span className="grades-badge grades-badge--warning">
+              <AlertTriangle size={14} />
+              {dirtyCount} modification(s) non enregistrée(s)
+            </span>
+          )}
           {selectedClasse && (
-            <button className="btn" style={{ background: '#f1f5f9', color: '#0f172a', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-              onClick={() => navigate('/admin/grades/results')}>
+            <button
+              type="button"
+              className="btn grades-btn-secondary"
+              onClick={() => navigate('/admin/grades/results')}
+            >
               <BarChart3 size={18} /> Voir les bulletins
+            </button>
+          )}
+          {selectedMatiere && dirtyCount > 0 && (
+            <button
+              type="button"
+              className="btn grades-btn-primary"
+              onClick={handleSaveAll}
+              disabled={bulkSaving}
+            >
+              {bulkSaving ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+              Tout enregistrer ({dirtyCount})
             </button>
           )}
         </div>
       </div>
 
       {saveMsg && (
-        <div style={{ marginBottom: '1rem', padding: '0.85rem 1.25rem', borderRadius: '10px', background: !saveMsg.toLowerCase().includes('erreur') && !saveMsg.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !saveMsg.toLowerCase().includes('erreur') && !saveMsg.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontWeight: 500 }}>
-          {saveMsg}
+        <div className={`grades-alert grades-alert--${saveMsgType}`}>{saveMsg}</div>
+      )}
+
+      {!annee && (
+        <div className="grades-alert grades-alert--error">
+          Aucune année scolaire active. Définissez-en une dans « Années Scolaires ».
         </div>
       )}
 
-      {/* STEP 1 - Select Level */}
-      <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+      <div className="admin-panel grades-step-panel">
         <div className="admin-panel__header">
-          <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ width: 24, height: 24, borderRadius: '50%', background: selectedNiveau ? '#0A2F6B' : '#e2e8f0', color: selectedNiveau ? 'white' : '#64748b', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>1</span>
+          <h2 className="admin-panel__title grades-step-title">
+            <span className={`grades-step-badge ${selectedNiveau ? 'active' : ''}`}>1</span>
             Sélectionner le Niveau
-            {selectedNiveau && <span style={{ color: '#0A2F6B', fontWeight: 700 }}> — {selectedNiveau}</span>}
+            {selectedNiveau && <span className="grades-step-value"> — {selectedNiveau}</span>}
           </h2>
         </div>
-        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {niveaux.length === 0
-            ? <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>Aucune classe créée.</p>
-            : niveaux.map(n => (
-                <button key={n} onClick={() => { setSelectedNiveau(n); setSelectedClasse(null); setSelectedMatiere(null); setEleves([]); setGrades({}); }}
-                  style={{
-                    padding: '0.55rem 1.25rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem',
-                    background: selectedNiveau === n ? '#0A2F6B' : 'white',
-                    color: selectedNiveau === n ? 'white' : '#0f172a',
-                    border: `2px solid ${selectedNiveau === n ? '#0A2F6B' : '#e2e8f0'}`,
-                    transition: 'all 0.2s'
-                  }}>
-                  {n}
-                </button>
-              ))
-          }
+        <div className="grades-chip-row">
+          {niveaux.length === 0 ? (
+            <p className="grades-empty-hint">Aucune classe créée.</p>
+          ) : (
+            niveaux.map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => handleNiveauChange(n)}
+                className={`grades-chip ${selectedNiveau === n ? 'active' : ''}`}
+              >
+                {n}
+              </button>
+            ))
+          )}
         </div>
       </div>
 
-      {/* STEP 2 - Select Class */}
       {selectedNiveau && (
-        <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+        <div className="admin-panel grades-step-panel">
           <div className="admin-panel__header">
-            <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ width: 24, height: 24, borderRadius: '50%', background: selectedClasse ? '#0A2F6B' : '#e2e8f0', color: selectedClasse ? 'white' : '#64748b', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>2</span>
+            <h2 className="admin-panel__title grades-step-title">
+              <span className={`grades-step-badge ${selectedClasse ? 'active' : ''}`}>2</span>
               Sélectionner la Classe
-              {selectedClasse && <span style={{ color: '#0A2F6B', fontWeight: 700 }}> — {selectedClasse.nom}</span>}
+              {selectedClasse && <span className="grades-step-value"> — {selectedClasse.nom}</span>}
             </h2>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
-            {classesFiltrees.length === 0
-              ? <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>Aucune classe pour ce niveau.</p>
-              : <select
-                  value={selectedClasse?.id || ''}
-                  onChange={e => {
-                    const c = classesFiltrees.find(x => x.id === parseInt(e.target.value));
-                    if (c) selectClasse(c);
-                  }}
-                  style={{
-                    width: '100%', maxWidth: '360px', padding: '0.65rem 1rem',
-                    borderRadius: '10px', border: '2px solid #e2e8f0',
-                    fontSize: '0.95rem', fontWeight: 600, color: '#0f172a',
-                    background: 'white', cursor: 'pointer', outline: 'none',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                  }}
-                >
-                  <option value="">-- Choisir une classe --</option>
-                  {classesFiltrees.map(c => (
-                    <option key={c.id} value={c.id}>{c.nom}</option>
-                  ))}
-                </select>
-            }
+          <div className="grades-step-content">
+            {classesFiltrees.length === 0 ? (
+              <p className="grades-empty-hint">Aucune classe pour ce niveau.</p>
+            ) : (
+              <select
+                value={selectedClasse?.id || ''}
+                onChange={(e) => {
+                  const c = classesFiltrees.find((x) => x.id === parseInt(e.target.value, 10));
+                  if (c) selectClasse(c);
+                }}
+                className="grades-select"
+              >
+                <option value="">-- Choisir une classe --</option>
+                {classesFiltrees.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nom}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
       )}
 
-      {/* STEP 3 - Select Subject */}
       {selectedClasse && (
-        <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+        <div className="admin-panel grades-step-panel">
           <div className="admin-panel__header">
-            <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ width: 24, height: 24, borderRadius: '50%', background: selectedMatiere ? '#0A2F6B' : '#e2e8f0', color: selectedMatiere ? 'white' : '#64748b', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>3</span>
+            <h2 className="admin-panel__title grades-step-title">
+              <span className={`grades-step-badge ${selectedMatiere ? 'active' : ''}`}>3</span>
               Sélectionner la Matière
-              {selectedMatiere && <span style={{ color: '#0A2F6B', fontWeight: 700 }}> — {selectedMatiere.nom}</span>}
+              {selectedMatiere && (
+                <span className="grades-step-value"> — {selectedMatiere.nom}</span>
+              )}
             </h2>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
-            {matieres.length === 0
-              ? <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>Aucune matière pour cette classe. Ajoutez-en une.</p>
-              : <select
-                  value={selectedMatiere?.id || ''}
-                  onChange={e => {
-                    const m = matieres.find(x => x.id === parseInt(e.target.value));
-                    if (m) setSelectedMatiere(m);
-                  }}
-                  style={{
-                    width: '100%', maxWidth: '360px', padding: '0.65rem 1rem',
-                    borderRadius: '10px', border: '2px solid #e2e8f0',
-                    fontSize: '0.95rem', fontWeight: 600, color: '#0f172a',
-                    background: 'white', cursor: 'pointer', outline: 'none',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                  }}
-                >
-                  <option value="">-- Choisir une matière --</option>
-                  {matieres.map(m => (
-                    <option key={m.id} value={m.id}>{m.nom} (Coeff. {m.coefficient})</option>
+          <div className="grades-step-content">
+            {matieres.length === 0 ? (
+              <p className="grades-empty-hint">Aucune matière pour cette classe.</p>
+            ) : (
+              <select
+                value={selectedMatiere?.id || ''}
+                onChange={(e) => {
+                  const m = matieres.find((x) => x.id === parseInt(e.target.value, 10));
+                  if (m) handleMatiereChange(m);
+                }}
+                className="grades-select"
+              >
+                <option value="">-- Choisir une matière --</option>
+                  {matieres.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.nom}
+                    </option>
                   ))}
-                </select>
-            }
+              </select>
+            )}
           </div>
         </div>
       )}
 
-      {/* STEP 4 - Period/eval params */}
       {selectedMatiere && (
-        <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+        <div className="admin-panel grades-step-panel">
           <div className="admin-panel__header">
-            <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#0A2F6B', color: 'white', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>4</span>
-              Paramètres de l'évaluation
+            <h2 className="admin-panel__title grades-step-title">
+              <span className="grades-step-badge active">4</span>
+              Paramètres de l&apos;évaluation
             </h2>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-            <div className="modal-form-group" style={{ marginBottom: 0, minWidth: 160 }}>
+          <div className="grades-params-row">
+            <div className="modal-form-group grades-param-field">
               <label>Période</label>
-              <select value={periode} onChange={e => setPeriode(e.target.value)}>
-                {PERIODES.map(p => <option key={p}>{p}</option>)}
+              <select value={periode} onChange={(e) => handlePeriodeChange(e.target.value)}>
+                {PERIODES.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
               </select>
             </div>
-            <div className="modal-form-group" style={{ marginBottom: 0, minWidth: 140 }}>
+            <div className="modal-form-group grades-param-field">
               <label>Année scolaire</label>
-              <input type="text" value={annee} onChange={e => setAnnee(e.target.value)} placeholder="2024-2025" />
+              <select value={annee} onChange={(e) => setAnnee(e.target.value)} disabled={!annees.length}>
+                {annees.map((a) => (
+                  <option key={a.id} value={a.nom}>
+                    {a.nom} {a.active ? '(Active)' : ''}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+          <p className="grades-formula-note">
+            Moy. matière (colonne « Moy. ») : calculée sans coefficient de la matière.
+            Le coefficient s&apos;applique uniquement à la moyenne générale et au classement.
+          </p>
         </div>
       )}
 
-      {/* STEP 4 - Grade table */}
       {selectedMatiere && (
         <div className="admin-panel">
-          <div className="admin-panel__header">
-            <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="admin-panel__header grades-table-header">
+            <h2 className="admin-panel__title">
               <Users size={18} color="#0A2F6B" />
-              Élèves de {selectedClasse.nom} — {selectedMatiere.nom}
-              <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#64748b' }}>({periode})</span>
+              {selectedClasse.nom} — {selectedMatiere.nom}
+              <span className="grades-period-label">({periode})</span>
             </h2>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{eleves.length} élève(s) inscrits</span>
+            <div className="grades-table-meta">
+              <span>{eleves.length} élève(s)</span>
+              {completion.total > 0 && (
+                <span className="grades-progress-label">
+                  {completion.complete}/{completion.total} complets ({completion.percent}%)
+                </span>
+              )}
+            </div>
           </div>
-          <div className="excel-table-container" style={{ margin: '0 1.5rem 1.5rem' }}>
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Chargement des élèves...</div>
-            ) : eleves.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                Aucun élève validé dans cette classe. Vérifiez les inscriptions.
+
+          {eleves.length > 0 && (
+            <div className="grades-summary-bar">
+              <div className="grades-summary-item">
+                <span className="grades-summary-label">Progression</span>
+                <div className="grades-progress-track">
+                  <div
+                    className="grades-progress-fill"
+                    style={{ width: `${completion.percent}%` }}
+                  />
+                </div>
               </div>
+              <div className="grades-summary-item">
+                <span className="grades-summary-label">Moy. classe</span>
+                <strong style={{ color: getMentionColor(classStats.average) }}>
+                  {classStats.average !== null ? formatAverage(classStats.average) : '—'}
+                </strong>
+              </div>
+              <div className="grades-summary-item">
+                <span className="grades-summary-label">Min / Max</span>
+                <strong>
+                  {classStats.min !== null
+                    ? `${formatAverage(classStats.min)} / ${formatAverage(classStats.max)}`
+                    : '—'}
+                </strong>
+              </div>
+              <div className="grades-search-wrap">
+                <Search size={16} color="#94a3b8" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Rechercher un élève..."
+                  className="grades-search-input"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="grades-keyboard-hint">
+            <kbd>Tab</kbd> ou <kbd>Entrée</kbd> : cellule suivante · <kbd>Shift+Entrée</kbd> : enregistrer la ligne ·{' '}
+            <kbd>Ctrl+S</kbd> : tout enregistrer · Moy. matière = (D1 + D2 + 2×Compo) / 4, sans coeff. matière
+          </div>
+
+          <div className="excel-table-container grades-table-wrap" ref={tableRef}>
+            {loading ? (
+              <div className="grades-loading">Chargement des élèves...</div>
+            ) : eleves.length === 0 ? (
+              <div className="grades-loading grades-empty-hint">
+                Aucun élève validé pour cette classe et cette année.
+              </div>
+            ) : filteredEleves.length === 0 ? (
+              <div className="grades-loading grades-empty-hint">Aucun élève ne correspond à la recherche.</div>
             ) : (
               <table className="excel-table">
                 <thead>
@@ -348,88 +630,124 @@ export default function GradesPage() {
                     <th style={{ width: '30px' }}>#</th>
                     <th style={{ width: '80px' }}>Matricule</th>
                     <th>Nom & Prénom</th>
-                    <th style={{ width: '75px', textAlign: 'center' }}>Devoir 1</th>
-                    <th style={{ width: '75px', textAlign: 'center' }}>Devoir 2</th>
-                    <th style={{ width: '75px', textAlign: 'center' }}>Compo</th>
-                    <th style={{ minWidth: '120px' }}>Appréciation</th>
-                    <th style={{ width: '70px', textAlign: 'center' }}>Moy.</th>
-                    <th style={{ width: '60px', textAlign: 'center' }}>Action</th>
+                    {GRADE_COLUMNS.map((col) => (
+                      <th key={col.key} style={{ width: '75px', textAlign: 'center' }}>
+                        {col.label}
+                        {col.weight > 1 && (
+                          <span className="grades-weight" title="Pondération dans la moy. matière (pas le coeff. matière)">
+                            ×{col.weight}
+                          </span>
+                        )}
+                      </th>
+                    ))}
+                    <th style={{ minWidth: '140px' }}>Appréciation</th>
+                    <th style={{ width: '80px', textAlign: 'center' }} title="Sans coefficient de la matière">
+                      Moy. mat.
+                    </th>
+                    <th style={{ width: '90px', textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {eleves.map((e, i) => {
-                    const g = grades[e.eleveId] || { d1: '', d2: '', compo: '', appreciation: '' };
-                    const hasData = g.d1Id || g.d2Id || g.compoId;
-                    const moy = getMoyenne(e.eleveId);
-                    
+                  {filteredEleves.map((e, i) => {
+                    const g = grades[e.eleveId] || createEmptyGradeRow();
+                    const moy = calculateSubjectAverage(g);
+                    const moyLabel = formatAverage(moy);
+                    const dirty = isRowDirty(g, snapshot[e.eleveId]);
+                    const invalidField = GRADE_COLUMNS.find(
+                      (col) => g[col.key] !== '' && !isValidGradeValue(g[col.key])
+                    );
+
                     return (
-                      <tr key={e.eleveId} className={hasData ? 'selected-row' : ''}>
-                        <td className="readonly-cell" style={{ textAlign: 'center' }}>{i + 1}</td>
+                      <tr key={e.eleveId} className={getRowClassName(e.eleveId)}>
+                        <td className="readonly-cell" style={{ textAlign: 'center' }}>
+                          {i + 1}
+                        </td>
                         <td className="readonly-cell">{e.matricule}</td>
-                        <td className="readonly-cell" style={{ fontWeight: 600 }}>{e.nom} {e.prenom}</td>
-                        <td>
-                          <input
-                            id={`input-d1-${i}`}
-                            type="number" min="0" max="20" step="0.25"
-                            className="excel-cell-input"
-                            value={g.d1}
-                            onChange={ev => handleGradeChange(e.eleveId, 'd1', ev.target.value)}
-                            onKeyDown={ev => handleKeyDown(ev, i, 'd1')}
-                            placeholder="—"
-                            style={{ fontWeight: 700, color: g.d1 !== '' ? getMentionColor(g.d1) : '#0f172a', textAlign: 'center' }}
-                          />
+                        <td className="readonly-cell" style={{ fontWeight: 600 }}>
+                          {e.nom} {e.prenom}
+                          {dirty && <span className="grades-dot" title="Modifié" />}
                         </td>
-                        <td>
-                          <input
-                            id={`input-d2-${i}`}
-                            type="number" min="0" max="20" step="0.25"
-                            className="excel-cell-input"
-                            value={g.d2}
-                            onChange={ev => handleGradeChange(e.eleveId, 'd2', ev.target.value)}
-                            onKeyDown={ev => handleKeyDown(ev, i, 'd2')}
-                            placeholder="—"
-                            style={{ fontWeight: 700, color: g.d2 !== '' ? getMentionColor(g.d2) : '#0f172a', textAlign: 'center' }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            id={`input-compo-${i}`}
-                            type="number" min="0" max="20" step="0.25"
-                            className="excel-cell-input"
-                            value={g.compo}
-                            onChange={ev => handleGradeChange(e.eleveId, 'compo', ev.target.value)}
-                            onKeyDown={ev => handleKeyDown(ev, i, 'compo')}
-                            placeholder="—"
-                            style={{ fontWeight: 700, color: g.compo !== '' ? getMentionColor(g.compo) : '#0f172a', textAlign: 'center', background: '#fdf4ff' }}
-                          />
-                        </td>
+
+                        {GRADE_COLUMNS.map((col) => (
+                          <td key={col.key}>
+                            <input
+                              id={`input-${col.key}-${i}`}
+                              type="text"
+                              inputMode="decimal"
+                              className={`excel-cell-input ${invalidField?.key === col.key ? 'grade-input--invalid' : ''}`}
+                              value={g[col.key]}
+                              onChange={(ev) => updateGradeField(e.eleveId, col.key, ev.target.value)}
+                              onBlur={() => finalizeGradeField(e.eleveId, col.key)}
+                              onKeyDown={(ev) => handleKeyDown(ev, i, col.key, e.eleveId)}
+                              placeholder="—"
+                              style={{
+                                fontWeight: 700,
+                                color:
+                                  g[col.key] !== '' ? getMentionColor(g[col.key]) : '#0f172a',
+                                textAlign: 'center',
+                                background: col.key === 'compo' ? '#fdf4ff' : undefined,
+                              }}
+                            />
+                          </td>
+                        ))}
+
                         <td>
                           <input
                             id={`input-appreciation-${i}`}
                             type="text"
                             className="excel-cell-input"
                             value={g.appreciation}
-                            onChange={ev => handleGradeChange(e.eleveId, 'appreciation', ev.target.value)}
-                            onKeyDown={ev => handleKeyDown(ev, i, 'appreciation')}
-                            placeholder="Globale..."
+                            onChange={(ev) =>
+                              updateGradeField(e.eleveId, 'appreciation', ev.target.value)
+                            }
+                            onKeyDown={(ev) => handleKeyDown(ev, i, 'appreciation', e.eleveId)}
+                            placeholder={moy !== null ? getMention(moy) : 'Appréciation...'}
                           />
                         </td>
+
                         <td className="readonly-cell" style={{ textAlign: 'center' }}>
-                          {moy !== '—' && (
-                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: getMentionColor(moy) }}>
-                              {moy}
-                            </span>
+                          {moy !== null && (
+                            <div className="grades-average-cell">
+                              <span
+                                style={{
+                                  fontSize: '0.85rem',
+                                  fontWeight: 700,
+                                  color: getMentionColor(moy),
+                                }}
+                              >
+                                {moyLabel}
+                              </span>
+                              <span className="grades-mention">{getMention(moy)}</span>
+                            </div>
                           )}
                         </td>
+
                         <td>
-                          <div style={{ display: 'flex', gap: '0.25rem', padding: '0 0.5rem', justifyContent: 'center' }}>
-                            <button 
+                          <div className="grades-row-actions">
+                            {dirty && (
+                              <button
+                                type="button"
+                                className="excel-action-btn grades-action-reset"
+                                onClick={() => discardRow(e.eleveId)}
+                                title="Annuler les modifications"
+                              >
+                                <RotateCcw size={15} />
+                              </button>
+                            )}
+                            <button
+                              type="button"
                               className="excel-action-btn"
                               onClick={() => handleSaveSingle(e.eleveId)}
-                              disabled={savingIds[e.eleveId]}
-                              title="Enregistrer"
+                              disabled={savingIds[e.eleveId] || !dirty}
+                              title="Enregistrer (Shift+Entrée)"
                             >
-                              <Save size={16} />
+                              {savingIds[e.eleveId] ? (
+                                <Loader2 size={16} className="spin" />
+                              ) : rowStatus[e.eleveId] === 'saved' ? (
+                                <CheckCircle2 size={16} color="#059669" />
+                              ) : (
+                                <Save size={16} />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -445,5 +763,3 @@ export default function GradesPage() {
     </div>
   );
 }
-
-
