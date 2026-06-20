@@ -1,0 +1,597 @@
+/* ─── SCHOOL INFO PAGE ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+.sip {
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+/* ─── HEADER ─── */
+.sip__header {
+  background: linear-gradient(135deg, #0A2F6B 0%, #06204a 100%);
+  position: relative;
+  padding-bottom: 0;
+  padding-top: 70px;
+  overflow: hidden;
+}
+
+.sip__header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><circle cx="30" cy="30" r="1.5" fill="rgba(255,255,255,0.07)"/></svg>') repeat;
+}
+
+.sip__nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 3rem;
+  background: transparent;
+  transition: background 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sip__nav--scrolled {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  padding: 0.75rem 3rem;
+  box-shadow: 0 2px 20px rgba(10, 47, 107, 0.12);
+}
+
+.sip__nav--scrolled .sip__back {
+  color: #0A2F6B;
+}
+
+.sip__nav--scrolled .sip__back:hover {
+  color: #06204a;
+}
+
+.sip__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.sip__back:hover { color: white; }
+
+.sip__nav-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.sip__hero {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 4rem 2rem 6rem;
+}
+
+.sip__hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+  animation: fadeDown 0.6s ease both;
+}
+
+.sip__hero-title {
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+
+.sip__hero-accent {
+  color: #93c5fd;
+}
+
+.sip__hero-sub {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.75);
+  max-width: 550px;
+  margin: 0 auto;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.sip__hero-wave {
+  position: relative;
+  z-index: 2;
+  line-height: 0;
+}
+.sip__hero-wave svg { width: 100%; display: block; }
+
+/* ─── MAIN ─── */
+.sip__main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── SECTION ─── */
+.sip__section {
+  padding: 5rem 0;
+}
+.sip__section--alt {
+  background: none;
+}
+
+.sip__section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0A2F6B;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+
+.sip__section-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.sip__section-sub {
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 3rem;
+}
+
+/* ─── CONTACTS ─── */
+.sip__contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.sip__contact-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sip__contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(10,47,107,0.1);
+}
+
+.sip__contact-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0A2F6B, #1a4e9b);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sip__contact-label {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.2rem;
+}
+
+.sip__contact-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.sip__map-placeholder {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 2px dashed #93c5fd;
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* ─── LEVELS ─── */
+.sip__levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.sip__level-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid var(--level-color);
+  transition: transform 0.25s, box-shadow 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.sip__level-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--level-color);
+  opacity: 0.05;
+  transition: opacity 0.3s;
+}
+
+.sip__level-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(10,47,107,0.12);
+}
+.sip__level-card:hover::before { opacity: 0.1; }
+
+.sip__level-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--level-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.sip__level-card h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.sip__level-classes {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--level-color);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.sip__level-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── PRICING ─── */
+.sip__pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.sip__pricing-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 2rem;
+  position: relative;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.sip__pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(10,47,107,0.12);
+}
+
+.sip__pricing-card--popular {
+  border-color: #0A2F6B;
+  border-width: 2px;
+  transform: scale(1.02);
+}
+.sip__pricing-card--popular:hover {
+  transform: scale(1.02) translateY(-5px);
+}
+
+.sip__pricing-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #0A2F6B, #1a4e9b);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 1rem;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.sip__pricing-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0A2F6B, #1a4e9b);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.sip__pricing-niveau {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.sip__pricing-rows {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.sip__pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.sip__pricing-row:last-child { border-bottom: none; }
+.sip__pricing-row span { color: #64748b; }
+.sip__pricing-row strong { color: #1e293b; }
+
+.sip__pricing-row--total {
+  background: #eff6ff;
+}
+.sip__pricing-row--total span { color: #0A2F6B; font-weight: 600; }
+.sip__pricing-row--total strong { color: #0A2F6B; font-size: 1.05rem; }
+
+.sip__pricing-inclus {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.sip__pricing-inclus li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.sip__pricing-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px dashed #cbd5e1;
+}
+
+/* ─── FAQ ─── */
+.sip__faq {
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sip__faq-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sip__faq-item:hover,
+.sip__faq-item.open {
+  border-color: #0A2F6B;
+  box-shadow: 0 4px 20px rgba(10,47,107,0.08);
+}
+
+.sip__faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: #1e293b;
+  user-select: none;
+}
+
+.sip__faq-arrow {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  color: #64748b;
+}
+.sip__faq-item.open .sip__faq-arrow {
+  transform: rotate(90deg);
+  color: #0A2F6B;
+}
+
+.sip__faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  font-size: 0.92rem;
+  color: #64748b;
+  line-height: 1.7;
+  padding: 0 1.5rem;
+}
+.sip__faq-item.open .sip__faq-a {
+  max-height: 200px;
+  padding: 0 1.5rem 1.2rem;
+}
+
+/* ─── CTA SECTION ─── */
+.sip__cta-section {
+  background: linear-gradient(135deg, #0A2F6B 0%, #06204a 100%);
+  border-radius: 28px;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: 2rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sip__cta-section::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  top: -100px;
+  right: -100px;
+}
+
+.sip__cta-section h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.75rem;
+}
+
+.sip__cta-section p {
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.sip__cta-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sip__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.8rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sip__btn:hover { transform: translateY(-3px); }
+
+.sip__btn--primary {
+  background: white;
+  color: #0A2F6B;
+}
+.sip__btn--primary:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+.sip__btn--outline {
+  border: 2px solid rgba(255,255,255,0.5);
+  color: white;
+}
+.sip__btn--outline:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+/* ─── FOOTER ─── */
+.sip__footer {
+  background: #0f172a;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+
+.sip__footer-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.sip__footer a {
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: 500;
+}
+.sip__footer a:hover { color: white; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .sip__nav { padding: 1rem 1.5rem; }
+  .sip__hero { padding: 2.5rem 1rem 5rem; }
+  .sip__main { padding: 0 1rem; }
+  .sip__section { padding: 3rem 0; }
+  .sip__section-title { font-size: 1.7rem; }
+  .sip__cta-section { padding: 2.5rem 1rem; }
+  .sip__cta-section h2 { font-size: 1.5rem; }
+  .sip__pricing-card--popular { transform: scale(1); }
+}

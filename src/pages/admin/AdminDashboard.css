@@ -1,0 +1,383 @@
+.admin-dashboard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.admin-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-stat-card__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-stat-card__label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.admin-stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.admin-stat-card__trend {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.admin-dashboard__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.admin-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.admin-panel__header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-panel__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.admin-panel__link {
+  font-size: 0.85rem;
+  color: #0A2F6B;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  color: #64748b;
+  font-weight: 500;
+  background: #f8fafc;
+}
+
+.admin-table td {
+  color: #475569;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge--success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.quick-actions {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+  background: white;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 1024px) {
+  .admin-dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Show the burger button */
+  .admin-header__burger {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Header search full width */
+  .admin-header__search {
+    flex: 1;
+    width: auto;
+  }
+
+  /* Dashboard header: stack on very small */
+  .admin-dashboard__header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* Stats grid: 2 per row on mobile */
+  .admin-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  /* Graphs: 1 column on mobile */
+  .admin-dashboard__grid[style] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Smaller table cells */
+  .admin-table th, .admin-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  /* Compact stat cards */
+  .admin-stat-card {
+    padding: 1rem;
+  }
+  .admin-stat-card__value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stats: single column on very small screens */
+  .admin-stats__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Action buttons in tables ── */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.action-btn--view { background: #eff6ff; color: #0A2F6B; }
+.action-btn--view:hover { background: #0A2F6B; color: white; }
+
+.action-btn--edit { background: #fef3c7; color: #d97706; }
+.action-btn--edit:hover { background: #d97706; color: white; }
+
+.action-btn--delete { background: #fee2e2; color: #dc2626; }
+.action-btn--delete:hover { background: #dc2626; color: white; }
+
+/* ── Generic btn styles ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn--primary {
+  background: #0A2F6B;
+  color: white;
+}
+
+.btn--primary:hover {
+  background: #06204a;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ── Taux de réussite par niveau ── */
+.taux-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  padding-top: 0.5rem;
+}
+
+.taux-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.taux-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.taux-card__niveau {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0A2F6B;
+}
+
+.taux-card__total {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+  background: #e2e8f0;
+  padding: 0.2rem 0.75rem;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.taux-inscrits-num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0A2F6B;
+}
+
+.taux-bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.taux-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.taux-bar-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  width: 58px;
+  flex-shrink: 0;
+}
+.taux-bar-label--success { color: #059669; }
+.taux-bar-label--echec   { color: #dc2626; }
+
+.taux-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.taux-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 1s ease;
+}
+.taux-bar-fill--success { background: linear-gradient(90deg, #10b981, #059669); }
+.taux-bar-fill--echec   { background: linear-gradient(90deg, #f87171, #dc2626); }
+
+.taux-bar-pct {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.taux-counts {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.taux-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.75rem;
+  border-radius: 100px;
+}
+.taux-count--success { background: #d1fae5; color: #065f46; }
+.taux-count--echec   { background: #fee2e2; color: #991b1b; }

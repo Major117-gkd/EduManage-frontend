@@ -1,0 +1,343 @@
+.admin-layout {
+  display: flex;
+  height: 100vh;
+  background-color: #f8fafc;
+  overflow: hidden;
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: #0A2F6B;
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar__brand {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-sidebar__logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-sidebar__logo-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.admin-sidebar__logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar__logo-main {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.admin-sidebar__logo-sub {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 400;
+}
+
+.admin-nav {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+}
+
+.admin-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 8px;
+  margin-bottom: 0.35rem;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.admin-nav__link:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: #ffffff;
+}
+
+.admin-nav__link.active {
+  background-color: #eff6ff;
+  color: #0A2F6B;
+}
+
+.admin-nav__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-sidebar__bottom {
+  padding: 1.5rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-nav__link--logout {
+  color: rgba(255, 100, 100, 0.8);
+}
+
+.admin-nav__link--logout:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-header {
+  height: 70px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.admin-header__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f1f5f9;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.admin-header__search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  color: #0f172a;
+}
+
+.admin-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.admin-header__btn {
+  background: none;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-header__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-header__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.admin-profile__avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #0A2F6B;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.admin-profile__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-profile__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.admin-profile__role {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* ── Active nav link: left accent bar ── */
+.admin-nav__link.active {
+  background-color: rgba(255,255,255,0.15);
+  color: #ffffff;
+  box-shadow: inset 3px 0 0 #60a5fa;
+  font-weight: 600;
+}
+
+/* ── Ripple on nav click ── */
+.nav-ripple {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(37, 99, 235, 0.35);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-anim 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple-anim {
+  to {
+    transform: translate(-50%, -50%) scale(28);
+    opacity: 0;
+  }
+}
+
+/* ── Page slide-in transition ── */
+.page-transition {
+  height: 100%;
+}
+
+.page-enter {
+  animation: pageSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.page-visible {
+  opacity: 1;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ══════════════════════════════════
+   MOBILE RESPONSIVE — ≤ 768px
+══════════════════════════════════ */
+
+/* Overlay behind the open sidebar */
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* ── Layout ── */
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  /* ── Sidebar: hidden off-screen by default ── */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* ── Overlay ── */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .sidebar-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── Main area ── */
+  .admin-main {
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* ── Header: compact with burger ── */
+  .admin-header {
+    padding: 0 1rem;
+    height: 60px;
+    gap: 0.75rem;
+  }
+
+  .admin-header__search {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .admin-profile__info {
+    display: none; /* hide name/role on mobile */
+  }
+
+  /* ── Content ── */
+  .admin-content {
+    padding: 1rem;
+  }
+}
