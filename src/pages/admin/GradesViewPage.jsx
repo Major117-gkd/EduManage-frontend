@@ -7,6 +7,7 @@ import {
   BookOpen,
   Filter,
   Trophy,
+  Eye,
 } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import './ExcelTable.css';
@@ -19,7 +20,7 @@ import {
   getMentionColor,
 } from '../../utils/gradeEntry';
 
-const API = 'http://localhost:5000';
+import { api } from '../../services/api';
 
 export default function GradesViewPage() {
   const [annees, setAnnees] = useState([]);
@@ -34,8 +35,7 @@ export default function GradesViewPage() {
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
-    fetch(`${API}/api/admin/annees`)
-      .then((r) => r.json())
+    api.get('/admin/annees')
       .then((d) => {
         if (!Array.isArray(d)) return;
         setAnnees(d);
@@ -44,8 +44,7 @@ export default function GradesViewPage() {
       })
       .catch(() => {});
 
-    fetch(`${API}/api/admin/classes`)
-      .then((r) => r.json())
+    api.get('/admin/classes')
       .then((d) => {
         if (Array.isArray(d)) setClasses(d);
       })
@@ -63,8 +62,7 @@ export default function GradesViewPage() {
     if (niveau) params.set('niveau', niveau);
     if (classeId) params.set('classeId', classeId);
 
-    fetch(`${API}/api/admin/notes/consultation?${params}`)
-      .then((r) => r.json())
+    api.get(`/admin/notes/consultation?${params}`)
       .then((data) => {
         setEleves(Array.isArray(data.eleves) ? data.eleves : []);
         setExpandedId(null);
@@ -130,6 +128,18 @@ export default function GradesViewPage() {
 
   return (
     <div className="admin-dashboard grades-view">
+      <div className="grades-view-readonly-banner">
+        <Eye size={18} />
+        <div>
+          <strong>Consultation uniquement</strong>
+          <p>
+            En tant qu&apos;administrateur, vous pouvez consulter toutes les notes mais pas les modifier.
+            Seul le professeur assigné à une matière peut saisir ou corriger les notes de cette matière
+            depuis son espace professeur.
+          </p>
+        </div>
+      </div>
+
       <div className="grades-view-intro">
         <p>
           <strong>Moy. matière</strong> : (D1 + D2 + 2×Compo) / 4 — sans coefficient de la matière.

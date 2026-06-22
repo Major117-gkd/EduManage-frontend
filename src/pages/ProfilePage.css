@@ -1,0 +1,441 @@
+.profile-page {
+  max-width: 1100px;
+}
+
+/* ── Hero ── */
+.profile-hero {
+  position: relative;
+  margin-bottom: 1.75rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(10, 47, 107, 0.06);
+}
+
+.profile-hero__bg {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 120px;
+  background: linear-gradient(135deg, #0A2F6B 0%, #1d4ed8 55%, #3b82f6 100%);
+}
+
+.profile-hero__content {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 1.25rem 1.5rem;
+  padding: 1.5rem 1.75rem 1.75rem;
+  padding-top: 4.5rem;
+}
+
+.profile-hero__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-hero__avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #0A2F6B, #2563eb);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 800;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 8px 24px rgba(10, 47, 107, 0.2);
+}
+
+.profile-hero__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-hero__camera {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: #0A2F6B;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.profile-hero__camera:hover {
+  background: #1e40af;
+  transform: scale(1.05);
+}
+
+.profile-hero__info {
+  min-width: 0;
+  padding-bottom: 0.25rem;
+}
+
+.profile-hero__badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.profile-hero__badge--admin {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.profile-hero__badge--professeur {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.profile-hero__name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.profile-hero__email,
+.profile-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.profile-hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  padding-bottom: 0.25rem;
+}
+
+.profile-hero__link-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.profile-hero__link-btn:hover {
+  text-decoration: underline;
+}
+
+.profile-hero__hint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-align: right;
+}
+
+/* ── Grid ── */
+.profile-page__grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.profile-page__side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.profile-card__body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-card__footer {
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 0.25rem;
+}
+
+.profile-card__body .modal-form-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Alerts ── */
+.profile-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.profile-alert svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.profile-alert--success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.profile-alert--error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* ── Buttons ── */
+.profile-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.profile-save-btn--secondary {
+  background: #7c3aed;
+}
+
+.profile-save-btn--secondary:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.profile-spin {
+  animation: profile-spin 0.8s linear infinite;
+}
+
+@keyframes profile-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Appearance ── */
+.profile-appearance__hint {
+  margin: 0 0 0.85rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.profile-theme-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  background: #f1f5f9;
+  padding: 0.35rem;
+  border-radius: 10px;
+}
+
+.profile-theme-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.profile-theme-switch__option.is-active {
+  background: white;
+  color: #0A2F6B;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Account meta ── */
+.profile-account-meta {
+  gap: 0.5rem;
+}
+
+.profile-account-meta__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.9rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  font-size: 0.88rem;
+}
+
+.profile-account-meta__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.profile-account-meta__item strong {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ── Skeleton ── */
+.profile-skeleton {
+  border-radius: 16px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: profile-shimmer 1.2s ease-in-out infinite;
+}
+
+.profile-skeleton--hero {
+  height: 200px;
+  margin-bottom: 1.75rem;
+}
+
+.profile-skeleton--card {
+  height: 320px;
+}
+
+.profile-skeleton--short {
+  height: 200px;
+}
+
+@keyframes profile-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .profile-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-hero__content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 5.5rem;
+  }
+
+  .profile-hero__avatar-wrap {
+    justify-self: center;
+  }
+
+  .profile-hero__email,
+  .profile-hero__meta {
+    justify-content: center;
+  }
+
+  .profile-hero__actions {
+    align-items: center;
+  }
+
+  .profile-hero__hint {
+    text-align: center;
+  }
+}
+
+/* ── Dark mode ── */
+html.dark-mode .profile-hero {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+html.dark-mode .profile-hero__avatar {
+  border-color: #1e293b;
+}
+
+html.dark-mode .profile-hero__camera {
+  border-color: #1e293b;
+}
+
+html.dark-mode .profile-hero__name {
+  color: #f1f5f9;
+}
+
+html.dark-mode .profile-hero__email,
+html.dark-mode .profile-hero__meta {
+  color: #94a3b8;
+}
+
+html.dark-mode .profile-hero__badge--admin {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+html.dark-mode .profile-hero__badge--professeur {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+html.dark-mode .profile-card__footer {
+  border-top-color: #334155;
+}
+
+html.dark-mode .profile-alert--success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+html.dark-mode .profile-alert--error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+html.dark-mode .profile-theme-switch {
+  background: #0f172a;
+}
+
+html.dark-mode .profile-theme-switch__option {
+  color: #94a3b8;
+}
+
+html.dark-mode .profile-theme-switch__option.is-active {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+html.dark-mode .profile-account-meta__item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html.dark-mode .profile-account-meta__item strong {
+  color: #f1f5f9;
+}
+
+html.dark-mode .profile-skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}

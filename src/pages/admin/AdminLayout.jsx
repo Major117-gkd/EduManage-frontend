@@ -1,13 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Search, Bell, Calendar, Menu, X as XIcon, ClipboardList, DollarSign } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Search, Calendar, Menu, ClipboardList, DollarSign, Sun, Moon, UserCircle, Layers, Bell, Wallet } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { ThemeContext } from '../../context/ThemeContext';
+import { useContext } from 'react';
+import LogoutConfirmModal from '../../components/LogoutConfirmModal';
+import NotificationBell from '../../components/NotificationBell';
+import { isNavItemActive } from '../../utils/navActive';
 import './AdminLayout.css';
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [animating, setAnimating] = useState(false);
   const [ripples, setRipples] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -16,6 +26,15 @@ export default function AdminLayout() {
     const t = setTimeout(() => setAnimating(false), 400);
     return () => clearTimeout(t);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sidebarOpen]);
 
   const handleNavClick = (path, e) => {
     const btn = e.currentTarget;
@@ -32,13 +51,26 @@ export default function AdminLayout() {
     { path: '/admin/students', icon: <Users size={20} />, label: 'Élèves' },
     { path: '/admin/teachers', icon: <GraduationCap size={20} />, label: 'Professeurs' },
     { path: '/admin/classes', icon: <BookOpen size={20} />, label: 'Classes' },
+    { path: '/admin/niveaux', icon: <Layers size={20} />, label: 'Niveaux d\'étude' },
     { path: '/admin/subjects', icon: <BookOpen size={20} />, label: 'Matières' },
     { path: '/admin/years', icon: <Calendar size={20} />, label: 'Années Scolaires' },
     { path: '/admin/payments', icon: <DollarSign size={20} />, label: 'Paiements' },
-    { path: '/admin/grades', icon: <FileText size={20} />, label: 'Saisie des Notes' },
-    { path: '/admin/grades/results', icon: <ClipboardList size={20} />, label: 'Bulletins & Résultats' },
-    { path: '/admin/settings', icon: <Settings size={20} />, label: 'Paramètres' },
+    { path: '/admin/teacher-pay', icon: <Wallet size={20} />, label: 'Paie professeurs' },
+    { path: '/admin/notifications', icon: <Bell size={20} />, label: 'Notifications' },
+    { path: '/admin/grades/consultation', icon: <FileText size={20} />, label: 'Consultation notes', isActive: (p) => p === '/admin/grades' || p.startsWith('/admin/grades/consultation') },
+    { path: '/admin/grades/results', icon: <ClipboardList size={20} />, label: 'Bulletins & Résultats', isActive: (p) => p.startsWith('/admin/grades/results') },
+    { path: '/admin/settings', icon: <Settings size={20} />, label: 'Paramètres site' },
   ];
+
+  const profilePath = '/admin/profile';
+  const isProfileActive = location.pathname === profilePath;
+  const displayName = user?.nom || 'Mon compte';
+  const roleLabel = user?.role === 'ADMIN' ? 'Administrateur' : 'Utilisateur';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="admin-layout">
@@ -60,16 +92,14 @@ export default function AdminLayout() {
           </div>
         </div>
         <nav className="admin-nav">
-          {navItems.map((item) => (
+          {navItems.map((item) => {
+            const active = isNavItemActive(location.pathname, item);
+            return (
             <Link 
               key={item.path} 
               to={item.path} 
-              className={`admin-nav__link ${
-                item.exact
-                  ? location.pathname === item.path
-                  : location.pathname === item.path
-                ? 'active' : ''
-              }`}
+              className={`admin-nav__link${active ? ' active' : ''}`}
+              aria-current={active ? 'page' : undefined}
               onClick={(e) => handleNavClick(item.path, e)}
               style={{ position: 'relative', overflow: 'hidden' }}
             >
@@ -82,15 +112,46 @@ export default function AdminLayout() {
                 />
               )}
             </Link>
-          ))}
+            );
+          })}
         </nav>
-        <div className="admin-sidebar__bottom">
-          <Link to="/" className="admin-nav__link admin-nav__link--logout">
-            <span className="admin-nav__icon"><LogOut size={20} /></span>
-            Quitter l'ERP
+        <div className="admin-sidebar__footer">
+          <Link
+            to={profilePath}
+            className={`sidebar-user-card${isProfileActive ? ' sidebar-user-card--active' : ''}`}
+          >
+            <div
+              className="sidebar-user-card__avatar"
+              style={user?.photoUrl ? { padding: 0, overflow: 'hidden' } : undefined}
+            >
+              {user?.photoUrl ? (
+                <img src={user.photoUrl} alt="" className="sidebar-user-card__avatar-img" />
+              ) : (
+                displayName.charAt(0).toUpperCase()
+              )}
+            </div>
+            <div className="sidebar-user-card__info">
+              <span className="sidebar-user-card__name">{displayName}</span>
+              <span className="sidebar-user-card__role">{roleLabel}</span>
+            </div>
+            <UserCircle size={16} className="sidebar-user-card__chevron" aria-hidden />
           </Link>
+          <button
+            type="button"
+            className="sidebar-logout-btn"
+            onClick={() => setLogoutConfirmOpen(true)}
+          >
+            <LogOut size={16} />
+            Se déconnecter
+          </button>
         </div>
       </aside>
+
+      <LogoutConfirmModal
+        open={logoutConfirmOpen}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={handleLogout}
+      />
 
       {/* Main Content Area */}
       <div className="admin-main">
@@ -98,27 +159,41 @@ export default function AdminLayout() {
         <header className="admin-header">
           {/* Hamburger button - mobile only */}
           <button
+            type="button"
             className="admin-header__burger"
-            onClick={() => setSidebarOpen(o => !o)}
-            aria-label="Menu"
-            style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', borderRadius: '6px' }}
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label={sidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={sidebarOpen}
           >
-            <Menu size={24} color="#0A2F6B" />
+            <Menu size={24} />
           </button>
           <div className="admin-header__search">
             <Search size={20} color="#94a3b8" />
             <input type="text" placeholder="Rechercher un élève, une classe..." />
           </div>
           <div className="admin-header__actions">
-            <button className="admin-header__btn">
-              <Bell size={20} color="#64748b" />
-              <span className="admin-header__badge">3</span>
+            <button className="admin-header__btn theme-toggle-btn" onClick={toggleTheme} title="Basculer le thème" aria-label={isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'}>
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <div className="admin-header__profile">
-              <div className="admin-profile__avatar">A</div>
-              <div className="admin-profile__info">
-                <span className="admin-profile__name">Admin</span>
-                <span className="admin-profile__role">Directeur</span>
+            <NotificationBell />
+            <div
+              className="admin-header__profile"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(profilePath)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate(profilePath)}
+              title={user?.nom ? `${user.nom} — Mon profil` : 'Mon profil'}
+              style={{ cursor: 'pointer' }}
+            >
+              <div
+                className="admin-profile__avatar"
+                style={user?.photoUrl ? { padding: 0, overflow: 'hidden' } : undefined}
+              >
+                {user?.photoUrl ? (
+                  <img src={user.photoUrl} alt="" className="admin-profile__avatar-img" />
+                ) : (
+                  user?.nom?.charAt(0) || 'A'
+                )}
               </div>
             </div>
           </div>

@@ -38,7 +38,8 @@ import {
   createEmptyGradeRow,
 } from '../../utils/gradeEntry';
 
-const API = 'http://localhost:5000';
+import { api } from '../../services/api';
+import { buildFormulaText } from '../../utils/gradeRules';
 
 export default function GradesPage() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ export default function GradesPage() {
   const [periode, setPeriode] = useState('Trimestre 1');
   const [annee, setAnnee] = useState('');
   const [annees, setAnnees] = useState([]);
+  const [niveauxEtude, setNiveauxEtude] = useState([]);
 
   const [eleves, setEleves] = useState([]);
   const [grades, setGrades] = useState({});
@@ -103,21 +105,23 @@ export default function GradesPage() {
   };
 
   useEffect(() => {
-    fetch(`${API}/api/admin/classes`)
-      .then((r) => r.json())
+    api.get('/admin/classes')
       .then((d) => {
         if (Array.isArray(d)) setClasses(d);
       })
       .catch(() => {});
 
-    fetch(`${API}/api/admin/annees`)
-      .then((r) => r.json())
+    api.get('/admin/annees')
       .then((d) => {
         if (!Array.isArray(d)) return;
         setAnnees(d);
         const active = d.find((y) => y.active);
         if (active) setAnnee(active.nom);
       })
+      .catch(() => {});
+
+    api.get('/admin/niveaux')
+      .then((d) => { if (Array.isArray(d)) setNiveauxEtude(d); })
       .catch(() => {});
   }, []);
 
@@ -134,6 +138,11 @@ export default function GradesPage() {
 
   const niveaux = [...new Set(classes.map((c) => c.niveau))].sort();
   const classesFiltrees = selectedNiveau ? classes.filter((c) => c.niveau === selectedNiveau) : [];
+  const selectedNiveauFormules = useMemo(() => {
+    const niveau = niveauxEtude.find((n) => n.nom === selectedNiveau);
+    if (!niveau) return null;
+    return niveau.formules || buildFormulaText(niveau.regleCalcul);
+  }, [niveauxEtude, selectedNiveau]);
 
   const selectClasse = (c) => {
     if (!confirmIfDirty()) return;
@@ -143,8 +152,7 @@ export default function GradesPage() {
     setGrades({});
     setSnapshot({});
     setRowStatus({});
-    fetch(`${API}/api/admin/classes/${c.id}/matieres`)
-      .then((r) => r.json())
+    api.get(`/admin/classes/${c.id}/matieres`)
       .then((d) => {
         if (Array.isArray(d)) setMatieres(d);
       })
@@ -160,10 +168,7 @@ export default function GradesPage() {
       annee_scolaire: annee,
     });
 
-    fetch(
-      `${API}/api/admin/classes/${selectedClasse.id}/matieres/${selectedMatiere.id}/notes?${params}`
-    )
-      .then((r) => r.json())
+    api.get(`/admin/classes/${selectedClasse.id}/matieres/${selectedMatiere.id}/notes?${params}`)
       .then((data) => {
         if (Array.isArray(data)) {
           setEleves(data);
@@ -248,7 +253,6 @@ export default function GradesPage() {
 
     try {
       await saveStudentGrades({
-        apiBase: API,
         eleveId,
         matiereId: selectedMatiere.id,
         periode,
@@ -456,6 +460,17 @@ export default function GradesPage() {
           )}
         </div>
       </div>
+
+      {selectedNiveau && selectedNiveauFormules && (
+        <div className="grades-alert" style={{ background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', marginBottom: '1rem' }}>
+          <BarChart3 size={16} />
+          <span>
+            <strong>{selectedNiveau}</strong> — Moyenne matière : <code>{selectedNiveauFormules.moyenneMatiere}</code>
+            {' · '}Moyenne générale : <code>{selectedNiveauFormules.moyenneGenerale}</code>
+            {' · '}Seuil : <strong>{selectedNiveauFormules.seuilReussite}/20</strong>
+          </span>
+        </div>
+      )}
 
       {selectedNiveau && (
         <div className="admin-panel grades-step-panel">

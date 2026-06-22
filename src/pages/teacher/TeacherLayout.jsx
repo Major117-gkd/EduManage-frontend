@@ -1,22 +1,81 @@
-import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { BookOpen, FileText, Calendar, MessageSquare, LogOut, Bell, Search } from 'lucide-react';
-import '../admin/AdminLayout.css'; // Reusing admin CSS for similar sidebar style
+import React, { useState, useEffect, useContext } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BookOpen, LogOut, Menu, UserCircle, DollarSign, Sun, Moon } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { ThemeContext } from '../../context/ThemeContext';
+import { api } from '../../services/api';
+import LogoutConfirmModal from '../../components/LogoutConfirmModal';
+import NotificationBell from '../../components/NotificationBell';
+import { isNavItemActive } from '../../utils/navActive';
+import '../admin/AdminLayout.css';
 
 export default function TeacherLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const [profil, setProfil] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    api.get('/teacher/me')
+      .then((data) => setProfil(data.professeur))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sidebarOpen]);
+
+  const avatarUrl = profil?.photoUrl || user?.photoUrl;
+
+  const displayName = profil
+    ? `${profil.prenom} ${profil.nom}`
+    : user?.nom || 'Professeur';
+
+  const profilePath = '/teacher/profile';
+  const isProfileActive = location.pathname === profilePath;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const navItems = [
-    { path: '/teacher', icon: <BookOpen size={20} />, label: 'Mes Cours' },
-    { path: '/teacher/grades', icon: <FileText size={20} />, label: 'Saisie des notes' },
-    { path: '/teacher/schedule', icon: <Calendar size={20} />, label: 'Emploi du temps' },
-    { path: '/teacher/messages', icon: <MessageSquare size={20} />, label: 'Messages' },
+    {
+      path: '/teacher',
+      icon: <BookOpen size={20} />,
+      label: 'Mes Cours',
+      exact: true,
+      alsoMatch: ['/teacher/grades'],
+    },
+    {
+      path: '/teacher/pay',
+      icon: <DollarSign size={20} />,
+      label: 'Ma rémunération',
+      exact: true,
+    },
   ];
 
   return (
     <div className="admin-layout">
-      {/* Sidebar */}
-      <aside className="admin-sidebar">
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar__brand">
           <div className="admin-sidebar__logo-wrap">
             <img src="/images/logo_boubacar.png" alt="Logo" className="admin-sidebar__logo-img" />
@@ -27,48 +86,116 @@ export default function TeacherLayout() {
           </div>
         </div>
         <nav className="admin-nav">
-          {navItems.map((item) => (
-            <Link 
-              key={item.path} 
-              to={item.path} 
-              className={`admin-nav__link ${location.pathname === item.path ? 'active' : ''}`}
+          {navItems.map((item) => {
+            const active = isNavItemActive(location.pathname, item);
+            return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`admin-nav__link${active ? ' active' : ''}`}
+              aria-current={active ? 'page' : undefined}
             >
               <span className="admin-nav__icon">{item.icon}</span>
               {item.label}
             </Link>
-          ))}
+            );
+          })}
         </nav>
-        <div className="admin-sidebar__bottom">
-          <Link to="/" className="admin-nav__link admin-nav__link--logout">
-            <span className="admin-nav__icon"><LogOut size={20} /></span>
-            Se déconnecter
+        <div className="admin-sidebar__footer">
+          <Link
+            to={profilePath}
+            className={`sidebar-user-card${isProfileActive ? ' sidebar-user-card--active' : ''}`}
+          >
+            <div
+              className="sidebar-user-card__avatar sidebar-user-card__avatar--teacher"
+              style={avatarUrl ? { padding: 0, overflow: 'hidden', background: 'transparent' } : undefined}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="sidebar-user-card__avatar-img" />
+              ) : (
+                displayName.charAt(0).toUpperCase()
+              )}
+            </div>
+            <div className="sidebar-user-card__info">
+              <span className="sidebar-user-card__name">{displayName}</span>
+              <span className="sidebar-user-card__role">Professeur</span>
+            </div>
+            <UserCircle size={16} className="sidebar-user-card__chevron" aria-hidden />
           </Link>
+          <button
+            type="button"
+            className="sidebar-logout-btn"
+            onClick={() => setLogoutConfirmOpen(true)}
+          >
+            <LogOut size={16} />
+            Se déconnecter
+          </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      <LogoutConfirmModal
+        open={logoutConfirmOpen}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={handleLogout}
+      />
+
       <div className="admin-main">
-        {/* Top Navbar */}
         <header className="admin-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f8fafc', padding: '0.5rem 1rem', borderRadius: '99px', flex: 1, maxWidth: '400px', border: '1px solid #e2e8f0' }}>
-            <Search size={18} color="#64748b" />
-            <input type="text" placeholder="Rechercher un élève..." style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.95rem', backgroundColor: 'transparent' }} />
+          <button
+            type="button"
+            className="admin-header__burger"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label={sidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={sidebarOpen}
+          >
+            <Menu size={24} />
+          </button>
+          <div className="admin-header__title-wrap">
+            <span className="admin-header__title">Espace Professeur</span>
           </div>
           <div className="admin-header__actions">
-            <button className="admin-header__btn">
-              <Bell size={20} color="#64748b" />
+            <button
+              type="button"
+              className="admin-header__btn theme-toggle-btn"
+              onClick={toggleTheme}
+              title={isDarkMode ? 'Mode clair' : 'Mode sombre'}
+              aria-label={isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <div className="admin-header__profile">
-              <div className="admin-profile__avatar" style={{backgroundColor: '#7c3aed'}}>P</div>
-              <div className="admin-profile__info">
-                <span className="admin-profile__name">Professeur</span>
-                <span className="admin-profile__role">Enseignant</span>
+            <NotificationBell />
+            <div
+              className="admin-header__profile"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate('/teacher/profile')}
+              onKeyDown={(e) => e.key === 'Enter' && navigate('/teacher/profile')}
+              title={displayName ? `${displayName} — Mon profil` : 'Mon profil'}
+              style={{ cursor: 'pointer' }}
+            >
+              <div
+                className="admin-profile__avatar"
+                style={{
+                  backgroundColor: avatarUrl ? 'transparent' : '#7c3aed',
+                  overflow: 'hidden',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    className="admin-profile__avatar-img"
+                  />
+                ) : (
+                  displayName.charAt(0)
+                )}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="admin-content">
           <Outlet />
         </main>

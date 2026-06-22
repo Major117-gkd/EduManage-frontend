@@ -1,0 +1,420 @@
+/* ═══════════════════════════════════════════════════════════
+   EduManage — Mode sombre global
+   Activé via html.dark-mode (ThemeContext)
+═══════════════════════════════════════════════════════════ */
+
+html {
+  color-scheme: light;
+}
+
+html.dark-mode {
+  color-scheme: dark;
+}
+
+html.dark-mode body,
+html.dark-mode #root {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* ── Variables page d'accueil ── */
+html.dark-mode {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.12);
+  --secondary: #f3f4f6;
+  --text-main: #d1d5db;
+  --text-muted: #9ca3af;
+  --bg-main: #0f1115;
+  --bg-alt: #16171d;
+  --border: #2e303a;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+html.dark-mode .home-page {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+html.dark-mode .navbar--scrolled {
+  background: rgba(15, 17, 21, 0.95);
+  border-bottom: 1px solid var(--border);
+}
+
+html.dark-mode .navbar--scrolled .navbar__logo-main,
+html.dark-mode .navbar--scrolled .navbar__link {
+  color: #f3f4f6;
+}
+
+html.dark-mode .navbar--scrolled .navbar__logo-sub {
+  color: #9ca3af;
+}
+
+html.dark-mode .navbar--scrolled .btn--ghost {
+  color: #e5e7eb;
+}
+
+html.dark-mode .navbar--scrolled .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #93c5fd;
+}
+
+html.dark-mode .features {
+  background: var(--bg-main);
+}
+
+html.dark-mode .stat-card {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .stat-card__label {
+  color: #9ca3af;
+}
+
+html.dark-mode .feature-card,
+html.dark-mode .about-value-card,
+html.dark-mode .about-timeline__card,
+html.dark-mode .gallery__card {
+  background: #16171d;
+  border-color: #2e303a;
+  box-shadow: none;
+}
+
+html.dark-mode .feature-card__title,
+html.dark-mode .stat-card__num,
+html.dark-mode .section-title,
+html.dark-mode .about-value-card h4,
+html.dark-mode .contact-form__title {
+  color: #f3f4f6;
+}
+
+html.dark-mode .feature-card__desc,
+html.dark-mode .section-subtitle,
+html.dark-mode .contact-form__subtitle {
+  color: #9ca3af;
+}
+
+html.dark-mode .contact-cta__right,
+html.dark-mode .contact-cta__container {
+  background: #16171d;
+}
+
+html.dark-mode .form-input,
+html.dark-mode .form-textarea,
+html.dark-mode .admin-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html.dark-mode .admin-content select,
+html.dark-mode .admin-content textarea {
+  background: #1f2028 !important;
+  border-color: #3f4250 !important;
+  color: #f3f4f6 !important;
+}
+
+html.dark-mode .form-input:focus,
+html.dark-mode .form-textarea:focus,
+html.dark-mode .admin-content input:focus,
+html.dark-mode .admin-content select:focus,
+html.dark-mode .admin-content textarea:focus {
+  background: #25262f !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+html.dark-mode .form-label {
+  color: #9ca3af;
+}
+
+html.dark-mode .form-input:focus ~ .form-label,
+html.dark-mode .form-textarea:focus ~ .form-label,
+html.dark-mode .form-input:not(:placeholder-shown) ~ .form-label,
+html.dark-mode .form-textarea:not(:placeholder-shown) ~ .form-label {
+  background: #16171d;
+  color: #93c5fd;
+}
+
+html.dark-mode .footer {
+  background: #0c0d12;
+  border-top: 1px solid #2e303a;
+}
+
+html.dark-mode .footer__desc,
+html.dark-mode .footer__links a,
+html.dark-mode .footer__bottom {
+  color: #9ca3af;
+}
+
+html.dark-mode .footer__brand h3 {
+  color: #f3f4f6;
+}
+
+html.dark-mode .btn--outline {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #e5e7eb;
+}
+
+/* ── Admin : contenu & formulaires ── */
+html.dark-mode .admin-content {
+  color: #d1d5db;
+}
+
+html.dark-mode .admin-stat-card__label,
+html.dark-mode .page-header-with-back__subtitle,
+html.dark-mode .admin-panel p {
+  color: #9ca3af;
+}
+
+html.dark-mode .btn--secondary {
+  background: #1f2028;
+  border: 1px solid #3f4250;
+  color: #e5e7eb;
+}
+
+html.dark-mode .btn--secondary:hover {
+  background: #2e303a;
+  border-color: #4b5563;
+}
+
+html.dark-mode .admin-header__burger {
+  color: #e5e7eb;
+}
+
+html.dark-mode .admin-header__burger svg {
+  stroke: #e5e7eb;
+}
+
+html.dark-mode .theme-toggle-btn {
+  color: #9ca3af;
+}
+
+html.dark-mode .theme-toggle-btn:hover {
+  color: #f3f4f6;
+}
+
+/* ── Modales ── */
+html.dark-mode .modal-content {
+  background: #16171d;
+  border: 1px solid #2e303a;
+}
+
+html.dark-mode .modal-header,
+html.dark-mode .modal-footer {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .modal-header h2 {
+  color: #f3f4f6;
+}
+
+html.dark-mode .modal-form-group label {
+  color: #d1d5db;
+}
+
+html.dark-mode .modal-form-group input,
+html.dark-mode .modal-form-group select {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #f3f4f6;
+}
+
+html.dark-mode .modal-form-group input:focus,
+html.dark-mode .modal-form-group select:focus {
+  background: #25262f;
+  border-color: #60a5fa;
+}
+
+html.dark-mode .modal-close-btn {
+  color: #9ca3af;
+}
+
+html.dark-mode .modal-close-btn:hover {
+  background: #2e303a;
+  color: #f3f4f6;
+}
+
+html.dark-mode .btn-cancel {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #e5e7eb;
+}
+
+html.dark-mode .btn-cancel:hover {
+  background: #2e303a;
+}
+
+/* ── Connexion ── */
+html.dark-mode .login-right {
+  background: #0f1115;
+}
+
+html.dark-mode .login-welcome h2,
+html.dark-mode .login-brand-text-mobile h2 {
+  color: #f3f4f6;
+}
+
+html.dark-mode .login-welcome p,
+html.dark-mode .login-brand-text-mobile p,
+html.dark-mode .login-footer,
+html.dark-mode .remember-me {
+  color: #9ca3af;
+}
+
+html.dark-mode .input-group label {
+  color: #d1d5db;
+}
+
+html.dark-mode .input-wrapper input {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #f3f4f6;
+}
+
+html.dark-mode .input-wrapper input:focus {
+  background: #25262f;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+}
+
+html.dark-mode .input-wrapper input:-webkit-autofill,
+html.dark-mode .input-wrapper input:-webkit-autofill:hover,
+html.dark-mode .input-wrapper input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #1f2028 inset !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+}
+
+html.dark-mode .btn-google {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #e5e7eb;
+}
+
+html.dark-mode .btn-google:hover {
+  background: #2e303a;
+}
+
+html.dark-mode .divider::before,
+html.dark-mode .divider::after {
+  border-color: #2e303a;
+}
+
+/* ── Alertes & badges (inline styles courants) ── */
+html.dark-mode .admin-content [style*="background: #fee2e2"],
+html.dark-mode .admin-content [style*="background:#fee2e2"] {
+  background: rgba(127, 29, 29, 0.35) !important;
+  color: #fecaca !important;
+}
+
+html.dark-mode .admin-content [style*="background: #dcfce7"],
+html.dark-mode .admin-content [style*="background:#dcfce7"] {
+  background: rgba(22, 101, 52, 0.3) !important;
+  color: #bbf7d0 !important;
+}
+
+html.dark-mode .admin-content [style*="background: #eff6ff"],
+html.dark-mode .admin-content [style*="background:#eff6ff"] {
+  background: rgba(30, 58, 138, 0.35) !important;
+  color: #bfdbfe !important;
+}
+
+html.dark-mode .admin-content [style*="background: #fef3c7"],
+html.dark-mode .admin-content [style*="background:#fef3c7"] {
+  background: rgba(120, 53, 15, 0.35) !important;
+  color: #fde68a !important;
+}
+
+/* ── Pages admin sans fichier dark dédié ── */
+html.dark-mode .settings-page,
+html.dark-mode .students-page,
+html.dark-mode .payments-page,
+html.dark-mode .niveaux-page,
+html.dark-mode .teachers-page {
+  color: #d1d5db;
+}
+
+html.dark-mode .status-badge--success {
+  background: rgba(22, 163, 74, 0.2);
+  color: #86efac;
+}
+
+html.dark-mode .status-badge--error,
+html.dark-mode .status-badge--warning {
+  background: rgba(185, 28, 28, 0.2);
+  color: #fca5a5;
+}
+
+html.dark-mode .niveaux-filter-chip {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #d1d5db;
+}
+
+html.dark-mode .niveaux-filter-chip.is-active {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #bfdbfe;
+}
+
+html.dark-mode .niveaux-info-banner {
+  background: rgba(30, 58, 138, 0.25);
+  border-color: #1e40af;
+  color: #bfdbfe;
+}
+
+/* ── Infos école & chatbot ── */
+html.dark-mode .sip {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+html.dark-mode .sip__nav--scrolled {
+  background: rgba(15, 17, 21, 0.95);
+  border-bottom: 1px solid #2e303a;
+}
+
+html.dark-mode .sip__hero {
+  background: linear-gradient(180deg, #0c0d12 0%, #16171d 100%);
+}
+
+html.dark-mode .sip__section {
+  background: var(--bg-alt);
+}
+
+html.dark-mode .sip__pricing-card,
+html.dark-mode .sip__contact-card,
+html.dark-mode .sip__niveau-card {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .sip__pricing-row strong,
+html.dark-mode .sip__niveau-title,
+html.dark-mode .sip__section-title {
+  color: #f3f4f6;
+}
+
+html.dark-mode .sip__pricing-row span,
+html.dark-mode .sip__niveau-desc {
+  color: #9ca3af;
+}
+
+html.dark-mode .settings-page__subtitle {
+  color: #9ca3af;
+}
+
+html.dark-mode .settings-toggle {
+  background: #1f2028;
+  border-color: #2e303a;
+}
+
+html.dark-mode .settings-field label {
+  color: #d1d5db;
+}
+
+html.dark-mode .chatbot-widget,
+html.dark-mode .school-info-page {
+  background: var(--bg-main);
+  color: var(--text-main);
+}

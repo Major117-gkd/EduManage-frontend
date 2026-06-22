@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import './Modal.css';
 
-const API = 'http://localhost:5000';
+import { api } from '../../services/api';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -27,8 +27,7 @@ export default function AdminDashboard() {
 
   // Load classes for the dropdown
   useEffect(() => {
-    fetch(`${API}/api/admin/classes`)
-      .then(r => r.json())
+    api.get('/admin/classes')
       .then(data => { if (Array.isArray(data)) setClasses(data); })
       .catch(() => {});
   }, []);
@@ -47,27 +46,21 @@ export default function AdminDashboard() {
         specialite: teacherForm.specialite.trim(),
         contact: teacherForm.contact.trim(),
       };
-      const res = await fetch(`${API}/api/admin/professeurs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const pwdInfo = data.motDePasseTemporaire
-          ? ` Mot de passe temporaire : ${data.motDePasseTemporaire}`
-          : '';
-        setTeacherMessage(
-          `Professeur et compte créés (${data.utilisateur?.email || teacherForm.email}).${pwdInfo}`
-        );
-        setTeacherForm({ prenom: '', nom: '', specialite: '', email: '', contact: '' });
-        refreshData();
-        setTimeout(() => { setIsTeacherModalOpen(false); setTeacherMessage(''); }, 1500);
-      } else {
-        setTeacherMessage('' + (data.error || 'Erreur'));
-      }
-    } catch {
-      setTeacherMessage('Impossible de contacter le serveur');
+      const data = await api.post('/admin/professeurs', payload);
+      const pwdInfo = data.motDePasseTemporaire
+        ? ` Mot de passe temporaire : ${data.motDePasseTemporaire}`
+        : '';
+      const emailInfo = data.emailSent
+        ? ' Un e-mail avec les identifiants a été envoyé.'
+        : (data.emailError ? ` E-mail non envoyé : ${data.emailError}` : '');
+      setTeacherMessage(
+        `Professeur et compte créés (${data.utilisateur?.email || teacherForm.email}).${pwdInfo}${emailInfo}`
+      );
+      setTeacherForm({ prenom: '', nom: '', specialite: '', email: '', contact: '' });
+      refreshData();
+      setTimeout(() => { setIsTeacherModalOpen(false); setTeacherMessage(''); }, 1500);
+    } catch (err) {
+      setTeacherMessage('' + (err.data?.error || err.message || 'Impossible de contacter le serveur'));
     }
     setTeacherSubmitting(false);
   };
@@ -77,22 +70,13 @@ export default function AdminDashboard() {
     setSubmitting(true);
     setMessage('');
     try {
-      const res = await fetch(`${API}/api/admin/eleves`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage('' + data.message);
-        setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', classeId: '', annee_scolaire: '2024-2025' });
-        refreshData();
-        setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
-      } else {
-        setMessage('' + (data.error || 'Erreur'));
-      }
-    } catch {
-      setMessage('Impossible de contacter le serveur');
+      const data = await api.post('/admin/eleves', form);
+      setMessage('' + data.message);
+      setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', classeId: '', annee_scolaire: '2024-2025' });
+      refreshData();
+      setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
+    } catch (err) {
+      setMessage('' + (err.data?.error || err.message || 'Impossible de contacter le serveur'));
     }
     setSubmitting(false);
   };
@@ -107,12 +91,11 @@ export default function AdminDashboard() {
 
   const [recentRegistrations, setRecentRegistrations] = useState([]);
   const [tauxReussite, setTauxReussite] = useState([]);
+  const [tauxLoading, setTauxLoading] = useState(true);
   const [chartData, setChartData] = useState({ studentsPerLevel: [], enrollmentsTrend: [] });
 
   useEffect(() => {
-    // Fetch dashboard stats
-    fetch(`${API}/api/admin/stats`)
-      .then(r => r.json())
+    api.get('/admin/stats')
       .then(data => {
         setStats([
           { label: 'Total Élèves', value: data.eleves ?? '0', trend: 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
@@ -123,28 +106,23 @@ export default function AdminDashboard() {
       })
       .catch(() => {});
 
-    // Fetch recent registrations
-    fetch(`${API}/api/admin/recent-registrations`)
-      .then(r => r.json())
+    api.get('/admin/recent-registrations')
       .then(data => { if (Array.isArray(data)) setRecentRegistrations(data); })
       .catch(() => {});
 
-    // Fetch chart data
-    fetch(`${API}/api/admin/chart-data`)
-      .then(r => r.json())
+    api.get('/admin/chart-data')
       .then(data => { if (data.studentsPerLevel) setChartData(data); })
       .catch(() => {});
 
-    // Fetch taux de réussite par niveau
-    fetch(`${API}/api/admin/taux-reussite`)
-      .then(r => r.json())
+    api.get('/admin/taux-reussite')
       .then(data => { if (Array.isArray(data)) setTauxReussite(data); })
-      .catch(() => {});
+      .catch(() => setTauxReussite([]))
+      .finally(() => setTauxLoading(false));
   }, []);
 
   // Refresh after new student is added
   const refreshData = () => {
-    fetch(`${API}/api/admin/stats`).then(r => r.json()).then(data => {
+    api.get('/admin/stats').then(data => {
       setStats([
         { label: 'Total Élèves', value: data.eleves ?? '0', trend: 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
         { label: 'Professeurs', value: data.professeurs ?? '0', trend: 'Effectif enseignant', icon: <GraduationCap size={24} color="#7c3aed" />, bg: '#f3e8ff' },
@@ -152,7 +130,7 @@ export default function AdminDashboard() {
         { label: 'Inscriptions en attente', value: data.inscriptionsEnAttente ?? '0', trend: 'Action requise', icon: <AlertCircle size={24} color="#dc2626" />, bg: '#fee2e2' },
       ]);
     }).catch(() => {});
-    fetch(`${API}/api/admin/recent-registrations`).then(r => r.json()).then(data => { if (Array.isArray(data)) setRecentRegistrations(data); }).catch(() => {});
+    api.get('/admin/recent-registrations').then(data => { if (Array.isArray(data)) setRecentRegistrations(data); }).catch(() => {});
   };
 
 
@@ -185,7 +163,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="admin-dashboard__grid" style={{ marginBottom: '1.5rem', gridTemplateColumns: '1fr 1fr' }}>
+      <div className="admin-dashboard__grid admin-dashboard__grid--charts" style={{ marginBottom: '1.5rem' }}>
         {/* Chart 1: Enrollments Trend */}
         <div className="admin-panel" style={{ minWidth: 0 }}>
           <div className="admin-panel__header">
@@ -290,9 +268,9 @@ export default function AdminDashboard() {
             <h2 className="admin-panel__title">Accès Rapides</h2>
           </div>
           <div className="quick-actions">
-            <button className="quick-action-btn" onClick={() => navigate('/admin/grades')}>
+            <button className="quick-action-btn" onClick={() => navigate('/admin/grades/consultation')}>
               <TrendingUp size={20} color="#0A2F6B" />
-              <span style={{ flex: 1 }}>Saisir des notes</span>
+              <span style={{ flex: 1 }}>Consulter les notes</span>
               <ChevronRight size={16} color="#94a3b8" />
             </button>
             <button className="quick-action-btn" onClick={() => navigate('/admin/classes')}>
@@ -300,7 +278,7 @@ export default function AdminDashboard() {
               <span style={{ flex: 1 }}>Créer une classe</span>
               <ChevronRight size={16} color="#94a3b8" />
             </button>
-            <button className="quick-action-btn" onClick={() => { setTeacherForm({ prenom: '', nom: '', matiere: '', email: '' }); setTeacherMessage(''); setIsTeacherModalOpen(true); }}>
+            <button className="quick-action-btn" onClick={() => navigate('/admin/teachers')}>
               <GraduationCap size={20} color="#7c3aed" />
               <span style={{ flex: 1 }}>Ajouter un professeur</span>
               <ChevronRight size={16} color="#94a3b8" />
@@ -323,12 +301,25 @@ export default function AdminDashboard() {
       <div className="admin-panel" style={{ marginTop: '1.5rem' }}>
         <div className="admin-panel__header">
           <h2 className="admin-panel__title">Taux de réussite &amp; échec par niveau</h2>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Seuil de réussite : 10/20</span>
+          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+            {tauxReussite[0]?.anneeScolaire
+              ? `Année ${tauxReussite[0].anneeScolaire} · seuil ≥ ${tauxReussite[0]?.seuilReussite ?? 10}/20`
+              : 'Basé sur les notes saisies (année active)'}
+          </span>
         </div>
         <div className="taux-grid">
-          {tauxReussite.length === 0 ? (
+          {tauxLoading ? (
+            ['Primaire', 'Collège', 'Lycée'].map((niveau) => (
+              <div className="taux-card taux-card--loading" key={niveau}>
+                <div className="taux-card__header">
+                  <span className="taux-card__niveau">{niveau}</span>
+                  <span className="taux-card__total" style={{ color: '#cbd5e1' }}>…</span>
+                </div>
+              </div>
+            ))
+          ) : tauxReussite.length === 0 ? (
             <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.9rem', padding: '1rem 0' }}>
-              Aucune donnée disponible. Calculez d'abord les résultats depuis la page Notes &amp; Bulletins.
+              Impossible de charger les statistiques.
             </p>
           ) : (
             tauxReussite.map((t) => (
@@ -367,6 +358,14 @@ export default function AdminDashboard() {
                   <span className="taux-count taux-count--success">{t.reussite} reçus</span>
                   <span className="taux-count taux-count--echec">{t.echec} échoués</span>
                 </div>
+                {t.sansNotes > 0 && (
+                  <p className="taux-card__hint">
+                    {t.sansNotes} élève{t.sansNotes > 1 ? 's' : ''} sans notes complètes
+                  </p>
+                )}
+                {t.inscrits > 0 && t.evaluables === 0 && (
+                  <p className="taux-card__hint">Aucune moyenne calculable pour le moment</p>
+                )}
               </div>
             ))
           )}

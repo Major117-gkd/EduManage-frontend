@@ -10,9 +10,9 @@ import Chatbot from './Chatbot';
 
 /* ─── DATA ──────────────────────────────────────────── */
 const contacts = [
-  { icon: <Phone size={22} />, label: 'Téléphone principal', value: '+224 000 00 00 00' },
-  { icon: <Mail size={22} />, label: 'Email', value: 'contact@gsp-diallo.edu.gn' },
-  { icon: <MapPin size={22} />, label: 'Adresse', value: 'Conakry, Guinée' },
+  { icon: <Phone size={22} />, label: 'Téléphone principal', value: '+224 629 40 30 19' },
+  { icon: <Mail size={22} />, label: 'Email', value: 'samakedelamou858@gmail.com' },
+  { icon: <MapPin size={22} />, label: 'Adresse', value: 'Labé, Guinée' },
   { icon: <Clock size={22} />, label: 'Heures d\'ouverture', value: 'Lun–Ven : 7h30 – 17h00' },
 ];
 
@@ -251,10 +251,10 @@ export default function SchoolInfoPage() {
           <h2>Venez nous rendre visite</h2>
           <p>Les inscriptions se font directement au secrétariat de l'établissement. Notre équipe vous accueille du lundi au vendredi de 7h30 à 17h00.</p>
           <div className="sip__cta-btns">
-            <a href="tel:+224000000000" className="sip__btn sip__btn--outline">
+            <a href="tel:+224629403019" className="sip__btn sip__btn--outline">
               <Phone size={18} /> Appeler le secrétariat
             </a>
-            <a href="mailto:contact@gsp-diallo.edu.gn" className="sip__btn sip__btn--primary">
+            <a href="mailto:samakedelamou858@gmail.com" className="sip__btn sip__btn--primary">
               <Mail size={18} /> Envoyer un email
             </a>
           </div>

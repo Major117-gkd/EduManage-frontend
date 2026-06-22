@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { DollarSign, Plus, Search, Filter, Download, Trash2, Edit, CheckCircle, XCircle, Clock, X } from 'lucide-react';
+import { DollarSign, Plus, Search, Filter, Trash2, Edit, CheckCircle, XCircle, Clock, X, Printer } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
+import PaymentReceipt, { printPaymentReceipt } from '../../components/PaymentReceipt/PaymentReceipt';
+
+import { api } from '../../services/api';
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState([]);
   const [students, setStudents] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
+  const [receiptPayment, setReceiptPayment] = useState(null);
+  const [printAfterSave, setPrintAfterSave] = useState(true);
+  const [amountPreview, setAmountPreview] = useState(null);
+  const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
     eleveId: '',
     montant: '',
@@ -23,12 +30,24 @@ export default function PaymentsPage() {
   });
 
   const modesPaiement = ['Espèces', 'Chèque', 'Virement', 'Orange Money', 'Wave', 'Autre'];
-  const periodes = ['Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Tranche 1', 'Tranche 2', 'Tranche 3', 'Annuel'];
+  const periodesMensuelles = ['Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin'];
+  const periodesTranches = ['Tranche 1', 'Tranche 2', 'Tranche 3'];
+  const periodesIntegrales = ['Paiement total', 'Annuel'];
 
   useEffect(() => {
     fetchPayments();
     fetchStudents();
+    fetchClasses();
   }, []);
+
+  const fetchClasses = async () => {
+    try {
+      const data = await api.get('/admin/classes');
+      setClasses(data);
+    } catch (error) {
+      console.error('Erreur récupération classes:', error);
+    }
+  };
 
   useEffect(() => {
     filterPayments();
@@ -36,8 +55,8 @@ export default function PaymentsPage() {
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/paiements');
-      setPayments(response.data);
+      const data = await api.get('/paiements');
+      setPayments(data);
     } catch (error) {
       console.error('Erreur récupération paiements:', error);
     }
@@ -45,8 +64,8 @@ export default function PaymentsPage() {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/eleves');
-      setStudents(response.data);
+      const data = await api.get('/admin/eleves');
+      setStudents(data);
     } catch (error) {
       console.error('Erreur récupération élèves:', error);
     }
@@ -63,8 +82,72 @@ export default function PaymentsPage() {
   };
 
   const handleStudentChange = (studentId) => {
-    setFormData({ ...formData, eleveId: studentId });
-    // The backend will calculate the expected amount based on tranche system
+    setFormData({ ...formData, eleveId: studentId, periode: '', montant: '' });
+    setAmountPreview(null);
+    setFormError('');
+  };
+
+  const fetchAmountPreview = async (eleveId, periode, annee_scolaire, montant = '') => {
+    if (!eleveId || !periode || !annee_scolaire) {
+      setAmountPreview(null);
+      return;
+    }
+    try {
+      const params = new URLSearchParams({
+        eleveId,
+        periode,
+        annee_scolaire,
+      });
+      if (montant) params.set('montant', montant);
+      const data = await api.get(`/paiements/montant-attendu?${params}`);
+      setAmountPreview(data);
+      if (!montant) {
+        setFormData((prev) => ({ ...prev, montant: data.montant?.toString() || '' }));
+      }
+    } catch {
+      setAmountPreview(null);
+    }
+  };
+
+  const getAvailablePeriods = () => {
+    const groups = [
+      { label: 'Paiement intégral', items: periodesIntegrales },
+      { label: 'Tranches', items: periodesTranches },
+      { label: 'Mois', items: periodesMensuelles },
+    ];
+
+    if (!formData.eleveId) {
+      return groups;
+    }
+
+    const student = students.find((s) => s.id === parseInt(formData.eleveId));
+    const classId = student?.inscriptions?.[0]?.classeId;
+    const cls = classes.find((c) => c.id === classId);
+    const tranchesClasse = cls?.tranches?.length
+      ? [{ label: 'Tranches de la classe', items: cls.tranches.map((t) => t.nom) }]
+      : [];
+
+    return [...groups.slice(0, 1), ...tranchesClasse, ...groups.slice(1)];
+  };
+
+  const handlePeriodChange = async (periode) => {
+    let amount = '';
+    if (formData.eleveId) {
+      const student = students.find((s) => s.id === parseInt(formData.eleveId));
+      const classId = student?.inscriptions?.[0]?.classeId;
+      const cls = classes.find((c) => c.id === classId);
+      const tranche = cls?.tranches?.find((t) => t.nom === periode);
+      if (tranche) {
+        amount = tranche.montant.toString();
+        setFormData({ ...formData, periode, montant: amount });
+        setAmountPreview(null);
+        return;
+      }
+    }
+    setFormData({ ...formData, periode, montant: amount });
+    if (formData.eleveId && formData.annee_scolaire) {
+      await fetchAmountPreview(formData.eleveId, periode, formData.annee_scolaire);
+    }
   };
 
   const filterPayments = () => {
@@ -92,34 +175,64 @@ export default function PaymentsPage() {
     setFilteredPayments(filtered);
   };
 
+  const resetForm = () => {
+    setFormData({
+      eleveId: '',
+      montant: '',
+      mode_paiement: 'Espèces',
+      periode: '',
+      annee_scolaire: '2024-2025',
+      reference: '',
+      notes: ''
+    });
+    setAmountPreview(null);
+    setFormError('');
+  };
+
+  const openReceipt = async (payment, autoPrint = false) => {
+    try {
+      const full = payment.eleve?.inscriptions
+        ? payment
+        : await api.get(`/paiements/${payment.id}`);
+      setReceiptPayment(full);
+      if (autoPrint) {
+        setTimeout(() => printPaymentReceipt(), 500);
+      }
+    } catch (error) {
+      console.error('Erreur chargement reçu:', error);
+      setReceiptPayment(payment);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
     try {
-      // Don't send montant if empty - backend will calculate based on tranche system
       const submissionData = { ...formData };
       if (!submissionData.montant) {
         delete submissionData.montant;
       }
 
       if (editingPayment) {
-        await axios.put(`http://localhost:5000/api/paiements/${editingPayment.id}`, submissionData);
+        await api.put(`/paiements/${editingPayment.id}`, submissionData);
+        setShowModal(false);
+        setEditingPayment(null);
+        resetForm();
       } else {
-        await axios.post('http://localhost:5000/api/paiements', submissionData);
+        const data = await api.post('/paiements', submissionData);
+        setShowModal(false);
+        setEditingPayment(null);
+        resetForm();
+        if (data.paiement) {
+          if (printAfterSave) {
+            await openReceipt(data.paiement, true);
+          }
+        }
       }
-      setShowModal(false);
-      setEditingPayment(null);
-      setFormData({
-        eleveId: '',
-        montant: '',
-        mode_paiement: 'Espèces',
-        periode: '',
-        annee_scolaire: '2024-2025',
-        reference: '',
-        notes: ''
-      });
       fetchPayments();
       fetchStudents();
     } catch (error) {
+      setFormError(error.data?.error || error.message || 'Erreur lors de l\'enregistrement');
       console.error('Erreur enregistrement paiement:', error);
     }
   };
@@ -127,7 +240,7 @@ export default function PaymentsPage() {
   const handleDelete = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/paiements/${id}`);
+        await api.delete(`/paiements/${id}`);
         fetchPayments();
         fetchStudents();
       } catch (error) {
@@ -179,7 +292,7 @@ export default function PaymentsPage() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="dashboard-stats-grid">
         <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -299,6 +412,7 @@ export default function PaymentsPage() {
                 <td>{payment.reference || '-'}</td>
                 <td>
                   <div className="action-buttons">
+                    <button className="action-btn action-btn--view" title="Imprimer le reçu" style={{ background: '#e0e7ff', color: '#4f46e5' }} onClick={() => openReceipt(payment)}><Printer size={16} /></button>
                     <button className="action-btn action-btn--edit" title="Modifier" onClick={() => handleEdit(payment)}><Edit size={16} /></button>
                     <button className="action-btn action-btn--delete" title="Supprimer" onClick={() => handleDelete(payment.id)}><Trash2 size={16} /></button>
                   </div>
@@ -321,6 +435,11 @@ export default function PaymentsPage() {
               <button className="modal-close-btn" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="modal-body">
+              {formError && (
+                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#fee2e2', color: '#991b1b', fontSize: '0.9rem' }}>
+                  {formError}
+                </div>
+              )}
               <form id="paymentForm" onSubmit={handleSubmit}>
                 <div className="modal-form-group">
                   <label>Élève *</label>
@@ -363,8 +482,20 @@ export default function PaymentsPage() {
                       placeholder="Laisser vide pour calcul automatique"
                     />
                     <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
-                      Si vide, calculé automatiquement : 3 mois (tranche) ou 1 mois (exception)
+                      Calcul auto : tranche (3 mois), mensuel (exception), ou total annuel selon la période choisie.
                     </p>
+                    {amountPreview && (
+                      <div style={{ marginTop: '0.5rem', padding: '0.65rem 0.75rem', background: '#eff6ff', borderRadius: '6px', border: '1px solid #bfdbfe', fontSize: '0.82rem', color: '#1e40af' }}>
+                        <strong>Montant annuel :</strong> {amountPreview.montant_annuel?.toLocaleString()} GNF ·{' '}
+                        <strong>Déjà payé :</strong> {amountPreview.total_paye?.toLocaleString()} GNF ·{' '}
+                        <strong>Reste :</strong> {amountPreview.solde_restant_annee?.toLocaleString()} GNF
+                        {amountPreview.paiement_integral && (
+                          <span style={{ display: 'block', marginTop: '0.25rem', fontWeight: 600 }}>
+                            Paiement intégral — montant appliqué : {amountPreview.montant?.toLocaleString()} GNF
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="modal-form-group">
                     <label>Mode de paiement *</label>
@@ -381,15 +512,19 @@ export default function PaymentsPage() {
                 </div>
                 <div className="modal-form-row">
                   <div className="modal-form-group">
-                    <label>Période *</label>
+                    <label>Période / Tranche *</label>
                     <select
                       required
                       value={formData.periode}
-                      onChange={(e) => setFormData({ ...formData, periode: e.target.value })}
+                      onChange={(e) => handlePeriodChange(e.target.value)}
                     >
                       <option value="">Sélectionner une période</option>
-                      {periodes.map((periode) => (
-                        <option key={periode} value={periode}>{periode}</option>
+                      {getAvailablePeriods().map((group) => (
+                        <optgroup key={group.label} label={group.label}>
+                          {group.items.map((periode) => (
+                            <option key={periode} value={periode}>{periode}</option>
+                          ))}
+                        </optgroup>
                       ))}
                     </select>
                   </div>
@@ -423,12 +558,53 @@ export default function PaymentsPage() {
                     style={{ width: '100%', padding: '0.85rem 1rem', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', borderRadius: '8px', fontSize: '0.95rem', color: '#0f172a', transition: 'all 0.2s', resize: 'vertical', fontFamily: 'inherit' }}
                   />
                 </div>
+                {!editingPayment && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', padding: '0.75rem 1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={printAfterSave}
+                      onChange={(e) => setPrintAfterSave(e.target.checked)}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.9rem', color: '#0f172a', fontWeight: 500 }}>
+                      Imprimer le reçu après enregistrement
+                    </span>
+                  </label>
+                )}
               </form>
             </div>
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setShowModal(false)}>Annuler</button>
               <button type="submit" form="paymentForm" className="btn-submit">
                 {editingPayment ? 'Modifier' : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {receiptPayment && (
+        <div className="modal-overlay" onClick={() => setReceiptPayment(null)}>
+          <div className="modal-content print-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', width: '95%' }}>
+            <div className="modal-header print-hide">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Printer size={22} color="#0A2F6B" />
+                <h2>Reçu de paiement — {receiptPayment.reference || `#${receiptPayment.id}`}</h2>
+              </div>
+              <button type="button" className="modal-close-btn" onClick={() => setReceiptPayment(null)}><X size={20} /></button>
+            </div>
+            <div className="modal-body payment-receipt-wrapper edu-print-root" style={{ padding: '1.5rem', background: '#e2e8f0' }}>
+              <PaymentReceipt paiement={receiptPayment} />
+            </div>
+            <div className="modal-footer print-hide">
+              <button type="button" className="btn-cancel" onClick={() => setReceiptPayment(null)}>Fermer</button>
+              <button
+                type="button"
+                className="btn-submit"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => printPaymentReceipt()}
+              >
+                <Printer size={18} /> Imprimer le reçu
               </button>
             </div>
           </div>

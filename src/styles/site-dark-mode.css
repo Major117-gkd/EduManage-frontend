@@ -1,0 +1,332 @@
+/* ═══════════════════════════════════════════════════════════
+   Site public — Mode sombre complet
+   (Accueil, Infos école, Chatbot, Connexion)
+═══════════════════════════════════════════════════════════ */
+
+html.dark-mode {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --secondary: #f3f4f6;
+  --text-main: #d1d5db;
+  --text-muted: #9ca3af;
+}
+
+/* ── Accueil : sections & cartes ── */
+html.dark-mode .dash-section,
+html.dark-mode .testimonials {
+  background: var(--bg-main);
+}
+
+html.dark-mode .contact-cta {
+  background: #0c0d12;
+}
+
+html.dark-mode .hero__dashboard,
+html.dark-mode .hero__float-card,
+html.dark-mode .laptop-screen,
+html.dark-mode .lc-stat,
+html.dark-mode .lc-chart-mini,
+html.dark-mode .team-card,
+html.dark-mode .about-timeline__card,
+html.dark-mode .about-value-card {
+  background: #16171d;
+  border-color: #2e303a;
+  box-shadow: none;
+}
+
+html.dark-mode .hero__dashboard:hover,
+html.dark-mode .about-timeline__card:hover,
+html.dark-mode .team-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .dashboard__title,
+html.dark-mode .dashboard__body,
+html.dark-mode .dash-features li,
+html.dark-mode .team-card__name,
+html.dark-mode .about-timeline__event,
+html.dark-mode .about-timeline__year {
+  color: #f3f4f6;
+}
+
+html.dark-mode .team-card__role {
+  color: #93c5fd;
+}
+
+html.dark-mode .team-card__desc,
+html.dark-mode .about-timeline__desc,
+html.dark-mode .dash-section p {
+  color: #9ca3af;
+}
+
+html.dark-mode .laptop-url {
+  background: #1f2028;
+  color: #9ca3af;
+  border-color: #2e303a;
+}
+
+html.dark-mode .testi-card {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .testi-name {
+  color: #f3f4f6;
+}
+
+html.dark-mode .testi-avatar {
+  background: #2e303a;
+}
+
+html.dark-mode .gallery__card {
+  border-color: #2e303a;
+}
+
+html.dark-mode .contact-info__item {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .contact-info__item:hover .contact-info__icon {
+  background: #1f2028;
+}
+
+html.dark-mode .contact-info__label {
+  color: #9ca3af;
+}
+
+html.dark-mode .contact-info__value {
+  color: #f3f4f6;
+}
+
+html.dark-mode .footer__nl-input {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #f3f4f6;
+}
+
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6 {
+  color: var(--text-h);
+}
+
+html.dark-mode .home-page h1,
+html.dark-mode .home-page h2,
+html.dark-mode .home-page h3,
+html.dark-mode .home-page h4 {
+  color: var(--secondary);
+}
+
+html.dark-mode .section-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+html.dark-mode .highlight {
+  color: #93c5fd;
+}
+
+html.dark-mode .navbar__menu {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .navbar__link {
+  color: #d1d5db;
+}
+
+html.dark-mode .navbar__link:hover {
+  color: #93c5fd;
+}
+
+html.dark-mode .navbar__theme-btn {
+  color: #9ca3af;
+}
+
+html.dark-mode .navbar__theme-btn:hover {
+  color: #f3f4f6;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html.dark-mode .navbar__burger {
+  color: #f3f4f6;
+}
+
+html.dark-mode .burger-bar {
+  background: #f3f4f6;
+}
+
+/* ── Infos école (SchoolInfoPage) ── */
+html.dark-mode .sip__section--alt {
+  background: #0c0d12;
+}
+
+html.dark-mode .sip__contact-card,
+html.dark-mode .sip__level-card,
+html.dark-mode .sip__pricing-card,
+html.dark-mode .sip__faq-item,
+html.dark-mode .sip__map-placeholder {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .sip__contact-card:hover,
+html.dark-mode .sip__level-card:hover,
+html.dark-mode .sip__pricing-card:hover,
+html.dark-mode .sip__faq-item:hover,
+html.dark-mode .sip__faq-item.open {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+html.dark-mode .sip__contact-label,
+html.dark-mode .sip__level-desc,
+html.dark-mode .sip__pricing-row span,
+html.dark-mode .sip__pricing-inclus li,
+html.dark-mode .sip__faq-a {
+  color: #9ca3af;
+}
+
+html.dark-mode .sip__contact-value,
+html.dark-mode .sip__level-card h3,
+html.dark-mode .sip__pricing-row strong,
+html.dark-mode .sip__faq-q {
+  color: #f3f4f6;
+}
+
+html.dark-mode .sip__pricing-row--total span,
+html.dark-mode .sip__pricing-row--total strong {
+  color: #93c5fd;
+}
+
+html.dark-mode .sip__pricing-note {
+  background: rgba(30, 58, 138, 0.25);
+  border-color: #1e40af;
+  color: #bfdbfe;
+}
+
+html.dark-mode .sip__btn--primary {
+  background: #f3f4f6;
+  color: #0A2F6B;
+}
+
+html.dark-mode .sip__btn--outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #f3f4f6;
+}
+
+html.dark-mode .sip__back {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html.dark-mode .sip__section-label {
+  color: #93c5fd;
+}
+
+/* ── Chatbot ── */
+html.dark-mode .chatbot__window {
+  background: #16171d;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+html.dark-mode .chatbot__messages {
+  background: #0f1115;
+}
+
+html.dark-mode .chatbot__msg--bot .chatbot__msg-bubble {
+  background: #1f2028;
+  color: #e5e7eb;
+  box-shadow: none;
+  border: 1px solid #2e303a;
+}
+
+html.dark-mode .chatbot__typing {
+  background: #1f2028;
+  border: 1px solid #2e303a;
+  box-shadow: none;
+}
+
+html.dark-mode .chatbot__suggestions {
+  background: #0f1115;
+  border-top-color: #2e303a;
+}
+
+html.dark-mode .chatbot__suggestion {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #93c5fd;
+}
+
+html.dark-mode .chatbot__suggestion:hover {
+  background: rgba(30, 58, 138, 0.35);
+  border-color: #3b82f6;
+}
+
+html.dark-mode .chatbot__input-row {
+  background: #16171d;
+  border-top-color: #2e303a;
+}
+
+html.dark-mode .chatbot__input {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #f3f4f6;
+}
+
+html.dark-mode .chatbot__input:focus {
+  border-color: #60a5fa;
+  background: #25262f;
+}
+
+html.dark-mode .chatbot__bubble-dot {
+  border-color: #16171d;
+}
+
+/* ── Connexion (compléments) ── */
+html.dark-mode .login-left {
+  filter: brightness(0.85);
+}
+
+html.dark-mode .login-form-container {
+  background: transparent;
+}
+
+html.dark-mode .input-icon {
+  color: #6b7280;
+}
+
+html.dark-mode .password-toggle {
+  color: #9ca3af;
+}
+
+html.dark-mode .password-toggle:hover {
+  color: #e5e7eb;
+}
+
+html.dark-mode .login-error,
+html.dark-mode .login-form .error-message {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+/* ── Profil (compléments) ── */
+html.dark-mode .profile-appearance__hint {
+  color: #9ca3af;
+}
+
+html.dark-mode .profile-account-meta__label {
+  color: #9ca3af;
+}
+
+html.dark-mode .profile-card .admin-panel,
+html.dark-mode .profile-page .admin-panel {
+  background: #16171d;
+  border-color: #2e303a;
+}

@@ -3,7 +3,7 @@ import { Calendar, Plus, CheckCircle, Circle } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import './Modal.css';
 
-const API = 'http://localhost:5000';
+import { api } from '../../services/api';
 
 export default function AcademicYearsPage() {
   const [years, setYears] = useState([]);
@@ -14,8 +14,7 @@ export default function AcademicYearsPage() {
 
   const loadYears = () => {
     setLoading(true);
-    fetch(`${API}/api/admin/annees`)
-      .then(res => res.json())
+    api.get('/admin/annees')
       .then(data => { setYears(data); setLoading(false); })
       .catch(() => setLoading(false));
   };
@@ -25,29 +24,20 @@ export default function AcademicYearsPage() {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API}/api/admin/annees`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage('' + data.message);
-        loadYears();
-        setForm({ nom: '' });
-        setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
-      } else {
-        setMessage('' + data.error);
-      }
-    } catch {
-      setMessage('Erreur de connexion');
+      const data = await api.post('/admin/annees', form);
+      setMessage('' + data.message);
+      loadYears();
+      setForm({ nom: '' });
+      setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
+    } catch (err) {
+      setMessage('' + (err.data?.error || err.message || 'Erreur de connexion'));
     }
   };
 
   const setActiveYear = async (id) => {
     try {
-      const res = await fetch(`${API}/api/admin/annees/${id}/active`, { method: 'PUT' });
-      if (res.ok) loadYears();
+      await api.put(`/admin/annees/${id}/active`);
+      loadYears();
     } catch (e) {
       console.error(e);
     }

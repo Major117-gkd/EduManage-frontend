@@ -3,7 +3,7 @@ import { BookOpen, Plus, Edit, Trash2, X, Search } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
 
-const API = 'http://localhost:5000';
+import { api } from '../../services/api';
 
 export default function SubjectsPage() {
   const [matieres, setMatieres] = useState([]);
@@ -15,18 +15,16 @@ export default function SubjectsPage() {
   const [form, setForm] = useState({ nom: '', coefficient: 1, professeurId: '', classeId: '' });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [resMat, resProf, resClass] = await Promise.all([
-        fetch(`${API}/api/admin/matieres`),
-        fetch(`${API}/api/admin/professeurs`),
-        fetch(`${API}/api/admin/classes`)
+      const [mat, prof, cls] = await Promise.all([
+        api.get('/admin/matieres'),
+        api.get('/admin/professeurs'),
+        api.get('/admin/classes'),
       ]);
-      const mat = await resMat.json();
-      const prof = await resProf.json();
-      const cls = await resClass.json();
       if (Array.isArray(mat)) setMatieres(mat);
       if (Array.isArray(prof)) setProfesseurs(prof);
       if (Array.isArray(cls)) setClasses(cls);
@@ -43,27 +41,42 @@ export default function SubjectsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setMessage('');
+
+    if (!form.nom?.trim()) {
+      setMessage('Erreur : le nom de la matière est requis.');
+      setSubmitting(false);
+      return;
+    }
+    if (!form.classeId) {
+      setMessage('Erreur : sélectionnez une classe.');
+      setSubmitting(false);
+      return;
+    }
+    if (!form.professeurId) {
+      setMessage('Erreur : sélectionnez un professeur responsable.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      const url = editingId ? `${API}/api/admin/matieres/${editingId}` : `${API}/api/admin/matieres`;
-      const method = editingId ? 'PUT' : 'POST';
-      const body = { 
-        ...form, 
-        classeId: form.classeId ? parseInt(form.classeId) : null,
-        professeurId: form.professeurId ? parseInt(form.professeurId) : null 
+      const body = {
+        nom: form.nom.trim(),
+        coefficient: parseFloat(form.coefficient) || 1,
+        classeId: parseInt(form.classeId, 10),
+        professeurId: parseInt(form.professeurId, 10),
       };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      
-      if (res.ok) {
-        await loadData();
-        closeModal();
+      if (editingId) {
+        await api.put(`/admin/matieres/${editingId}`, body);
+      } else {
+        await api.post('/admin/matieres', body);
       }
+
+      await loadData();
+      closeModal();
     } catch (error) {
-      console.error(error);
+      setMessage(`Erreur : ${error.data?.error || error.message || 'Enregistrement impossible.'}`);
     }
     setSubmitting(false);
   };
@@ -71,10 +84,8 @@ export default function SubjectsPage() {
   const handleDelete = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cette matière ?")) {
       try {
-        const res = await fetch(`${API}/api/admin/matieres/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          setMatieres(matieres.filter(m => m.id !== id));
-        }
+        await api.delete(`/admin/matieres/${id}`);
+        setMatieres(matieres.filter(m => m.id !== id));
       } catch (error) {
         console.error(error);
       }
@@ -82,6 +93,7 @@ export default function SubjectsPage() {
   };
 
   const openModal = (matiere = null) => {
+    setMessage('');
     if (matiere) {
       setEditingId(matiere.id);
       setForm({ 
@@ -101,6 +113,7 @@ export default function SubjectsPage() {
     setShowModal(false);
     setForm({ nom: '', coefficient: 1, professeurId: '', classeId: '' });
     setEditingId(null);
+    setMessage('');
   };
 
   const filteredMatieres = matieres.filter(m => 
@@ -160,7 +173,7 @@ export default function SubjectsPage() {
                         {m.coefficient}
                       </span>
                     </td>
-                    <td>{m.classe ? <span className="status-badge status-badge--success">{m.classe.nom}</span> : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Globale</span>}</td>
+                    <td>{m.classe ? <span className="status-badge status-badge--success">{m.classe.nom}</span> : <span className="status-badge status-badge--warning">Non affectée</span>}</td>
                     <td style={{ color: '#475569' }}>{m.professeur ? `${m.professeur.prenom} ${m.professeur.nom}` : 'N/A'}</td>
                     <td>
                       <div className="action-buttons">
@@ -184,6 +197,11 @@ export default function SubjectsPage() {
               <button className="modal-close-btn" onClick={closeModal}><X size={20} /></button>
             </div>
             <div className="modal-body">
+              {message && (
+                <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#fee2e2', color: '#991b1b', fontSize: '0.9rem' }}>
+                  {message}
+                </div>
+              )}
               <form id="matiereForm" onSubmit={handleSubmit}>
                 <div className="modal-form-row">
                   <div className="modal-form-group">
@@ -211,31 +229,43 @@ export default function SubjectsPage() {
                 </div>
                 
                 <div className="modal-form-group">
-                  <label>Classe (Optionnel)</label>
+                  <label>Classe *</label>
                   <select 
                     value={form.classeId} 
                     onChange={e => setForm({...form, classeId: e.target.value})}
+                    required
                   >
-                    <option value="">Toutes les classes (Globale)</option>
+                    <option value="">Sélectionner une classe</option>
                     {classes.map(c => (
-                      <option key={c.id} value={c.id}>{c.nom}</option>
+                      <option key={c.id} value={c.id}>{c.niveau} — {c.nom}</option>
                     ))}
                   </select>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
+                    Chaque matière doit être affectée à une classe pour le calcul des résultats.
+                  </p>
                 </div>
 
                 <div className="modal-form-group">
-                  <label>Professeur responsable (Optionnel)</label>
-                  <select 
-                    value={form.professeurId} 
-                    onChange={e => setForm({...form, professeurId: e.target.value})} 
+                  <label>Professeur responsable *</label>
+                  <select
+                    value={form.professeurId}
+                    onChange={e => setForm({...form, professeurId: e.target.value})}
+                    required
                   >
-                    <option value="">Aucun professeur assigné pour le moment</option>
-                    {professeurs.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.prenom} {p.nom} {p.specialite ? `(${p.specialite})` : ''}
-                      </option>
-                    ))}
+                    <option value="">Sélectionner un professeur</option>
+                    {professeurs.length === 0 ? (
+                      <option value="" disabled>Aucun professeur disponible — créez-en un d&apos;abord</option>
+                    ) : (
+                      professeurs.map(p => (
+                        <option key={p.id} value={p.id}>
+                          {p.prenom} {p.nom} {p.specialite ? `(${p.specialite})` : ''}
+                        </option>
+                      ))
+                    )}
                   </select>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
+                    Chaque matière doit être liée à un professeur pour la saisie des notes.
+                  </p>
                 </div>
               </form>
             </div>

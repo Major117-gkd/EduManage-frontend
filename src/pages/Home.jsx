@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, GraduationCap, Heart, Rocket, Play, BookOpen, BarChart2, User, Microscope, PenTool, MessageCircle, ClipboardList, Trophy, Phone, Mail, MapPin, Send, Share2, Camera, Briefcase, MonitorPlay, Star } from 'lucide-react';
+import { Users, GraduationCap, Heart, Rocket, Play, BookOpen, BarChart2, User, Microscope, PenTool, MessageCircle, ClipboardList, Trophy, Phone, Mail, MapPin, Send, Share2, Camera, Briefcase, MonitorPlay, Star, Sun, Moon } from 'lucide-react';
+import { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
+import { api } from '../services/api';
 import './Home.css';
 
 /* ─── NAVBAR ─────────────────────────────────────────────── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -35,25 +39,41 @@ function Navbar() {
           </div>
         </a>
 
-        {/* Nav links */}
-        <ul className={`navbar__links${menuOpen ? ' open' : ''}`}>
-          {navLinks.map(link => (
-            <li key={link.label}>
-              <a href={link.href} className="navbar__link" onClick={() => setMenuOpen(false)}>
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        {/* Nav mobile / desktop */}
+        <div className={`navbar__menu${menuOpen ? ' navbar__menu--open' : ''}`}>
+          <ul className="navbar__links">
+            {navLinks.map(link => (
+              <li key={link.label}>
+                <a href={link.href} className="navbar__link" onClick={() => setMenuOpen(false)}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
 
-        {/* CTA buttons */}
-        <div className="navbar__actions">
-          <Link to="/infos" className="btn btn--ghost" id="nav-infos" style={{ marginRight: '0.5rem' }}>Infos &amp; Tarifs</Link>
-          <Link to="/login" className="btn btn--ghost" id="nav-connexion">Connexion</Link>
+          <div className="navbar__actions">
+            <button
+              type="button"
+              className="theme-toggle-btn navbar__theme-btn"
+              onClick={toggleTheme}
+              title={isDarkMode ? 'Mode clair' : 'Mode sombre'}
+              aria-label={isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            >
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <Link to="/infos" className="btn btn--ghost" id="nav-infos" style={{ marginRight: '0.5rem' }} onClick={() => setMenuOpen(false)}>Infos &amp; Tarifs</Link>
+            <Link to="/login" className="btn btn--ghost" id="nav-connexion" onClick={() => setMenuOpen(false)}>Connexion</Link>
+          </div>
         </div>
 
         {/* Mobile burger */}
-        <button className="navbar__burger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+        <button
+          type="button"
+          className="navbar__burger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-expanded={menuOpen}
+        >
           <span className={`burger-bar${menuOpen ? ' open' : ''}`}></span>
           <span className={`burger-bar${menuOpen ? ' open' : ''}`}></span>
           <span className={`burger-bar${menuOpen ? ' open' : ''}`}></span>
@@ -160,35 +180,51 @@ function Hero() {
 }
 
 /* ─── STATS BAR ───────────────────────────────────────────── */
-function StatsBar() {
-  const [dataStats, setDataStats] = useState({ eleves: '...', professeurs: '...', classes: '...' });
+function formatPublicStat(value) {
+  if (value === null || value === undefined) return '—';
+  return Number(value).toLocaleString('fr-FR');
+}
 
-  useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    fetch(`${apiUrl}/admin/stats`)
-      .then(res => res.json())
-      .then(data => {
-        setDataStats({
-          eleves: data.eleves || '0',
-          professeurs: data.professeurs || '0',
-          classes: data.classes || '0'
-        });
-      })
-      .catch(err => console.error('Erreur chargement stats:', err));
-  }, []);
+function StatsBar({ stats }) {
+  const loading = !stats;
 
-  const stats = [
-    { num: `${dataStats.eleves}+`, label: 'Élèves formés', icon: <Users size={28} />, color: '#0A2F6B' },
-    { num: `${dataStats.professeurs}`, label: 'Professeurs qualifiés', icon: <GraduationCap size={28} />, color: '#0A2F6B' },
-    { num: `${dataStats.classes}`, label: 'Classes équipées', icon: <BookOpen size={28} />, color: '#1a4e9b' },
-    { num: '100%', label: 'Taux de réussite', icon: <ClipboardList size={28} />, color: '#2b6dc4' },
-    { num: '25+', label: 'Ans d\'expérience', icon: <MessageCircle size={28} />, color: '#f59e0b' },
+  const statsItems = [
+    {
+      num: loading ? '...' : `${formatPublicStat(stats.eleves)}+`,
+      label: 'Élèves formés',
+      icon: <Users size={28} />,
+      color: '#0A2F6B',
+    },
+    {
+      num: loading ? '...' : formatPublicStat(stats.professeurs),
+      label: 'Professeurs qualifiés',
+      icon: <GraduationCap size={28} />,
+      color: '#0A2F6B',
+    },
+    {
+      num: loading ? '...' : formatPublicStat(stats.classes),
+      label: 'Classes équipées',
+      icon: <BookOpen size={28} />,
+      color: '#1a4e9b',
+    },
+    {
+      num: loading ? '...' : (stats.tauxReussite != null ? `${stats.tauxReussite}%` : '—'),
+      label: 'Taux de réussite',
+      icon: <ClipboardList size={28} />,
+      color: '#2b6dc4',
+    },
+    {
+      num: loading ? '...' : `${stats.anneesExperience}+`,
+      label: "Ans d'expérience",
+      icon: <MessageCircle size={28} />,
+      color: '#f59e0b',
+    },
   ];
 
   return (
     <section className="stats-bar" id="stats">
       <div className="stats-bar__inner">
-        {stats.map((s, i) => (
+        {statsItems.map((s, i) => (
           <div className="stat-card" key={i}>
             <div className="stat-card__icon" style={{ background: `${s.color}18`, color: s.color }}>
               {s.icon}
@@ -203,7 +239,7 @@ function StatsBar() {
 }
 
 /* ─── ABOUT SECTION ────────────────────────────────── */
-function AboutSection() {
+function AboutSection({ stats }) {
   const milestones = [
     { year: '1998', title: 'Fondation', desc: 'Elhadj Mamadou Saïdou Diallo fonde le GSP avec une seule classe primaire et une vision : offrir une éducation d’excellence accessible à tous.' },
     { year: '2005', title: 'Ouverture du Collège', desc: 'Fort de son succès au primaire, l’établissement ouvre son premier cycle secondaire (6ème – 3ème) pour accompagner ses élèves plus loin.' },
@@ -224,14 +260,34 @@ function AboutSection() {
       <div className="about-banner">
         <div className="about-banner__content">
           <div className="section-badge" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}>À PROPOS DE NOUS</div>
-          <h2 className="about-banner__title">Une histoire d’éducation,<br /><span>depuis plus de 25 ans</span></h2>
+          <h2 className="about-banner__title">Une histoire d’éducation,<br /><span>depuis plus de {stats?.anneesExperience || 25} ans</span></h2>
           <p className="about-banner__sub">Le Groupe Scolaire Privé Elhadj Mamadou Saïdou Diallo est né d’une conviction profonde : chaque enfant mérite une éducation de qualité, un encadrement bienveillant, et un avenir à la hauteur de ses ambitions. De la maternelle jusqu’au Baccalauréat, nous accompagnons chaque élève dans sa croissance intellectuelle, morale et sociale.</p>
         </div>
         <div className="about-banner__stats">
-          <div className="about-stat"><span className="about-stat__num">+25</span><span className="about-stat__label">Ans d’existence</span></div>
-          <div className="about-stat"><span className="about-stat__num">3</span><span className="about-stat__label">Cycles scolaires</span></div>
-          <div className="about-stat"><span className="about-stat__num">95%</span><span className="about-stat__label">Taux de réussite</span></div>
-          <div className="about-stat"><span className="about-stat__num">1000+</span><span className="about-stat__label">Élèves formés</span></div>
+          <div className="about-stat">
+            <span className="about-stat__num">
+              {stats ? `${stats.anneesExperience}+` : '...'}
+            </span>
+            <span className="about-stat__label">Ans d&apos;existence</span>
+          </div>
+          <div className="about-stat">
+            <span className="about-stat__num">
+              {stats ? stats.cyclesScolaires : '...'}
+            </span>
+            <span className="about-stat__label">Cycles scolaires</span>
+          </div>
+          <div className="about-stat">
+            <span className="about-stat__num">
+              {stats?.tauxReussite != null ? `${stats.tauxReussite}%` : '—'}
+            </span>
+            <span className="about-stat__label">Taux de réussite</span>
+          </div>
+          <div className="about-stat">
+            <span className="about-stat__num">
+              {stats ? `${formatPublicStat(stats.totalEleves)}+` : '...'}
+            </span>
+            <span className="about-stat__label">Élèves formés</span>
+          </div>
         </div>
       </div>
 
@@ -282,16 +338,14 @@ function TeamSection() {
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    fetch(`${apiUrl}/admin/professeurs`)
-      .then(r => r.json())
+    api.get('/admin/professeurs', { skipAuth: true })
       .then(data => {
         if (Array.isArray(data)) {
           const formatted = data.map(prof => ({
             name: `${prof.prenom} ${prof.nom}`,
             role: prof.specialite || 'Enseignant',
             desc: `Professeur de ${prof.specialite || 'plusieurs matières'}. Contact: ${prof.contact || 'Non spécifié'}`,
-            img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200' // Placeholder avatar
+            img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200'
           }));
           setTeam(formatted);
         }
@@ -421,7 +475,25 @@ function Testimonials() {
 }
 
 /* ─── CONTACT CTA ─────────────────────────────────────────── */
-function ContactCTA() {
+function ContactCTA({ siteInfo }) {
+  const [form, setForm] = useState({ nom: '', email: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFeedback('');
+    try {
+      const data = await api.post('/public/contact', form, { skipAuth: true });
+      setFeedback(data.message || 'Message envoyé avec succès.');
+      setForm({ nom: '', email: '', message: '' });
+    } catch (err) {
+      setFeedback(err.data?.error || err.message || "Impossible d'envoyer le message pour le moment.");
+    }
+    setSubmitting(false);
+  };
+
   return (
     <section className="contact-cta" id="contact">
       <div className="contact-cta__wrapper">
@@ -444,48 +516,82 @@ function ContactCTA() {
                   <div className="contact-info__icon"><Phone size={20} /></div>
                   <div className="contact-info__text">
                     <span className="contact-info__label">Appelez-nous</span>
-                    <span className="contact-info__value">+33 1 23 45 67 89</span>
+                    <span className="contact-info__value">{siteInfo?.telephone || '+224 629 40 30 19'}</span>
                   </div>
                 </div>
                 <div className="contact-info__item">
                   <div className="contact-info__icon"><Mail size={20} /></div>
                   <div className="contact-info__text">
                     <span className="contact-info__label">Écrivez-nous</span>
-                    <span className="contact-info__value">contact@ecole-speciale.fr</span>
+                    <span className="contact-info__value">{siteInfo?.email_contact || 'samakedelamou858@gmail.com'}</span>
                   </div>
                 </div>
                 <div className="contact-info__item">
                   <div className="contact-info__icon"><MapPin size={20} /></div>
                   <div className="contact-info__text">
                     <span className="contact-info__label">Rendez-nous visite</span>
-                    <span className="contact-info__value">12 Rue de l'Éducation, Paris</span>
+                    <span className="contact-info__value">{siteInfo?.adresse || 'Labé, Guinée'}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="contact-cta__right">
-            <form className="contact-form" onSubmit={(e) => { e.preventDefault(); alert("Merci ! Votre message a bien été envoyé."); }}>
+            <form className="contact-form" onSubmit={handleSubmit}>
               <div className="contact-form__header">
                 <h3 className="contact-form__title">Envoyez-nous un message</h3>
                 <p className="contact-form__subtitle">Nous vous répondrons dans les plus brefs délais.</p>
               </div>
               <div className="form-row">
                 <div className="form-group form-group--floating">
-                  <input type="text" className="form-input" placeholder=" " id="form-name" required />
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder=" "
+                    id="form-name"
+                    required
+                    value={form.nom}
+                    onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                  />
                   <label htmlFor="form-name" className="form-label">Votre nom</label>
                 </div>
                 <div className="form-group form-group--floating">
-                  <input type="email" className="form-input" placeholder=" " id="form-email" required />
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder=" "
+                    id="form-email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  />
                   <label htmlFor="form-email" className="form-label">Votre email</label>
                 </div>
               </div>
               <div className="form-group form-group--floating">
-                <textarea className="form-textarea" placeholder=" " rows="4" id="form-message" required></textarea>
+                <textarea
+                  className="form-textarea"
+                  placeholder=" "
+                  rows="4"
+                  id="form-message"
+                  required
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                />
                 <label htmlFor="form-message" className="form-label">Votre message...</label>
               </div>
-              <button type="submit" className="btn-submit-premium" id="form-submit">
-                <span>Envoyer le message</span> <Send size={18} className="btn-icon" />
+              {feedback && (
+                <p style={{
+                  margin: '0 0 0.75rem',
+                  fontSize: '0.85rem',
+                  color: feedback.includes('envoyé') || feedback.includes('succès') ? '#059669' : '#dc2626',
+                }}>
+                  {feedback}
+                </p>
+              )}
+              <button type="submit" className="btn-submit-premium" id="form-submit" disabled={submitting}>
+                <span>{submitting ? 'Envoi en cours...' : 'Envoyer le message'}</span>
+                <Send size={18} className="btn-icon" />
               </button>
             </form>
           </div>
@@ -569,17 +675,41 @@ function Footer() {
 
 /* ─── MAIN PAGE ───────────────────────────────────────────── */
 export default function Home() {
+  const [publicStats, setPublicStats] = useState(null);
+  const [siteInfo, setSiteInfo] = useState(null);
+
+  useEffect(() => {
+    api.get('/public/stats', { skipAuth: true })
+      .then((data) => setPublicStats(data))
+      .catch((err) => {
+        console.error('Erreur chargement stats publiques:', err);
+        setPublicStats({
+          eleves: 0,
+          professeurs: 0,
+          classes: 0,
+          totalEleves: 0,
+          cyclesScolaires: 3,
+          tauxReussite: null,
+          anneesExperience: 25,
+        });
+      });
+
+    api.get('/public/site-info', { skipAuth: true })
+      .then((data) => setSiteInfo(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="home-page">
       <Navbar />
       <Hero />
-      <StatsBar />
-      <AboutSection />
+      <StatsBar stats={publicStats} />
+      <AboutSection stats={publicStats} />
 
       <TeamSection />
       <Gallery />
       <Testimonials />
-      <ContactCTA />
+      <ContactCTA siteInfo={siteInfo} />
       <Footer />
     </div>
   );

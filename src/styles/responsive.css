@@ -1,0 +1,362 @@
+/* ═══════════════════════════════════════════════════
+   EduManage — Responsive global (mobile & tablette)
+   ═══════════════════════════════════════════════════ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+/* ── En-têtes de page admin ── */
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.page-toolbar__search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.page-toolbar__extra {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Colonne actions dans les tableaux ── */
+.table-actions,
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ── Grilles stats réutilisables ── */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.profile-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* ── Tablette ≤ 1024px ── */
+@media (max-width: 1024px) {
+  .admin-title {
+    font-size: 1.05rem;
+  }
+
+  .admin-content {
+    padding: 1.25rem;
+  }
+}
+
+/* ── Mobile ≤ 768px ── */
+@media (max-width: 768px) {
+  .admin-dashboard__header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-dashboard__header .admin-title {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .page-header-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header-actions .btn,
+  .page-header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem !important;
+  }
+
+  .page-toolbar__search {
+    width: 100%;
+  }
+
+  .page-toolbar__extra {
+    width: 100%;
+    padding-left: 0 !important;
+    border-left: none !important;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+    justify-content: flex-start;
+  }
+
+  .admin-panel__header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+    padding: 1rem !important;
+  }
+
+  .admin-panel__header > div {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  .admin-table {
+    min-width: 640px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .table-actions {
+    min-width: 120px;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .admin-header {
+    gap: 0.5rem;
+  }
+
+  .admin-header__search input {
+    font-size: 0.85rem;
+  }
+
+  .admin-header__actions {
+    gap: 0.5rem;
+  }
+
+  .admin-header__badge {
+    display: none;
+  }
+
+  /* Modals pleine largeur */
+  .modal-content {
+    max-width: calc(100vw - 1rem) !important;
+    margin: 0.5rem;
+    max-height: 94svh;
+  }
+
+  .modal-form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+
+  /* Grilles dashboard */
+  .admin-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .teachers-page__stats,
+  .teachers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-assign-chip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .profile-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .results-filters__body .results-class-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Paiements */
+  .payments-page {
+    padding: 0.75rem !important;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.35rem !important;
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .filters-bar > * {
+    width: 100% !important;
+  }
+
+  /* Résultats */
+  .results-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .results-header__actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .results-print-payment-btns {
+    flex-direction: column;
+  }
+
+  .results-print-payment-btns button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .results-filters {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .results-filters > * {
+    width: 100% !important;
+  }
+
+  /* Notes excel */
+  .grades-toolbar,
+  .excel-toolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .grades-toolbar > *,
+  .excel-toolbar > * {
+    width: 100%;
+  }
+
+  /* Teacher dashboard cards */
+  .teacher-courses-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Très petit écran ≤ 480px ── */
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 0.75rem;
+  }
+
+  .admin-title {
+    font-size: 1.1rem;
+  }
+
+  .admin-stats__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header__search {
+    padding: 0.4rem 0.65rem;
+  }
+
+  .admin-header__search input::placeholder {
+    font-size: 0.75rem;
+  }
+
+  .status-badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+  }
+
+  .grades-section__title {
+    font-size: 1.25rem;
+  }
+
+  .grades-tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .grades-tabs__link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Safe area (encoches iPhone) ── */
+@supports (padding: max(0px)) {
+  .admin-content {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-header {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}

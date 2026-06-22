@@ -10,15 +10,15 @@ const KB = [
   },
   {
     keywords: ['téléphone', 'telephone', 'appeler', 'numéro', 'numero', 'appel'],
-    reply: 'Vous pouvez nous joindre au : +224 000 00 00 00\nHoraires : Lundi – Vendredi, 7h30 à 17h00.'
+    reply: 'Vous pouvez nous joindre au : +224 629 40 30 19\nHoraires : Lundi – Vendredi, 7h30 à 17h00.'
   },
   {
     keywords: ['email', 'mail', 'courriel', 'adresse mail'],
-    reply: 'Notre adresse email est : contact@gsp-diallo.edu.gn\nNous répondons généralement sous 24h ouvrables.'
+    reply: 'Notre adresse email est : samakedelamou858@gmail.com\nNous répondons généralement sous 24h ouvrables.'
   },
   {
     keywords: ['adresse', 'où', 'localisation', 'situation', 'situé', 'situe', 'trouver'],
-    reply: 'L\'établissement est situé à Conakry, Guinée. Pour plus de précisions, contactez le secrétariat au +224 000 00 00 00.'
+    reply: 'L\'établissement est situé à Labé, Guinée. Pour plus de précisions, contactez le secrétariat au +224 629 40 30 19.'
   },
   {
     keywords: ['horaire', 'heure', 'ouverture', 'fermeture', 'quand'],
@@ -26,7 +26,7 @@ const KB = [
   },
   {
     keywords: ['inscri', 'inscription', 'intégrer', 'integrer', 'rejoindre', 'dossier'],
-    reply: 'Les inscriptions se font directement au secrétariat de l\'établissement. Munissez-vous de :\n• Extrait de naissance\n• Bulletins scolaires de l\'année précédente\n• Photos d\'identité\n\nContactez-nous au +224 000 00 00 00 pour plus d\'informations.'
+    reply: 'Les inscriptions se font directement au secrétariat de l\'établissement. Munissez-vous de :\n• Extrait de naissance\n• Bulletins scolaires de l\'année précédente\n• Photos d\'identité\n\nContactez-nous au +224 629 40 30 19 pour plus d\'informations.'
   },
   {
     keywords: ['primaire', 'cp', 'ce1', 'ce2', 'cm1', 'cm2'],

@@ -1,0 +1,237 @@
+.notifications-page__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.notifications-page__stat {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.notifications-page__stat strong {
+  display: block;
+  font-size: 1.35rem;
+  color: #0A2F6B;
+  line-height: 1.2;
+}
+
+.notifications-page__stat span {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.notifications-page__stat--unread strong {
+  color: #dc2626;
+}
+
+.notifications-page__stat--today strong {
+  color: #059669;
+}
+
+.notifications-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.notifications-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.notifications-page__filters label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.notifications-page__filters select {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  background: white;
+  color: #0f172a;
+}
+
+.notifications-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.notifications-page__item {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.notifications-page__item:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 2px 8px rgba(10, 47, 107, 0.06);
+}
+
+.notifications-page__item.is-unread {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.notifications-page__item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #0A2F6B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notifications-page__item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notifications-page__item-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.notifications-page__item-top strong {
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.notifications-page__type-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.notifications-page__status-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+}
+
+.notifications-page__status-badge--unread {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.notifications-page__status-badge--read {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.notifications-page__message {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.notifications-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.notifications-page__actions-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.notifications-page__mark-btn {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.notifications-page__mark-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.notifications-page__empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #94a3b8;
+}
+
+.notifications-page__empty svg {
+  margin-bottom: 0.75rem;
+  opacity: 0.45;
+}
+
+.notifications-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.notifications-page__pagination span {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+html.dark-mode .notifications-page__stat,
+html.dark-mode .notifications-page__item {
+  background: #16171d;
+  border-color: #2e303a;
+}
+
+html.dark-mode .notifications-page__item.is-unread {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: #1e3a8a;
+}
+
+html.dark-mode .notifications-page__item-top strong {
+  color: #f3f4f6;
+}
+
+html.dark-mode .notifications-page__message {
+  color: #9ca3af;
+}

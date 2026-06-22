@@ -13,7 +13,7 @@ export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) 
   const qrData = `Nom: ${nom}\nPrénoms: ${prenoms}\nNé(e) le: ${dateNaissance}\nClasse: ${classe}\nMatricule: ${matricule}`;
 
   return (
-    <div className="id-card-wrapper">
+    <div className="id-card-wrapper edu-print-root">
 
       {/* ══════════════ FRONT ══════════════ */}
       <div className="id-card id-card-front" style={{ background: 'white' }}>

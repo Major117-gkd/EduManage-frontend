@@ -35,9 +35,41 @@
 }
 
 .results-filter-checkbox span {
-  font-size: 14px;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #495057;
+}
+
+.results-print-payment-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.results-btn--sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+}
+
+.results-payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.results-payment-badge--paid {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.results-payment-badge--unpaid {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* ════════════════════════════════════════════════════
@@ -82,7 +114,7 @@
 }
 
 .results-title {
-  font-size: 1.55rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #0A2F6B;
   letter-spacing: -0.5px;
@@ -260,6 +292,20 @@
   box-shadow: 0 3px 10px rgba(109, 40, 217, 0.3);
 }
 
+.results-chip__meta {
+  margin-left: 0.35rem;
+  font-size: 0.65rem;
+  opacity: 0.8;
+  font-weight: 700;
+}
+
+.results-filter-empty {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.35rem 0;
+}
+
 /* ════════════════════════════════════════════════════
    STAT CARDS
    ════════════════════════════════════════════════════ */
@@ -327,7 +373,7 @@
 }
 
 .results-stat-card__value {
-  font-size: 1.35rem;
+  font-size: 1.05rem;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -346,6 +392,12 @@
 
 .results-list-header {
   background: linear-gradient(135deg, #f8fafc, #eff6ff) !important;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.results-list-header .results-btn {
+  margin-left: auto;
 }
 
 .results-count-badge {
@@ -636,7 +688,7 @@
 }
 
 .bulletin-card__name {
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: white;
   margin: 0;
@@ -658,7 +710,7 @@
 }
 
 .bulletin-card__avg-value {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -1px;
@@ -829,11 +881,77 @@
   }
 
   .bulletin-card__avg-value {
-    font-size: 1.6rem;
+    font-size: 1.15rem;
   }
 
   .bulletin-card__footer {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 1rem;
+    align-items: stretch;
   }
 }
+
+/* ══════════════════════════════════
+   DARK MODE OVERRIDES (Results)
+══════════════════════════════════ */
+html.dark-mode .results-title { color: #f3f4f6; }
+html.dark-mode .results-subtitle { color: #9ca3af; }
+
+html.dark-mode .results-formula-banner {
+  background: #16171d;
+  border-color: #2e303a;
+  color: #d1d5db;
+}
+
+html.dark-mode .results-chip {
+  background: #1f2028;
+  border-color: #2e303a;
+  color: #d1d5db;
+}
+
+html.dark-mode .results-chip:hover {
+  background: #2e303a;
+}
+
+html.dark-mode .results-stat-card {
+  background: #16171d;
+  border: 1px solid #2e303a;
+}
+
+html.dark-mode .bulletin-card {
+  background: #16171d;
+  border: 1px solid #2e303a;
+}
+
+html.dark-mode .bulletin-card__header { border-bottom-color: #2e303a; }
+html.dark-mode .bulletin-card__footer { border-top-color: #2e303a; }
+
+html.dark-mode .bulletin-card__name { color: #f3f4f6; }
+html.dark-mode .bulletin-card__meta { color: #9ca3af; }
+
+html.dark-mode .bulletin-subject-table th {
+  background: #1f2028;
+  color: #9ca3af;
+  border-bottom-color: #2e303a;
+}
+
+html.dark-mode .bulletin-subject-table td {
+  border-bottom-color: #2e303a;
+  color: #d1d5db;
+}
+
+html.dark-mode .results-table th {
+  background: #1f2028;
+  color: #9ca3af;
+  border-bottom-color: #2e303a;
+}
+
+html.dark-mode .results-table td {
+  border-bottom-color: #2e303a;
+}
+
+html.dark-mode .results-row:hover td {
+  background: #1f2028;
+}
+
+html.dark-mode .results-student-name { color: #f3f4f6; }

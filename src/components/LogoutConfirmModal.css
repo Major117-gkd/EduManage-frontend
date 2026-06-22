@@ -1,0 +1,109 @@
+.logout-confirm-overlay {
+  z-index: 1100;
+}
+
+.logout-confirm {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 1rem;
+  padding: 2rem 1.75rem 1.75rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  text-align: center;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.logout-confirm__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.logout-confirm__close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.logout-confirm__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+}
+
+.logout-confirm__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.logout-confirm__text {
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.logout-confirm__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.logout-confirm__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.logout-confirm__btn--danger {
+  background: #dc2626;
+}
+
+.logout-confirm__btn--danger:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 480px) {
+  .logout-confirm__actions {
+    flex-direction: column-reverse;
+  }
+}
+
+html.dark-mode .logout-confirm {
+  background: #1e293b;
+}
+
+html.dark-mode .logout-confirm__title {
+  color: #f1f5f9;
+}
+
+html.dark-mode .logout-confirm__text {
+  color: #94a3b8;
+}
+
+html.dark-mode .logout-confirm__close:hover {
+  background: #334155;
+  color: #f1f5f9;
+}

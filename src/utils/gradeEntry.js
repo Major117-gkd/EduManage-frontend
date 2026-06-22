@@ -1,3 +1,5 @@
+import { api } from '../services/api';
+
 export const PERIODES = [
   'Trimestre 1',
   'Trimestre 2',
@@ -304,7 +306,6 @@ export function getPrevInputId(field, rowIndex) {
 }
 
 export async function saveStudentGrades({
-  apiBase,
   eleveId,
   matiereId,
   periode,
@@ -316,32 +317,20 @@ export async function saveStudentGrades({
 
     if (finalized === '') {
       if (noteId) {
-        const res = await fetch(`${apiBase}/api/admin/notes/${noteId}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Suppression impossible');
+        await api.delete(`/admin/notes/${noteId}`);
       }
       return null;
     }
 
-    const res = await fetch(`${apiBase}/api/admin/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eleveId,
-        matiereId,
-        valeur: parseFloat(finalized),
-        type_evaluation: type,
-        periode,
-        annee_scolaire: anneeScolaire,
-        appreciation: row.appreciation || '',
-      }),
+    return api.post('/admin/notes', {
+      eleveId,
+      matiereId,
+      valeur: parseFloat(finalized),
+      type_evaluation: type,
+      periode,
+      annee_scolaire: anneeScolaire,
+      appreciation: row.appreciation || '',
     });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || 'Enregistrement impossible');
-    }
-
-    return res.json();
   };
 
   const results = await Promise.all(

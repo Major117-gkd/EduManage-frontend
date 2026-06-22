@@ -1,6 +1,5 @@
-
 import { NavLink, Outlet } from 'react-router-dom';
-import { PenLine, Eye, FileText } from 'lucide-react';
+import { Eye, FileText, ClipboardList } from 'lucide-react';
 import './GradesLayout.css';
 
 export default function GradesLayout() {
@@ -13,24 +12,23 @@ export default function GradesLayout() {
             Notes & Évaluations
           </h1>
           <span className="grades-section__subtitle">
-            Saisie des notes par matière · Consultation des résultats
+            Consultation en lecture seule · Bulletins et résultats
           </span>
         </div>
         <nav className="grades-tabs" aria-label="Sections notes">
-          <NavLink
-            to="/admin/grades"
-            end
-            className={({ isActive }) => `grades-tabs__link ${isActive ? 'active' : ''}`}
-          >
-            <PenLine size={15} />
-            Saisie
-          </NavLink>
           <NavLink
             to="/admin/grades/consultation"
             className={({ isActive }) => `grades-tabs__link ${isActive ? 'active' : ''}`}
           >
             <Eye size={15} />
             Consultation
+          </NavLink>
+          <NavLink
+            to="/admin/grades/results"
+            className={({ isActive }) => `grades-tabs__link ${isActive ? 'active' : ''}`}
+          >
+            <ClipboardList size={15} />
+            Bulletins
           </NavLink>
         </nav>
       </div>

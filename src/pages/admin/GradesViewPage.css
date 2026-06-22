@@ -2,6 +2,58 @@
    GRADES VIEW PAGE (Consultation) — Design Premium
    ═══════════════════════════════════════════════════ */
 
+/* ── Read-only admin banner ── */
+.grades-view-readonly-banner {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding: 0.95rem 1.15rem;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  color: #92400e;
+}
+
+.grades-view-readonly-banner strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.grades-view-readonly-banner p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #78350f;
+}
+
+/* ── Lecture seule (admin) ── */
+.grades-view-readonly-banner {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding: 0.95rem 1.15rem;
+  background: linear-gradient(135deg, #fef3c7, #fffbeb);
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  color: #92400e;
+}
+
+.grades-view-readonly-banner strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.grades-view-readonly-banner p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #78350f;
+}
+
 /* ── Formula intro banner ── */
 .grades-view-intro {
   margin-bottom: 1.25rem;

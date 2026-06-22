@@ -40,7 +40,7 @@
 }
 
 .modal-header h2 {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #0f172a;
   margin: 0;
@@ -76,20 +76,20 @@
 
 .modal-form-group label {
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #334155;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .modal-form-group input,
 .modal-form-group select {
   width: 100%;
-  padding: 0.85rem 1rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid #cbd5e1;
   background-color: #f8fafc;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   color: #0f172a;
   transition: all 0.2s;
   box-sizing: border-box;
@@ -134,9 +134,10 @@
   background: white;
   border: 1px solid #cbd5e1;
   color: #334155;
-  padding: 0.65rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -149,9 +150,10 @@
   background: #0A2F6B;
   border: none;
   color: white;
-  padding: 0.65rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }

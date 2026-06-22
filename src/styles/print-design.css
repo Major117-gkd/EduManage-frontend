@@ -1,0 +1,685 @@
+/* ═══════════════════════════════════════════════════════════════
+   EduManage — Système d'impression unifié
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --edu-print-navy: #0a2f6b;
+  --edu-print-navy-dark: #071f47;
+  --edu-print-gold: #c59b27;
+  --edu-print-gold-light: #f5e6b8;
+  --edu-print-ink: #0f172a;
+  --edu-print-muted: #64748b;
+  --edu-print-border: #e2e8f0;
+  --edu-print-surface: #f8fafc;
+  --edu-print-success: #059669;
+  --edu-print-success-bg: #d1fae5;
+  --edu-print-danger: #dc2626;
+  --edu-print-danger-bg: #fee2e2;
+  --edu-print-warning-bg: #fffbeb;
+  --edu-print-radius: 6px;
+  --edu-print-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Document racine ── */
+.edu-print-doc {
+  background: #fff;
+  color: var(--edu-print-ink);
+  font-family: var(--edu-print-font);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+/* ── En-tête ── */
+.edu-print-header {
+  margin-bottom: 1rem;
+}
+
+.edu-print-header__accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--edu-print-gold) 0%, #e8c547 50%, var(--edu-print-gold) 100%);
+  border-radius: 2px 2px 0 0;
+}
+
+.edu-print-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 0 0.65rem;
+}
+
+.edu-print-header__brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+.edu-print-header__logo-wrap {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid var(--edu-print-border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.edu-print-header__logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.edu-print-header__school h1 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--edu-print-navy);
+  line-height: 1.25;
+  max-width: 320px;
+}
+
+.edu-print-header__motto {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--edu-print-gold);
+  letter-spacing: 0.04em;
+}
+
+.edu-print-header__doc {
+  text-align: right;
+  min-width: 160px;
+}
+
+.edu-print-doc-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  background: var(--edu-print-navy);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  margin-bottom: 0.35rem;
+}
+
+.edu-print-header__title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--edu-print-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.edu-print-header__subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  color: var(--edu-print-muted);
+}
+
+.edu-print-header__ref {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--edu-print-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.edu-print-header__rule {
+  height: 2px;
+  background: linear-gradient(90deg, var(--edu-print-navy) 0%, var(--edu-print-navy) 70%, var(--edu-print-gold) 100%);
+}
+
+/* ── Métadonnées ── */
+.edu-print-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--edu-print-surface);
+  border: 1px solid var(--edu-print-border);
+  border-radius: var(--edu-print-radius);
+}
+
+.edu-print-meta__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.edu-print-meta__label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.edu-print-meta__value {
+  font-size: 0.8rem;
+  color: var(--edu-print-ink);
+  font-weight: 600;
+}
+
+/* ── Statistiques ── */
+.edu-print-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.edu-print-stats__item {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.5rem 0.65rem;
+  background: var(--edu-print-surface);
+  border: 1px solid var(--edu-print-border);
+  border-radius: var(--edu-print-radius);
+  text-align: center;
+}
+
+.edu-print-stats__item strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--edu-print-navy);
+  line-height: 1.2;
+}
+
+.edu-print-stats__item span {
+  font-size: 0.65rem;
+  color: var(--edu-print-muted);
+}
+
+.edu-print-stats__item--success {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.edu-print-stats__item--success strong {
+  color: var(--edu-print-success);
+}
+
+.edu-print-stats__item--danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.edu-print-stats__item--danger strong {
+  color: var(--edu-print-danger);
+}
+
+.edu-print-stats__item--gold {
+  background: var(--edu-print-warning-bg);
+  border-color: var(--edu-print-gold-light);
+}
+
+.edu-print-stats__item--gold strong {
+  color: #b45309;
+}
+
+/* ── Sections ── */
+.edu-print-section {
+  margin-bottom: 1.1rem;
+}
+
+.edu-print-section__title {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--edu-print-ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.edu-print-section__title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  background: var(--edu-print-navy);
+  border-radius: 2px;
+}
+
+.edu-print-section--success .edu-print-section__title {
+  color: var(--edu-print-success);
+}
+
+.edu-print-section--success .edu-print-section__title::before {
+  background: var(--edu-print-success);
+}
+
+.edu-print-section--danger .edu-print-section__title {
+  color: var(--edu-print-danger);
+}
+
+.edu-print-section--danger .edu-print-section__title::before {
+  background: var(--edu-print-danger);
+}
+
+.edu-print-section__count {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--edu-print-muted);
+}
+
+/* ── Tableaux ── */
+.edu-print-table-wrap {
+  overflow: hidden;
+  border: 1px solid var(--edu-print-border);
+  border-radius: var(--edu-print-radius);
+}
+
+.edu-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+
+.edu-print-table th,
+.edu-print-table td {
+  border-bottom: 1px solid var(--edu-print-border);
+  padding: 0.42rem 0.55rem;
+  text-align: left;
+}
+
+.edu-print-table th {
+  background: var(--edu-print-navy);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: none;
+}
+
+.edu-print-table tbody tr:nth-child(even) {
+  background: var(--edu-print-surface);
+}
+
+.edu-print-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.edu-print-table__rank {
+  text-align: center;
+  font-weight: 700;
+  color: var(--edu-print-navy);
+}
+
+.edu-print-table__num {
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.edu-print-table__row--highlight {
+  background: var(--edu-print-warning-bg) !important;
+}
+
+.edu-print-table__name strong {
+  font-weight: 600;
+}
+
+/* ── Badges & statuts ── */
+.edu-print-badge {
+  display: inline-block;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.edu-print-badge--success {
+  background: var(--edu-print-success-bg);
+  color: #065f46;
+}
+
+.edu-print-badge--danger {
+  background: var(--edu-print-danger-bg);
+  color: #991b1b;
+}
+
+.edu-print-badge--neutral {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* ── Pied de page ── */
+.edu-print-footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--edu-print-border);
+}
+
+.edu-print-footer__note {
+  font-size: 0.7rem;
+  color: var(--edu-print-muted);
+  margin-bottom: 0.75rem;
+}
+
+.edu-print-footer__note p {
+  margin: 0.15rem 0;
+}
+
+.edu-print-footer__signatures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.edu-print-footer__sign-block span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--edu-print-muted);
+  margin-bottom: 1.75rem;
+}
+
+.edu-print-footer__sign-line {
+  border-bottom: 1px solid #94a3b8;
+}
+
+.edu-print-footer__legal {
+  margin: 0;
+  font-size: 0.62rem;
+  color: #94a3b8;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── État vide ── */
+.edu-print-empty {
+  text-align: center;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 1.5rem;
+  background: var(--edu-print-surface);
+  border-radius: var(--edu-print-radius);
+  border: 1px dashed var(--edu-print-border);
+}
+
+/* ── Reçu de paiement ── */
+.edu-print-receipt .edu-print-amount-box {
+  border: 2px solid var(--edu-print-navy);
+  border-radius: var(--edu-print-radius);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #eff6ff 0%, var(--edu-print-surface) 100%);
+}
+
+.edu-print-receipt .edu-print-amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px dashed #cbd5e1;
+  font-weight: 600;
+}
+
+.edu-print-receipt .edu-print-amount-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--edu-print-success);
+}
+
+.edu-print-receipt .edu-print-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem 1.25rem;
+}
+
+.edu-print-receipt .edu-print-field label {
+  display: block;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+
+.edu-print-receipt .edu-print-field strong {
+  font-size: 0.8rem;
+  color: var(--edu-print-ink);
+}
+
+.edu-print-receipt .edu-print-notes {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  background: var(--edu-print-surface);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+/* ── Bulletins (pages) ── */
+.edu-print-bulletin-page {
+  break-inside: avoid;
+  page-break-after: always;
+}
+
+.edu-print-bulletin-page:last-child {
+  page-break-after: auto;
+}
+
+.edu-print-cover {
+  background: #fff;
+  border: 1px solid var(--edu-print-border);
+  border-radius: var(--edu-print-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Aperçu dans les modales */
+.modal-body.edu-print-root {
+  background: #e2e8f0;
+}
+
+.modal-body.edu-print-root .edu-print-doc {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--edu-print-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+/* ── Utilitaires ── */
+.edu-print-only {
+  display: none;
+}
+
+.print-hide {
+  /* visible à l'écran, masqué à l'impression — règles dans @media print */
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   @media print — règles globales
+   ═══════════════════════════════════════════════════════════════ */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
+  @page :first {
+    margin-top: 10mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Masquer éléments UI */
+  .print-hide {
+    display: none !important;
+  }
+
+  .edu-print-only {
+    display: block !important;
+  }
+
+  /* Isolation du contenu imprimable */
+  body[class*='printing-'] {
+    background: #fff !important;
+  }
+
+  body[class*='printing-'] * {
+    visibility: hidden;
+  }
+
+  body[class*='printing-'] .edu-print-root,
+  body[class*='printing-'] .edu-print-root * {
+    visibility: visible;
+  }
+
+  body[class*='printing-'] .edu-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+    z-index: 99999;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* Tableaux — en-têtes colorés */
+  .edu-print-table th {
+    background: var(--edu-print-navy) !important;
+    color: #fff !important;
+  }
+
+  /* Bulletins */
+  body.printing-bulletins .edu-print-cover {
+    display: none;
+  }
+
+  body.printing-bulletins .edu-print-bulletin-page {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  body.printing-bulletins .bulletin-card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid;
+  }
+
+  body.printing-bulletins .bulletin-card__header {
+    background: var(--edu-print-navy) !important;
+    color: #fff !important;
+  }
+
+  /* Carte élève — format paysage */
+  body.printing-card .edu-print-root {
+    position: fixed;
+    width: 297mm;
+    height: 210mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6mm;
+    padding: 6mm;
+    box-sizing: border-box;
+  }
+
+  @page printing-card {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  body.printing-card {
+    page: printing-card;
+  }
+
+  body.printing-card .id-card {
+    width: 270mm !important;
+    height: 85mm !important;
+    zoom: 1 !important;
+    transform: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  body.printing-card .page-break-print {
+    display: none;
+  }
+
+  /* Liste élèves (impression directe page) */
+  body.printing-students .admin-sidebar,
+  body.printing-students .admin-header,
+  body.printing-students .sidebar-overlay,
+  body.printing-students .admin-dashboard__header {
+    display: none !important;
+  }
+
+  body.printing-students .admin-main,
+  body.printing-students .admin-content,
+  body.printing-students .admin-layout {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  body.printing-students .admin-panel {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  body.printing-students .edu-print-students-header {
+    display: block !important;
+    visibility: visible !important;
+    margin-bottom: 1rem;
+  }
+
+  body.printing-students .admin-table th {
+    background: var(--edu-print-navy) !important;
+    color: #fff !important;
+  }
+
+  body.printing-students tr {
+    page-break-inside: avoid;
+  }
+
+  /* Reçu — centré, une page */
+  body.printing-receipt .edu-print-doc {
+    max-width: 100%;
+    padding: 0;
+    border: none;
+  }
+
+  /* Éviter les coupures dans les stats */
+  .edu-print-stats,
+  .edu-print-meta,
+  .edu-print-header {
+    break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
