@@ -330,3 +330,143 @@ html.dark-mode .profile-page .admin-panel {
   background: #16171d;
   border-color: #2e303a;
 }
+
+/* ── Accueil : compléments ── */
+html.dark-mode .hero__tag {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e5e7eb;
+}
+
+html.dark-mode .hero__tag-icon {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html.dark-mode .hero__dot {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+html.dark-mode .hero__dot--active {
+  background: #f3f4f6;
+}
+
+html.dark-mode .db-list__item {
+  border-bottom-color: #2e303a;
+}
+
+html.dark-mode .db-badge--success {
+  background: rgba(22, 101, 52, 0.3);
+  color: #86efac;
+}
+
+html.dark-mode .db-badge--info {
+  background: rgba(30, 58, 138, 0.35);
+  color: #bfdbfe;
+}
+
+html.dark-mode .contact-cta__left {
+  background: linear-gradient(135deg, #0A2F6B 0%, #1e3a8a 100%);
+}
+
+html.dark-mode .contact-cta__title,
+html.dark-mode .contact-cta__desc {
+  color: #f3f4f6;
+}
+
+html.dark-mode .contact-icon-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  color: #93c5fd;
+}
+
+html.dark-mode .form-input,
+html.dark-mode .form-textarea {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #f3f4f6;
+}
+
+html.dark-mode .form-input:focus,
+html.dark-mode .form-textarea:focus,
+html.dark-mode .form-input:not(:placeholder-shown),
+html.dark-mode .form-textarea:not(:placeholder-shown) {
+  background: #25262f;
+  border-color: #60a5fa;
+}
+
+html.dark-mode .form-input:focus ~ .form-label,
+html.dark-mode .form-textarea:focus ~ .form-label,
+html.dark-mode .form-input:not(:placeholder-shown) ~ .form-label,
+html.dark-mode .form-textarea:not(:placeholder-shown) ~ .form-label {
+  background: #16171d;
+  color: #93c5fd;
+}
+
+html.dark-mode .about-section {
+  background: var(--bg-main);
+}
+
+html.dark-mode .about-values {
+  background: var(--bg-alt);
+}
+
+html.dark-mode .about-value-card h4,
+html.dark-mode .about-value-card p {
+  color: inherit;
+}
+
+html.dark-mode .about-value-card p {
+  color: #9ca3af;
+}
+
+html.dark-mode .feature-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .btn--outline {
+  background: #1f2028;
+  border-color: #3f4250;
+  color: #e5e7eb;
+}
+
+html.dark-mode .btn--outline:hover {
+  background: #2e303a;
+  border-color: #4b5563;
+}
+
+html.dark-mode .navbar:not(.navbar--scrolled) .navbar__logo-main,
+html.dark-mode .navbar:not(.navbar--scrolled) .navbar__link {
+  color: #f3f4f6;
+}
+
+html.dark-mode .navbar:not(.navbar--scrolled) .navbar__logo-sub {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+html.dark-mode .login-brand-text-mobile h2 {
+  color: #93c5fd;
+}
+
+html.dark-mode .btn-login {
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+}
+
+/* ── Infos école : compléments ── */
+html.dark-mode .sip__level-icon,
+html.dark-mode .sip__pricing-icon,
+html.dark-mode .sip__contact-icon {
+  background: rgba(30, 58, 138, 0.35);
+  color: #93c5fd;
+}
+
+html.dark-mode .sip__pricing-card--popular {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+html.dark-mode .sip__faq-arrow {
+  color: #9ca3af;
+}
+
+html.dark-mode .sip__faq-item.open .sip__faq-arrow {
+  color: #93c5fd;
+}

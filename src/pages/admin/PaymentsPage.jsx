@@ -293,64 +293,52 @@ export default function PaymentsPage() {
       </div>
 
       <div className="dashboard-stats-grid">
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="admin-stat-card admin-stat-card--stacked">
+          <div className="admin-stat-card__top">
+            <div className="admin-stat-card__icon" style={{ background: '#dbeafe' }}>
               <DollarSign size={24} color="#0A2F6B" />
             </div>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Total Encaissé</span>
+            <span className="admin-stat-card__label">Total Encaissé</span>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.25rem' }}>
-            {totalMontant.toLocaleString()} GNF
-          </div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-            {payments.length} paiements
-          </div>
+          <div className="admin-stat-card__value">{totalMontant.toLocaleString()} GNF</div>
+          <div className="admin-stat-card__sub">{payments.length} paiements</div>
         </div>
 
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="admin-stat-card admin-stat-card--stacked">
+          <div className="admin-stat-card__top">
+            <div className="admin-stat-card__icon" style={{ background: '#dcfce7' }}>
               <CheckCircle size={24} color="#16a34a" />
             </div>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Élèves à jour</span>
+            <span className="admin-stat-card__label">Élèves à jour</span>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.25rem' }}>
-            {studentsPaid}
-          </div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+          <div className="admin-stat-card__value">{studentsPaid}</div>
+          <div className="admin-stat-card__sub">
             {totalStudents > 0 ? ((studentsPaid / totalStudents) * 100).toFixed(1) : 0}% des élèves
           </div>
         </div>
 
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="admin-stat-card admin-stat-card--stacked">
+          <div className="admin-stat-card__top">
+            <div className="admin-stat-card__icon" style={{ background: '#fef9c3' }}>
               <Clock size={24} color="#ca8a04" />
             </div>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Paiements partiels</span>
+            <span className="admin-stat-card__label">Paiements partiels</span>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.25rem' }}>
-            {studentsPartial}
-          </div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+          <div className="admin-stat-card__value">{studentsPartial}</div>
+          <div className="admin-stat-card__sub">
             {totalStudents > 0 ? ((studentsPartial / totalStudents) * 100).toFixed(1) : 0}% des élèves
           </div>
         </div>
 
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="admin-stat-card admin-stat-card--stacked">
+          <div className="admin-stat-card__top">
+            <div className="admin-stat-card__icon" style={{ background: '#fee2e2' }}>
               <XCircle size={24} color="#dc2626" />
             </div>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>En retard</span>
+            <span className="admin-stat-card__label">En retard</span>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.25rem' }}>
-            {studentsLate}
-          </div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-            Dette totale: {totalDebt.toLocaleString()} GNF
-          </div>
+          <div className="admin-stat-card__value">{studentsLate}</div>
+          <div className="admin-stat-card__sub">Dette totale: {totalDebt.toLocaleString()} GNF</div>
         </div>
       </div>
 

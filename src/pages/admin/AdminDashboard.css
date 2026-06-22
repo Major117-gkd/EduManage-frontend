@@ -63,6 +63,93 @@
   font-weight: 500;
 }
 
+.admin-stat-card__sub {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.admin-stat-card--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.admin-stat-card--stacked .admin-stat-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.admin-stat-card--stacked .admin-stat-card__value {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Cartes cours professeur */
+.teacher-course-card {
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+.teacher-course-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 16px rgba(10, 47, 107, 0.1);
+  transform: translateY(-1px);
+}
+
+.teacher-course-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.teacher-course-card__icon {
+  background: #e0e7ff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teacher-course-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.teacher-course-card__class {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.teacher-course-card__cta {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: #0A2F6B;
+  font-weight: 600;
+}
+
+.teacher-courses-grid {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
 .admin-dashboard__grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -628,3 +715,40 @@ html.dark-mode .admin-table tr:hover td {
 html.dark-mode .action-btn--view { background: #1e3a8a; color: #bfdbfe; }
 html.dark-mode .action-btn--edit { background: #78350f; color: #fde68a; }
 html.dark-mode .action-btn--delete { background: #7f1d1d; color: #fecaca; }
+
+html.dark-mode .teacher-course-card {
+  background: #16171d;
+  border-color: #2e303a;
+  box-shadow: none;
+}
+
+html.dark-mode .teacher-course-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+html.dark-mode .teacher-course-card__icon {
+  background: rgba(30, 58, 138, 0.35);
+  color: #93c5fd;
+}
+
+html.dark-mode .teacher-course-card__title {
+  color: #f3f4f6;
+}
+
+html.dark-mode .teacher-course-card__class {
+  color: #9ca3af;
+}
+
+html.dark-mode .teacher-course-card__cta {
+  color: #93c5fd;
+}
+
+html.dark-mode .admin-stat-card__sub {
+  color: #9ca3af;
+}
+
+html.dark-mode .status-badge--info {
+  background: rgba(30, 58, 138, 0.35);
+  color: #bfdbfe;
+}

@@ -1304,3 +1304,175 @@ html.dark-mode .payments-page .status-pending {
   background: rgba(127, 29, 29, 0.35);
   color: #fecaca;
 }
+
+/* ── Saisie notes : sélecteurs & barre résumé ── */
+html.dark-mode .grades-select,
+html.dark-mode .grades-param-field select {
+  background-color: var(--adm-surface-2) !important;
+  border-color: var(--adm-border-light);
+  color: var(--adm-text);
+}
+
+html.dark-mode .grades-select:focus,
+html.dark-mode .grades-param-field select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+html.dark-mode .grades-summary-bar {
+  background: var(--adm-surface-2);
+  border-color: var(--adm-border);
+}
+
+html.dark-mode .grades-summary-item {
+  color: var(--adm-text-secondary);
+}
+
+html.dark-mode .grades-summary-label {
+  color: var(--adm-text-muted);
+}
+
+html.dark-mode .grades-btn-secondary {
+  background: var(--adm-surface-2) !important;
+  border-color: var(--adm-border-light);
+  color: var(--adm-text-secondary);
+}
+
+html.dark-mode .grades-btn-secondary:hover {
+  background: var(--adm-surface-3) !important;
+}
+
+/* ── Icônes stats (fonds clairs inline) ── */
+html.dark-mode .admin-stat-card__icon[style*="dbeafe"],
+html.dark-mode .admin-stat-card__icon[style*="DBEAFE"] {
+  background: rgba(30, 58, 138, 0.45) !important;
+}
+
+html.dark-mode .admin-stat-card__icon[style*="dcfce7"],
+html.dark-mode .admin-stat-card__icon[style*="DCFCE7"] {
+  background: rgba(22, 101, 52, 0.35) !important;
+}
+
+html.dark-mode .admin-stat-card__icon[style*="ede9fe"],
+html.dark-mode .admin-stat-card__icon[style*="EDE9FE"] {
+  background: rgba(76, 29, 149, 0.35) !important;
+}
+
+html.dark-mode .admin-stat-card__icon[style*="fef9c3"],
+html.dark-mode .admin-stat-card__icon[style*="FEF9C3"] {
+  background: rgba(120, 53, 15, 0.35) !important;
+}
+
+html.dark-mode .admin-stat-card__icon[style*="fee2e2"],
+html.dark-mode .admin-stat-card__icon[style*="FEE2E2"] {
+  background: rgba(127, 29, 29, 0.35) !important;
+}
+
+/* ── Badges statut admin ── */
+html.dark-mode .status-badge--warning {
+  background: rgba(120, 53, 15, 0.35);
+  color: #fde68a;
+}
+
+html.dark-mode .status-badge--success {
+  background: rgba(22, 101, 52, 0.3);
+  color: #86efac;
+}
+
+html.dark-mode .status-badge--error {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+}
+
+html.dark-mode .status-badge--info {
+  background: rgba(30, 58, 138, 0.35);
+  color: #bfdbfe;
+}
+
+/* ── Niveaux ── */
+html.dark-mode .niveaux-preview-panel,
+html.dark-mode .niveaux-form-panel {
+  background: var(--adm-surface);
+  border-color: var(--adm-border);
+}
+
+/* ── Modales complément ── */
+html.dark-mode .modal-form-group textarea {
+  background: var(--adm-surface-2);
+  border-color: var(--adm-border-light);
+  color: var(--adm-text);
+}
+
+html.dark-mode .modal-footer {
+  background: var(--adm-surface);
+}
+
+/* ── Recherche inline panneaux ── */
+html.dark-mode .admin-panel__header input,
+html.dark-mode .admin-panel__header select {
+  background: var(--adm-surface-2) !important;
+  border-color: var(--adm-border-light) !important;
+  color: var(--adm-text) !important;
+}
+
+html.dark-mode .admin-panel__header input::placeholder {
+  color: #6b7280;
+}
+
+/* ── Page back ── */
+html.dark-mode .page-back-btn {
+  background: var(--adm-surface-2);
+  border-color: var(--adm-border);
+  color: var(--adm-accent);
+}
+
+html.dark-mode .page-back-btn:hover {
+  background: var(--adm-accent-bg);
+  border-color: var(--adm-accent-border);
+}
+
+/* ── Cloche notifications (footer) ── */
+html.dark-mode .notification-bell__item-icon {
+  background: var(--adm-accent-bg);
+  color: var(--adm-accent);
+}
+
+html.dark-mode .notification-bell__mark-all {
+  color: var(--adm-accent);
+}
+
+html.dark-mode .notification-bell__item:hover {
+  background: var(--adm-surface-2);
+}
+
+html.dark-mode .notification-bell__item.is-unread:hover {
+  background: rgba(30, 58, 138, 0.45);
+}
+
+/* ── Niveaux (modal & évaluations) ── */
+html.dark-mode .niveaux-eval-section {
+  background: var(--adm-surface-2);
+  border-color: var(--adm-border);
+}
+
+html.dark-mode .niveaux-eval-section__head h3 {
+  color: var(--adm-text);
+}
+
+html.dark-mode .niveaux-eval-add {
+  background: var(--adm-accent-bg);
+  color: var(--adm-accent);
+}
+
+html.dark-mode .niveaux-eval-hint {
+  color: var(--adm-text-muted);
+}
+
+html.dark-mode .niveaux-form-error {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+}
+
+html.dark-mode .niveaux-table-row--inactive {
+  opacity: 0.55;
+}

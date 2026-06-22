@@ -13,8 +13,8 @@ html.dark-mode {
 
 html.dark-mode body,
 html.dark-mode #root {
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: var(--bg-main, #0f1115);
+  color: var(--text-main, #d1d5db);
 }
 
 /* ── Variables page d'accueil ── */
@@ -339,10 +339,19 @@ html.dark-mode .status-badge--success {
   color: #86efac;
 }
 
-html.dark-mode .status-badge--error,
 html.dark-mode .status-badge--warning {
+  background: rgba(120, 53, 15, 0.35);
+  color: #fde68a;
+}
+
+html.dark-mode .status-badge--error {
   background: rgba(185, 28, 28, 0.2);
   color: #fca5a5;
+}
+
+html.dark-mode .status-badge--info {
+  background: rgba(30, 58, 138, 0.35);
+  color: #bfdbfe;
 }
 
 html.dark-mode .niveaux-filter-chip {

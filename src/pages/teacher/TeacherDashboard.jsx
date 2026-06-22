@@ -77,36 +77,25 @@ export default function TeacherDashboard() {
             Aucune matière ne vous a été assignée pour le moment.
           </div>
         ) : (
-          <div className="teacher-courses-grid" style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+          <div className="teacher-courses-grid">
             {matieres.map((m) => (
               <button
                 key={m.id}
                 type="button"
+                className="teacher-course-card"
                 onClick={() => navigate(`/teacher/grades/${m.id}`)}
-                style={{
-                  padding: '1.25rem',
-                  borderRadius: '12px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                  <div style={{ background: '#e0e7ff', padding: '0.5rem', borderRadius: '8px', color: '#4338ca' }}>
+                <div className="teacher-course-card__head">
+                  <div className="teacher-course-card__icon">
                     <BookOpen size={20} />
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a' }}>{m.nom}</h3>
+                  <h3 className="teacher-course-card__title">{m.nom}</h3>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.9rem' }}>
+                <div className="teacher-course-card__class">
                   <Users size={16} />
                   {m.classe ? `${m.classe.nom} (${m.classe.niveau})` : 'Sans classe'}
                 </div>
-                <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: '#0A2F6B', fontWeight: 600 }}>
-                  Saisir les notes →
-                </p>
+                <p className="teacher-course-card__cta">Saisir les notes →</p>
               </button>
             ))}
           </div>

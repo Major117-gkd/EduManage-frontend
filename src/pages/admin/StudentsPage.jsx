@@ -343,10 +343,10 @@ export default function StudentsPage() {
       <div className="admin-dashboard__header">
         <h1 className="admin-title">Gestion des Élèves</h1>
         <div className="print-hide page-header-actions">
-          <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', border: '1px solid #cbd5e1' }} onClick={() => printDocument('printing-students')}>
+          <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => printDocument('printing-students')}>
             <Printer size={18} /> Imprimer
           </button>
-          <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', border: '1px solid #cbd5e1' }} onClick={() => setIsGlobalReInscriptionOpen(true)}>
+          <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsGlobalReInscriptionOpen(true)}>
             <RotateCw size={18} /> Réinscription
           </button>
           <button className="btn btn--primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsModalOpen(true)}>
