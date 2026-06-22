@@ -12,6 +12,7 @@ import GradesViewPage from './pages/admin/GradesViewPage'
 import ResultsPage from './pages/admin/ResultsPage'
 import SubjectsPage from './pages/admin/SubjectsPage'
 import AcademicYearsPage from './pages/admin/AcademicYearsPage'
+import PaymentsPage from './pages/admin/PaymentsPage'
 import SettingsPage from './pages/admin/SettingsPage'
 import TeacherLayout from './pages/teacher/TeacherLayout'
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
@@ -31,6 +32,7 @@ function App() {
           <Route path="classes" element={<ClassesPage />} />
           <Route path="subjects" element={<SubjectsPage />} />
           <Route path="years" element={<AcademicYearsPage />} />
+          <Route path="payments" element={<PaymentsPage />} />
           <Route path="grades" element={<GradesLayout />}>
             <Route index element={<GradesPage />} />
             <Route path="consultation" element={<GradesViewPage />} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Save,
   Users,
@@ -178,7 +178,11 @@ export default function GradesPage() {
   }, [selectedClasse, selectedMatiere, periode, annee]);
 
   useEffect(() => {
-    if (selectedMatiere && annee) loadEleves();
+    let timeoutId;
+    if (selectedMatiere && annee) {
+      timeoutId = setTimeout(() => loadEleves(), 0);
+    }
+    return () => clearTimeout(timeoutId);
   }, [selectedMatiere, periode, annee, loadEleves]);
 
   const updateGradeField = (eleveId, field, rawValue) => {
@@ -395,7 +399,7 @@ export default function GradesPage() {
               className="btn grades-btn-secondary"
               onClick={() => navigate('/admin/grades/results')}
             >
-              <BarChart3 size={18} /> Voir les bulletins
+              <BarChart3 size={16} /> Bulletins & Résultats
             </button>
           )}
           {selectedMatiere && dirtyCount > 0 && (
@@ -405,7 +409,7 @@ export default function GradesPage() {
               onClick={handleSaveAll}
               disabled={bulkSaving}
             >
-              {bulkSaving ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+              {bulkSaving ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
               Tout enregistrer ({dirtyCount})
             </button>
           )}
@@ -413,11 +417,16 @@ export default function GradesPage() {
       </div>
 
       {saveMsg && (
-        <div className={`grades-alert grades-alert--${saveMsgType}`}>{saveMsg}</div>
+        <div className={`grades-alert grades-alert--${saveMsgType}`}>
+          {saveMsgType === 'success' && <CheckCircle2 size={16} />}
+          {saveMsgType === 'error' && <AlertTriangle size={16} />}
+          {saveMsg}
+        </div>
       )}
 
       {!annee && (
         <div className="grades-alert grades-alert--error">
+          <AlertTriangle size={16} />
           Aucune année scolaire active. Définissez-en une dans « Années Scolaires ».
         </div>
       )}

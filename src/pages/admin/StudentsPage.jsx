@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserPlus, Search, Eye, Edit, Trash2, X, RotateCw, Check, Printer, CreditCard } from 'lucide-react';
 import StudentCard from '../../components/StudentCard/StudentCard';
 import '../admin/AdminDashboard.css';
@@ -17,13 +17,15 @@ export default function StudentsPage() {
   const [selectedCardStudent, setSelectedCardStudent] = useState(null);
   const [reInscrireEleve, setReInscrireEleve] = useState(null);
   const [validateConfirmId, setValidateConfirmId] = useState(null);
-  const [form, setForm] = useState({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: '', matricule: '', photoUrl: '' });
+  const [deleteConfirmStudent, setDeleteConfirmStudent] = useState(null);
+  const [showInactive, setShowInactive] = useState(false);
+  const [form, setForm] = useState({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: '', matricule: '', photoUrl: '', exception_paiement_mensuel: false });
   const [reForm, setReForm] = useState({ classeId: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
-  const loadData = () => {
-    fetch(`${API}/api/admin/eleves`).then(r => r.json()).then(d => { if (Array.isArray(d)) setEleves(d); }).catch(() => {});
+  const loadData = useCallback(() => {
+    fetch(`${API}/api/admin/eleves?show_inactive=${showInactive}`).then(r => r.json()).then(d => { if (Array.isArray(d)) setEleves(d); }).catch(() => {});
     fetch(`${API}/api/admin/classes`).then(r => r.json()).then(d => { if (Array.isArray(d)) setClasses(d); }).catch(() => {});
     fetch(`${API}/api/admin/annees`).then(r => r.json()).then(d => { 
       if (Array.isArray(d)) {
@@ -34,16 +36,16 @@ export default function StudentsPage() {
         }
       }
     }).catch(() => {});
-  };
+  }, [showInactive]);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setSubmitting(true); setMessage('');
     try {
       const res = await fetch(`${API}/api/admin/eleves`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       const data = await res.json();
-      if (res.ok) { setMessage('' + data.message); loadData(); setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: activeYear }); setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500); }
+      if (res.ok) { setMessage('' + data.message); loadData(); setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: activeYear, exception_paiement_mensuel: false }); setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500); }
       else setMessage('' + (data.error || 'Erreur'));
     } catch { setMessage('Impossible de contacter le serveur'); }
     setSubmitting(false);
@@ -52,14 +54,21 @@ export default function StudentsPage() {
   const handleReInscription = async (e) => {
     e.preventDefault(); setSubmitting(true); setMessage('');
     try {
-      const res = await fetch(`${API}/api/admin/eleves/${reInscrireEleve.id}/reinscription`, { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ classeId: reForm.classeId, annee_scolaire: activeYear }) 
+      const res = await fetch(`${API}/api/admin/eleves/${reInscrireEleve.id}/reinscription`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classeId: reForm.classeId, annee_scolaire: activeYear })
       });
       const data = await res.json();
-      if (res.ok) { setMessage('' + data.message); loadData(); setTimeout(() => { setReInscrireEleve(null); setMessage(''); }, 1500); }
-      else setMessage('' + (data.error || 'Erreur'));
+      if (res.ok) {
+        setMessage('' + data.message);
+        loadData();
+        setTimeout(() => { setReInscrireEleve(null); setMessage(''); }, 1500);
+      } else if (res.status === 403 && data.error === 'Dette non soldée') {
+        setMessage('⚠️ ' + data.message);
+      } else {
+        setMessage('' + (data.error || 'Erreur'));
+      }
     } catch { setMessage('Impossible de contacter le serveur'); }
     setSubmitting(false);
   };
@@ -89,6 +98,21 @@ export default function StudentsPage() {
     }
   };
 
+  const handleDeleteStudent = async () => {
+    if (!deleteConfirmStudent) return;
+    try {
+      const res = await fetch(`${API}/api/admin/eleves/${deleteConfirmStudent.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        loadData();
+        setDeleteConfirmStudent(null);
+      } else {
+        alert("Erreur lors du changement de statut");
+      }
+    } catch {
+      alert("Impossible de contacter le serveur");
+    }
+  };
+
   const filtered = eleves.filter(e => `${e.prenom} ${e.nom} ${e.matricule}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -109,9 +133,15 @@ export default function StudentsPage() {
       </div>
 
       {/* Search */}
-      <div className="print-hide" style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <Search size={18} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom ou matricule..." style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', color: '#0f172a', backgroundColor: 'transparent' }} />
+      <div className="print-hide" style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+          <Search size={18} color="#94a3b8" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom ou matricule..." style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', color: '#0f172a', backgroundColor: 'transparent' }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '1rem', borderLeft: '1px solid #e2e8f0' }}>
+          <input type="checkbox" id="showInactive" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px' }} />
+          <label htmlFor="showInactive" style={{ fontSize: '0.875rem', color: '#64748b', cursor: 'pointer', userSelect: 'none' }}>Inclure les inactifs / abandons</label>
+        </div>
       </div>
 
       {/* Table */}
@@ -128,15 +158,29 @@ export default function StudentsPage() {
                 const isExpanded = expandedRows.includes(el.id);
                 return (
                   <React.Fragment key={el.id}>
-                    <tr onClick={() => toggleRow(el.id)} style={{ cursor: 'pointer', background: isExpanded ? '#f8fafc' : 'white' }}>
+                    <tr onClick={() => toggleRow(el.id)} style={{ cursor: 'pointer', background: isExpanded ? '#f8fafc' : 'white', opacity: el.statut === 'Inactif' ? 0.6 : 1 }}>
                       <td style={{ width: '40px', color: '#64748b' }}>
                         {isExpanded ? '▼' : '▶'}
                       </td>
                       <td style={{ fontWeight: 600, color: '#0A2F6B' }}>{el.matricule}</td>
-                      <td style={{ fontWeight: 500, color: '#0f172a' }}>{el.prenom} {el.nom}</td>
+                      <td style={{ fontWeight: 500, color: '#0f172a' }}>
+                        {el.prenom} {el.nom}
+                        {el.statut === 'Inactif' && (
+                          <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem', borderRadius: '4px', background: '#fee2e2', color: '#ef4444', marginLeft: '0.5rem' }}>Inactif</span>
+                        )}
+                      </td>
                       <td>{el.date_naissance ? new Date(el.date_naissance).toLocaleDateString('fr-FR') : '—'}</td>
                       <td>{el.inscriptions?.[0]?.classe?.nom ?? '—'}</td>
-                      <td><span className={`status-badge status-badge--${el.inscriptions?.[0]?.statut === 'Validé' ? 'success' : 'warning'}`}>{el.inscriptions?.[0]?.statut ?? '—'}</span></td>
+                      <td>
+                        <span className={`status-badge status-badge--${el.statut === 'Actif' ? 'success' : 'error'}`} style={{ marginRight: '0.3rem' }}>
+                          {el.statut}
+                        </span>
+                        {el.inscriptions?.[0]?.statut && (
+                          <span className={`status-badge status-badge--${el.inscriptions?.[0]?.statut === 'Validé' ? 'info' : 'warning'}`} style={{ fontSize: '0.7rem' }}>
+                            {el.inscriptions[0].statut}
+                          </span>
+                        )}
+                      </td>
                       <td className="print-hide" style={{ display: 'flex', gap: '0.5rem' }} onClick={e => e.stopPropagation()}>
                         {el.inscriptions?.[0]?.statut === 'En attente' && (
                           <button className="action-btn action-btn--view" title="Valider l'inscription" style={{ background: '#fef08a', color: '#854d0e' }} onClick={() => setValidateConfirmId(el.inscriptions[0].id)}>
@@ -149,7 +193,9 @@ export default function StudentsPage() {
                         </button>
                         <button className="action-btn action-btn--view" title="Voir"><Eye size={16} /></button>
                         <button className="action-btn action-btn--edit" title="Modifier"><Edit size={16} /></button>
-                        <button className="action-btn action-btn--delete" title="Supprimer"><Trash2 size={16} /></button>
+                        {el.statut === 'Actif' && (
+                          <button className="action-btn action-btn--delete" title="Désactiver (Abandon)" onClick={() => setDeleteConfirmStudent(el)}><Trash2 size={16} /></button>
+                        )}
                       </td>
                     </tr>
                     {isExpanded && (
@@ -248,6 +294,21 @@ export default function StudentsPage() {
                     <option value="">Sélectionnez une classe</option>
                     {classes.map(c => <option key={c.id} value={c.id}>{c.nom} ({c.niveau})</option>)}
                   </select>
+                </div>
+
+                <div className="modal-form-group" style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 500 }}>
+                    <input
+                      type="checkbox"
+                      checked={form.exception_paiement_mensuel}
+                      onChange={e => setForm({...form, exception_paiement_mensuel: e.target.checked})}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span>Exception paiement mensuel (au lieu de tranches de 3 mois)</span>
+                  </label>
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#64748b', marginLeft: '1.8rem' }}>
+                    Cocher cette case uniquement si cet élève bénéficie d'une dérogation pour payer mensuellement au lieu de par tranches de 3 mois.
+                  </p>
                 </div>
               </form>
             </div>
@@ -392,6 +453,24 @@ export default function StudentsPage() {
               }}>
                 <Printer size={18} /> Imprimer la carte
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete/Deactivate Confirmation Modal */}
+      {deleteConfirmStudent && (
+        <div className="modal-overlay" onClick={() => setDeleteConfirmStudent(null)} style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(15, 23, 42, 0.6)' }}>
+          <div className="modal-content" style={{ maxWidth: '420px', textAlign: 'center', padding: '2.5rem 2rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid rgba(255, 255, 255, 0.2)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ marginBottom: '1.5rem', marginTop: '0', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: 'white', width: '72px', height: '72px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', boxShadow: '0 10px 25px -5px rgba(239, 68, 68, 0.4)' }}>
+              <Trash2 size={36} strokeWidth={2} />
+            </div>
+            <h2 style={{ marginBottom: '1rem', color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>Confirmer l'abandon / départ</h2>
+            <p style={{ color: '#64748b', marginBottom: '2.5rem', fontSize: '1rem', lineHeight: 1.6 }}>
+              Voulez-vous vraiment marquer <strong>{deleteConfirmStudent.prenom} {deleteConfirmStudent.nom}</strong> comme inactif (départ/abandon) ?<br/>Son historique de notes et de inscriptions sera conservé.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button onClick={() => setDeleteConfirmStudent(null)} style={{ flex: 1, padding: '0.875rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '1rem' }} onMouseOver={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }} onMouseOut={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>Annuler</button>
+              <button onClick={handleDeleteStudent} style={{ flex: 1, padding: '0.875rem', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', color: 'white', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)', fontSize: '1rem' }} onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.3)'; }} onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.2)'; }}>Confirmer</button>
             </div>
           </div>
         </div>

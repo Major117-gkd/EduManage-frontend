@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, X, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, X, Users, Search } from 'lucide-react';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
 
@@ -11,11 +11,12 @@ export default function ClassesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ nom: '', niveau: '', capacite: 30, anneeScolaireId: '' });
+  const [form, setForm] = useState({ nom: '', niveau: '', cycle: 'Collège', capacite: 30, montant_annuel: 0, anneeScolaireId: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const niveaux = ['Maternelle', 'Primaire', 'Collège', 'Lycée'];
+  const cycles = ['Primaire', 'Collège', 'Lycée'];
 
   const loadData = () => {
     fetch(`${API}/api/admin/classes`).then(r => r.json()).then(d => { if (Array.isArray(d)) setClasses(d); }).catch(() => {});
@@ -27,14 +28,14 @@ export default function ClassesPage() {
   const openCreateModal = () => {
     // Try to auto-select the active year if one exists
     const activeAnnee = annees.find(a => a.active);
-    setForm({ nom: '', niveau: '', capacite: 30, anneeScolaireId: activeAnnee ? activeAnnee.id : '' });
+    setForm({ nom: '', niveau: '', cycle: 'Collège', capacite: 30, montant_annuel: 0, anneeScolaireId: activeAnnee ? activeAnnee.id : '' });
     setEditingId(null);
     setMessage('');
     setIsModalOpen(true);
   };
 
   const handleEdit = (c) => {
-    setForm({ nom: c.nom, niveau: c.niveau, capacite: c.capacite, anneeScolaireId: c.anneeScolaireId || '' });
+    setForm({ nom: c.nom, niveau: c.niveau, cycle: c.cycle || 'Collège', capacite: c.capacite, montant_annuel: c.montant_annuel || 0, anneeScolaireId: c.anneeScolaireId || '' });
     setEditingId(c.id);
     setMessage('');
     setIsModalOpen(true);
@@ -80,6 +81,12 @@ export default function ClassesPage() {
 
   const levelColor = { 'Maternelle': '#f59e0b', 'Primaire': '#10b981', 'Collège': '#3b82f6', 'Lycée': '#8b5cf6' };
 
+  const filteredClasses = classes.filter(c =>
+    c.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.niveau.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.cycle.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard__header">
@@ -90,43 +97,65 @@ export default function ClassesPage() {
       </div>
 
       <div className="admin-panel">
+        <div className="admin-panel__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="admin-panel__title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Users size={20} color="#0A2F6B" /> Liste des classes
+          </h2>
+          <div style={{ position: 'relative', width: '250px' }}>
+            <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '100%', padding: '0.5rem 1rem 0.5rem 2rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+            />
+          </div>
+        </div>
+
         <div className="table-responsive">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>Nom de la classe</th>
                 <th>Niveau</th>
+                <th>Cycle</th>
+                <th>Montant Annuel</th>
                 <th>Année Scolaire</th>
                 <th>Capacité</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {classes.length === 0 ? (
+              {filteredClasses.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8', fontStyle: 'italic' }}>Aucune classe créée pour l'instant.</td>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', fontStyle: 'italic' }}>Aucune classe trouvée.</td>
                 </tr>
-              ) : classes.map(c => (
+              ) : filteredClasses.map(c => (
                 <tr key={c.id}>
                   <td style={{ fontWeight: 600, color: '#0f172a' }}>{c.nom}</td>
+                  <td>{c.niveau}</td>
                   <td>
-                    <span style={{ display: 'inline-block', padding: '0.2rem 0.65rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600, background: `${levelColor[c.niveau] || '#0A2F6B'}15`, color: levelColor[c.niveau] || '#0A2F6B' }}>
-                      {c.niveau}
+                    <span className="status-badge" style={{ background: `${levelColor[c.cycle] || '#0A2F6B'}15`, color: levelColor[c.cycle] || '#0A2F6B' }}>
+                      {c.cycle}
                     </span>
                   </td>
                   <td>
-                    {c.anneeScolaire ? c.anneeScolaire.nom : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Non définie</span>}
+                    <strong>{c.montant_annuel ? c.montant_annuel.toLocaleString() + ' GNF' : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Non défini</span>}</strong>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b' }}>
-                      <Users size={16} />
-                      <strong>{c.capacite}</strong> élèves
+                    {c.anneeScolaire ? <span className="status-badge status-badge--success">{c.anneeScolaire.nom}</span> : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Non définie</span>}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b' }}>
+                      <Users size={14} />
+                      <strong>{c.capacite}</strong>
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button className="action-btn action-btn--edit" title="Modifier" onClick={() => handleEdit(c)}><Edit size={15} /></button>
-                      <button className="action-btn action-btn--delete" title="Supprimer" onClick={() => confirmDelete(c.id)}><Trash2 size={15} /></button>
+                    <div className="action-buttons">
+                      <button className="action-btn action-btn--edit" title="Modifier" onClick={() => handleEdit(c)}><Edit size={16} /></button>
+                      <button className="action-btn action-btn--delete" title="Supprimer" onClick={() => confirmDelete(c.id)}><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
@@ -153,10 +182,20 @@ export default function ClassesPage() {
                 <div className="modal-form-row">
                   <div className="modal-form-group">
                     <label>Niveau</label>
-                    <select value={form.niveau} onChange={e => setForm({...form, niveau: e.target.value})} required>
-                      <option value="">Sélectionnez un niveau</option>
-                      {niveaux.map(n => <option key={n} value={n}>{n}</option>)}
+                    <input type="text" value={form.niveau} onChange={e => setForm({...form, niveau: e.target.value})} placeholder="Ex: 6ème, Terminale" required />
+                  </div>
+                  <div className="modal-form-group">
+                    <label>Cycle</label>
+                    <select value={form.cycle} onChange={e => setForm({...form, cycle: e.target.value})} required>
+                      {cycles.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
+                  </div>
+                </div>
+                <div className="modal-form-row">
+                  <div className="modal-form-group">
+                    <label>Montant Annuel (GNF)</label>
+                    <input type="number" value={form.montant_annuel} onChange={e => setForm({...form, montant_annuel: e.target.value})} min="0" placeholder="Ex: 900000" />
+                    <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>Pour 9 mois de scolarité (sept. à mai)</p>
                   </div>
                   <div className="modal-form-group">
                     <label>Année Scolaire</label>
@@ -165,6 +204,7 @@ export default function ClassesPage() {
                       {annees.map(a => <option key={a.id} value={a.id}>{a.nom} {a.active && '(Active)'}</option>)}
                     </select>
                   </div>
+                  <div className="modal-form-group"></div>
                 </div>
               </form>
             </div>

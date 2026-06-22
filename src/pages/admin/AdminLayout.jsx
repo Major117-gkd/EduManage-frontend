@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Search, Bell, Calendar, Menu, X as XIcon, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Search, Bell, Calendar, Menu, X as XIcon, ClipboardList, DollarSign } from 'lucide-react';
 import './AdminLayout.css';
 
 export default function AdminLayout() {
@@ -34,6 +34,7 @@ export default function AdminLayout() {
     { path: '/admin/classes', icon: <BookOpen size={20} />, label: 'Classes' },
     { path: '/admin/subjects', icon: <BookOpen size={20} />, label: 'Matières' },
     { path: '/admin/years', icon: <Calendar size={20} />, label: 'Années Scolaires' },
+    { path: '/admin/payments', icon: <DollarSign size={20} />, label: 'Paiements' },
     { path: '/admin/grades', icon: <FileText size={20} />, label: 'Saisie des Notes' },
     { path: '/admin/grades/results', icon: <ClipboardList size={20} />, label: 'Bulletins & Résultats' },
     { path: '/admin/settings', icon: <Settings size={20} />, label: 'Paramètres' },

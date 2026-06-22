@@ -1,19 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Trophy, BarChart3, Download, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  ArrowLeft, Trophy, BarChart3, User, Award,
+  TrendingUp, CheckCircle, XCircle, Printer,
+  GraduationCap, BookOpen, Star, DollarSign,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../admin/AdminDashboard.css';
 import '../admin/Modal.css';
+import './ResultsPage.css';
 
 const API = 'http://localhost:5000';
 const PERIODES = ['Trimestre 1', 'Trimestre 2', 'Trimestre 3', 'Semestre 1', 'Semestre 2'];
 
 const getMentionColor = (val) => {
   const v = parseFloat(val);
-  if (isNaN(v) || v === null) return '#94a3b8';
+  if (isNaN(v) || val === null) return '#94a3b8';
   if (v >= 16) return '#059669';
   if (v >= 14) return '#10b981';
   if (v >= 10) return '#d97706';
   return '#dc2626';
+};
+
+const getMentionBg = (val) => {
+  const v = parseFloat(val);
+  if (isNaN(v) || val === null) return '#f1f5f9';
+  if (v >= 16) return '#ecfdf5';
+  if (v >= 14) return '#d1fae5';
+  if (v >= 10) return '#fffbeb';
+  return '#fef2f2';
 };
 
 const getMention = (val) => {
@@ -34,10 +48,14 @@ export default function ResultsPage() {
   const [bulletins, setBulletins] = useState([]);
   const [classeInfo, setClasseInfo] = useState({ nom: '', niveau: '' });
   const [loading, setLoading] = useState(false);
-  const [selectedEleve, setSelectedEleve] = useState(null); // for detail view
+  const [selectedEleve, setSelectedEleve] = useState(null);
+  const [filterPaidOnly, setFilterPaidOnly] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/admin/classes`).then(r => r.json()).then(d => { if (Array.isArray(d)) setClasses(d); }).catch(() => {});
+    fetch(`${API}/api/admin/classes`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setClasses(d); })
+      .catch(() => {});
   }, []);
 
   const loadBulletins = (classeId, p) => {
@@ -66,166 +84,290 @@ export default function ResultsPage() {
   };
 
   // Stats
-  const withGrades = bulletins.filter(b => b.moyenneGenerale !== null);
+  const filteredBulletins = filterPaidOnly
+    ? bulletins.filter(b => b.statut_financier === 'À jour')
+    : bulletins;
+
+  const withGrades = filteredBulletins.filter(b => b.moyenneGenerale !== null);
   const classeMoyenne = withGrades.length > 0
     ? (withGrades.reduce((s, b) => s + parseFloat(b.moyenneGenerale), 0) / withGrades.length).toFixed(2)
     : null;
   const admis = withGrades.filter(b => parseFloat(b.moyenneGenerale) >= 10).length;
   const tauxReussite = withGrades.length > 0 ? Math.round((admis / withGrades.length) * 100) : 0;
-  const best = withGrades.length > 0 ? withGrades.reduce((best, b) => parseFloat(b.moyenneGenerale) > parseFloat(best.moyenneGenerale) ? b : best) : null;
+  const best = withGrades.length > 0
+    ? withGrades.reduce((b, cur) => parseFloat(cur.moyenneGenerale) > parseFloat(b.moyenneGenerale) ? cur : b)
+    : null;
+
+  const sortedBulletins = [...filteredBulletins].sort((a, b) => {
+    if (a.rang === null && b.rang === null) return 0;
+    if (a.rang === null) return 1;
+    if (b.rang === null) return -1;
+    return a.rang - b.rang;
+  });
 
   return (
-    <div className="admin-dashboard">
-      {/* Header */}
-      <div className="admin-dashboard__header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate('/admin/grades')}
-            style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <ArrowLeft size={20} color="#0A2F6B" />
+    <div className="results-page">
+
+      {/* ── Page Header ── */}
+      <div className="results-header">
+        <div className="results-header__left">
+          <button className="results-back-btn" onClick={() => navigate('/admin/grades')}>
+            <ArrowLeft size={18} />
           </button>
-          <h1 className="admin-title">Bulletins & Résultats</h1>
+          <div>
+            <h1 className="results-title">Bulletins & Résultats</h1>
+            <p className="results-subtitle">Classement, moyennes générales et bulletins individuels</p>
+          </div>
         </div>
         {selectedEleve && (
-          <button className="btn" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            onClick={() => setSelectedEleve(null)}>
-            <BarChart3 size={16} /> Vue d'ensemble
-          </button>
+          <div className="results-header__actions">
+            <button className="results-btn results-btn--outline" onClick={() => window.print()}>
+              <Printer size={16} /> Imprimer
+            </button>
+            <button className="results-btn results-btn--ghost" onClick={() => setSelectedEleve(null)}>
+              <BarChart3 size={16} /> Vue d'ensemble
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Class + Period Selector */}
-      <div className="admin-panel" style={{ marginBottom: '1rem' }}>
-        <div style={{ padding: '1rem 1.5rem', background: '#eff6ff', borderBottom: '1px solid #bfdbfe', color: '#1e40af', fontSize: '0.88rem' }}>
+      {/* ── Formula note ── */}
+      <div className="results-formula-banner">
+        <BookOpen size={15} />
+        <span>
           <strong>Moy. matière</strong> (sans coeff.) = (D1 + D2 + 2×Compo) / 4 ·{' '}
-          <strong>Moy. générale &amp; classement</strong> = Σ(moy. matière × coeff.) / Σ(coeff.)
+          <strong>Moy. générale & classement</strong> = Σ(moy. matière × coeff.) / Σ(coeff.)
+        </span>
+      </div>
+
+      {/* ── Filters ── */}
+      <div className="results-filters admin-panel">
+        <div className="admin-panel__header results-filters__header">
+          <h2 className="admin-panel__title">
+            <GraduationCap size={18} color="#0A2F6B" />
+            Sélection
+          </h2>
+          {selectedClasse && (
+            <span className="results-selected-badge">
+              {classeInfo.nom} · {periode}
+            </span>
+          )}
         </div>
-        <div className="admin-panel__header">
-          <h2 className="admin-panel__title">Filtres</h2>
-        </div>
-        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <div>
-            <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', marginBottom: '0.5rem' }}>Classe</p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="results-filters__body">
+          <div className="results-filter-group">
+            <p className="results-filter-label">Classe</p>
+            <div className="results-chips">
               {classes.map(c => (
-                <button key={c.id} onClick={() => handleSelectClasse(c)}
-                  style={{
-                    padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
-                    background: selectedClasse?.id === c.id ? '#0A2F6B' : 'white',
-                    color: selectedClasse?.id === c.id ? 'white' : '#0f172a',
-                    border: `2px solid ${selectedClasse?.id === c.id ? '#0A2F6B' : '#e2e8f0'}`,
-                    transition: 'all 0.2s'
-                  }}>
+                <button
+                  key={c.id}
+                  onClick={() => handleSelectClasse(c)}
+                  className={`results-chip ${selectedClasse?.id === c.id ? 'active' : ''}`}
+                >
                   {c.nom}
                 </button>
               ))}
             </div>
           </div>
-          <div>
-            <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', marginBottom: '0.5rem' }}>Période</p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="results-filter-divider" />
+          <div className="results-filter-group">
+            <p className="results-filter-label">Période</p>
+            <div className="results-chips">
               {PERIODES.map(p => (
-                <button key={p} onClick={() => handlePeriodeChange(p)}
-                  style={{
-                    padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem',
-                    background: periode === p ? '#8b5cf6' : 'white',
-                    color: periode === p ? 'white' : '#0f172a',
-                    border: `2px solid ${periode === p ? '#8b5cf6' : '#e2e8f0'}`,
-                    transition: 'all 0.2s'
-                  }}>
+                <button
+                  key={p}
+                  onClick={() => handlePeriodeChange(p)}
+                  className={`results-chip results-chip--period ${periode === p ? 'active' : ''}`}
+                >
                   {p}
                 </button>
               ))}
             </div>
           </div>
+          <div className="results-filter-divider" />
+          <div className="results-filter-group">
+            <label className="results-filter-checkbox">
+              <input
+                type="checkbox"
+                checked={filterPaidOnly}
+                onChange={(e) => setFilterPaidOnly(e.target.checked)}
+              />
+              <DollarSign size={16} />
+              <span>Élèves à jour uniquement</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      {/* Stats Row */}
+      {/* ── Stats Cards ── */}
       {selectedClasse && !loading && withGrades.length > 0 && (
-        <div className="admin-stats__grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="results-stats-grid">
           {[
-            { label: 'Moyenne de classe', value: classeMoyenne ? `${classeMoyenne}/20` : 'N/A', color: getMentionColor(classeMoyenne), icon: <BarChart3 size={22} color={getMentionColor(classeMoyenne)} />, bg: getMentionColor(classeMoyenne) + '18' },
-            { label: 'Taux de réussite', value: `${tauxReussite}%`, color: tauxReussite >= 50 ? '#059669' : '#dc2626', icon: <Trophy size={22} color={tauxReussite >= 50 ? '#059669' : '#dc2626'} />, bg: (tauxReussite >= 50 ? '#059669' : '#dc2626') + '18' },
-            { label: 'Admis (≥10)', value: `${admis}/${withGrades.length}`, color: '#3b82f6', icon: <User size={22} color="#3b82f6" />, bg: '#eff6ff' },
-            { label: 'Meilleur(e) élève', value: best ? `${best.prenom} ${best.nom}` : 'N/A', sub: best ? `${best.moyenneGenerale}/20` : '', color: '#f59e0b', icon: <Trophy size={22} color="#f59e0b" />, bg: '#fffbeb' },
+            {
+              label: 'Moyenne de classe',
+              value: classeMoyenne ? `${classeMoyenne}/20` : 'N/A',
+              sub: getMention(classeMoyenne),
+              color: getMentionColor(classeMoyenne),
+              bg: getMentionBg(classeMoyenne),
+              icon: <BarChart3 size={22} />,
+            },
+            {
+              label: 'Taux de réussite',
+              value: `${tauxReussite}%`,
+              sub: `${admis} admis sur ${withGrades.length}`,
+              color: tauxReussite >= 50 ? '#059669' : '#dc2626',
+              bg: tauxReussite >= 50 ? '#ecfdf5' : '#fef2f2',
+              icon: <TrendingUp size={22} />,
+            },
+            {
+              label: 'Admis (≥10)',
+              value: `${admis}/${withGrades.length}`,
+              sub: `${withGrades.length - admis} non admis`,
+              color: '#3b82f6',
+              bg: '#eff6ff',
+              icon: <CheckCircle size={22} />,
+            },
+            {
+              label: 'Meilleur(e) élève',
+              value: best ? `${best.prenom} ${best.nom}` : 'N/A',
+              sub: best ? `${parseFloat(best.moyenneGenerale).toFixed(2)}/20 · 1er rang` : '',
+              color: '#f59e0b',
+              bg: '#fffbeb',
+              icon: <Trophy size={22} />,
+            },
           ].map((s, i) => (
-            <div key={i} className="admin-stat-card">
-              <div className="admin-stat-card__icon" style={{ background: s.bg }}>{s.icon}</div>
-              <div className="admin-stat-card__info">
-                <span className="admin-stat-card__label">{s.label}</span>
-                <span className="admin-stat-card__value" style={{ fontSize: '1.2rem', color: s.color }}>{s.value}</span>
-                {s.sub && <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{s.sub}</span>}
+            <div key={i} className="results-stat-card" style={{ '--stat-color': s.color }}>
+              <div className="results-stat-card__icon" style={{ background: s.bg, color: s.color }}>
+                {s.icon}
+              </div>
+              <div className="results-stat-card__info">
+                <span className="results-stat-card__label">{s.label}</span>
+                <span className="results-stat-card__value" style={{ color: s.color }}>{s.value}</span>
+                {s.sub && <span className="results-stat-card__sub">{s.sub}</span>}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Content area */}
+      {/* ── Content ── */}
       {!selectedClasse ? (
-        <div style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
-          <BarChart3 size={48} color="#e2e8f0" style={{ margin: '0 auto 1rem' }} />
-          <p style={{ fontSize: '1.1rem', fontStyle: 'italic' }}>Sélectionnez une classe pour afficher les bulletins.</p>
+        <div className="results-empty-state">
+          <div className="results-empty-state__icon">
+            <GraduationCap size={40} color="#cbd5e1" />
+          </div>
+          <p className="results-empty-state__text">Sélectionnez une classe pour afficher les bulletins</p>
+          <span className="results-empty-state__hint">Choisissez une classe et une période ci-dessus</span>
         </div>
       ) : loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>Chargement des résultats...</div>
+        <div className="results-loading">
+          <div className="results-loading__spinner" />
+          <span>Chargement des résultats...</span>
+        </div>
       ) : selectedEleve ? (
-        /* ── BULLETIN DETAIL ── */
-        <div className="admin-panel">
-          <div className="admin-panel__header" style={{ background: 'linear-gradient(135deg, #0A2F6B 0%, #1e40af 100%)', borderRadius: 0 }}>
-            <div>
-              <h2 style={{ color: 'white', fontSize: '1.2rem', margin: 0 }}>{selectedEleve.prenom} {selectedEleve.nom}</h2>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
-                {classeInfo.nom} · {periode} · Matricule : {selectedEleve.matricule}
-              </p>
+
+        /* ════════════════ BULLETIN DETAIL ════════════════ */
+        <div className="admin-panel bulletin-card">
+          {/* Bulletin header */}
+          <div className="bulletin-card__header">
+            <div className="bulletin-card__school-badge">
+              <Award size={16} />
+              Bulletin Scolaire Officiel
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white' }}>
-                {selectedEleve.moyenneGenerale ? `${selectedEleve.moyenneGenerale}/20` : 'N/A'}
+            <div className="bulletin-card__identity">
+              <div>
+                <h2 className="bulletin-card__name">
+                  {selectedEleve.prenom} {selectedEleve.nom}
+                </h2>
+                <p className="bulletin-card__meta">
+                  {classeInfo.nom} · {periode} · Matricule : <strong>{selectedEleve.matricule}</strong>
+                </p>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>
-                {getMention(selectedEleve.moyenneGenerale)} · Rang {selectedEleve.rang}
+              <div className="bulletin-card__avg-block">
+                <span
+                  className="bulletin-card__avg-value"
+                  style={{ color: getMentionColor(selectedEleve.moyenneGenerale) }}
+                >
+                  {selectedEleve.moyenneGenerale
+                    ? `${parseFloat(selectedEleve.moyenneGenerale).toFixed(2)}/20`
+                    : 'N/A'}
+                </span>
+                <span
+                  className="bulletin-card__avg-mention"
+                  style={{
+                    background: getMentionBg(selectedEleve.moyenneGenerale),
+                    color: getMentionColor(selectedEleve.moyenneGenerale),
+                  }}
+                >
+                  {getMention(selectedEleve.moyenneGenerale)} · Rang {selectedEleve.rang ?? '—'}
+                </span>
               </div>
             </div>
           </div>
+
+          {/* Subject table */}
           <div className="table-responsive">
-            <table className="admin-table">
+            <table className="admin-table bulletin-subject-table">
               <thead>
                 <tr>
                   <th>Matière</th>
                   <th>Prof. responsable</th>
-                  <th>Coefficient</th>
+                  <th style={{ textAlign: 'center' }}>Coeff.</th>
                   <th>Notes</th>
-                  <th title="Sans coefficient de la matière">Moy. matière</th>
+                  <th style={{ textAlign: 'center' }}>Moy. matière</th>
                   <th>Mention</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedEleve.matieres.map(m => (
-                  <tr key={m.matiereId} style={{ background: !m.moyenne ? '#fafafa' : 'transparent' }}>
-                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{m.matiere}</td>
-                    <td style={{ color: '#64748b', fontSize: '0.85rem' }}>{m.professeur}</td>
-                    <td style={{ textAlign: 'center' }}><span style={{ background: '#f1f5f9', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>{m.coefficient}</span></td>
+                  <tr key={m.matiereId} className={!m.moyenne ? 'bulletin-row--empty' : ''}>
+                    <td className="bulletin-subject-name">{m.matiere}</td>
+                    <td className="bulletin-teacher">{m.professeur}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <span className="bulletin-coeff">{m.coefficient}</span>
+                    </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <div className="bulletin-notes-wrap">
                         {m.notes.length === 0 ? (
-                          <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Aucune note</span>
+                          <span className="bulletin-no-note">Aucune note</span>
                         ) : m.notes.map(n => (
-                          <span key={n.id} title={n.type}
-                            style={{ background: getMentionColor(n.valeur) + '18', color: getMentionColor(n.valeur), padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700, fontSize: '0.85rem' }}>
+                          <span
+                            key={n.id}
+                            title={n.type}
+                            className="bulletin-note-chip"
+                            style={{
+                              background: getMentionBg(n.valeur),
+                              color: getMentionColor(n.valeur),
+                            }}
+                          >
                             {n.valeur}
                           </span>
                         ))}
                       </div>
                     </td>
-                        <td>
-                          <span style={{ fontWeight: 700, fontSize: '1.05rem', color: getMentionColor(m.moyenne) }}>
-                            {m.moyenne !== null && m.moyenne !== undefined ? `${Number(m.moyenne).toFixed(2)}/20` : '—'}
-                          </span>
-                        </td>
+                    <td style={{ textAlign: 'center' }}>
+                      {m.moyenne !== null && m.moyenne !== undefined ? (
+                        <span
+                          className="bulletin-avg-chip"
+                          style={{
+                            color: getMentionColor(m.moyenne),
+                            background: getMentionBg(m.moyenne),
+                          }}
+                        >
+                          {Number(m.moyenne).toFixed(2)}/20
+                        </span>
+                      ) : (
+                        <span className="bulletin-no-note">—</span>
+                      )}
+                    </td>
                     <td>
                       {m.moyenne && (
-                        <span style={{ padding: '0.2rem 0.65rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600, background: getMentionColor(m.moyenne) + '18', color: getMentionColor(m.moyenne) }}>
+                        <span
+                          className="bulletin-mention-pill"
+                          style={{
+                            background: getMentionBg(m.moyenne),
+                            color: getMentionColor(m.moyenne),
+                          }}
+                        >
                           {getMention(m.moyenne)}
                         </span>
                       )}
@@ -235,86 +377,145 @@ export default function ResultsPage() {
               </tbody>
             </table>
           </div>
-          <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Rang : <strong style={{ color: '#0A2F6B' }}>{selectedEleve.rang}</strong></span>
-              <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Mention : <strong style={{ color: getMentionColor(selectedEleve.moyenneGenerale) }}>{getMention(selectedEleve.moyenneGenerale)}</strong></span>
+
+          {/* Bulletin footer */}
+          <div className="bulletin-card__footer">
+            <div className="bulletin-card__footer-stats">
+              <div className="bulletin-footer-stat">
+                <Star size={14} />
+                <span>Rang : <strong style={{ color: '#0A2F6B' }}>{selectedEleve.rang}</strong></span>
+              </div>
+              <div className="bulletin-footer-stat">
+                <Award size={14} />
+                <span>
+                  Mention :{' '}
+                  <strong style={{ color: getMentionColor(selectedEleve.moyenneGenerale) }}>
+                    {getMention(selectedEleve.moyenneGenerale)}
+                  </strong>
+                </span>
+              </div>
+              <div className="bulletin-footer-stat">
+                {parseFloat(selectedEleve.moyenneGenerale) >= 10
+                  ? <CheckCircle size={14} color="#059669" />
+                  : <XCircle size={14} color="#dc2626" />}
+                <span style={{ color: parseFloat(selectedEleve.moyenneGenerale) >= 10 ? '#059669' : '#dc2626', fontWeight: 700 }}>
+                  {parseFloat(selectedEleve.moyenneGenerale) >= 10 ? 'Admis(e)' : 'Non admis(e)'}
+                </span>
+              </div>
             </div>
-            <button onClick={() => setSelectedEleve(null)} className="btn" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a' }}>
+            <button className="results-btn results-btn--outline" onClick={() => setSelectedEleve(null)}>
               ← Retour à la liste
             </button>
           </div>
         </div>
+
       ) : (
-        /* ── LIST OF ALL STUDENTS ── */
+
+        /* ════════════════ STUDENTS LIST ════════════════ */
         <div className="admin-panel">
-          <div className="admin-panel__header">
+          <div className="admin-panel__header results-list-header">
             <h2 className="admin-panel__title">
-              Résultats — {classeInfo.nom} · {periode}
+              Résultats — {classeInfo.nom}
+              <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#94a3b8', marginLeft: '0.5rem' }}>
+                · {periode}
+              </span>
             </h2>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{bulletins.length} élève(s)</span>
+            <span className="results-count-badge">{bulletins.length} élève(s)</span>
           </div>
+
           <div className="table-responsive">
             {bulletins.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                Aucune note saisie pour cette période. Utilisez la page "Saisie des Notes" pour commencer.
+              <div className="results-empty-table">
+                <BarChart3 size={36} color="#e2e8f0" />
+                <p>Aucune note saisie pour cette période.</p>
+                <span>Utilisez la page « Saisie des Notes » pour commencer.</span>
               </div>
             ) : (
-              <table className="admin-table">
+              <table className="admin-table results-table">
                 <thead>
                   <tr>
-                    <th>Rang</th>
-                    <th>Matricule</th>
+                    <th style={{ width: 60, textAlign: 'center' }}>Rang</th>
+                    <th style={{ width: 90 }}>Matricule</th>
                     <th>Nom & Prénom</th>
-                    <th>Moyenne générale</th>
+                    <th style={{ textAlign: 'center' }}>Moy. générale</th>
                     <th>Mention</th>
-                    <th>Statut</th>
-                    <th>Bulletin</th>
+                    <th style={{ textAlign: 'center' }}>Statut</th>
+                    <th style={{ textAlign: 'center' }}>Bulletin</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...bulletins].sort((a, b) => {
-                    if (a.rang === null && b.rang === null) return 0;
-                    if (a.rang === null) return 1;
-                    if (b.rang === null) return -1;
-                    return a.rang - b.rang;
-                  }).map((b) => {
+                  {sortedBulletins.map((b, idx) => {
                     const moy = b.moyenneGenerale !== null ? parseFloat(b.moyenneGenerale) : NaN;
+                    const admis = !isNaN(moy) && moy >= 10;
+                    const isFirst = b.rang === 1;
                     return (
-                      <tr key={b.eleveId} style={{ background: b.rang === 1 ? '#fffbeb' : 'transparent' }}>
-                        <td>
-                          {b.rang === 1 ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <Trophy size={14} color="#f59e0b" /> <strong style={{ color: '#f59e0b' }}>{b.rang}{b.rang === 1 ? 'er' : ''}</strong>
+                      <tr
+                        key={b.eleveId}
+                        className={`results-row ${isFirst ? 'results-row--gold' : ''}`}
+                        style={{ animationDelay: `${idx * 0.03}s` }}
+                      >
+                        <td style={{ textAlign: 'center' }}>
+                          {isFirst ? (
+                            <span className="results-rank results-rank--first">
+                              <Trophy size={13} /> {b.rang}er
                             </span>
+                          ) : b.rang ? (
+                            <span className="results-rank">{b.rang}</span>
                           ) : (
-                            <span style={{ color: '#64748b' }}>{b.rang ?? '—'}</span>
+                            <span style={{ color: '#cbd5e1' }}>—</span>
                           )}
                         </td>
-                        <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{b.matricule}</td>
-                        <td style={{ fontWeight: 600, color: '#0f172a' }}>{b.nom} {b.prenom}</td>
-                        <td>
-                          <span style={{ fontWeight: 700, fontSize: '1.05rem', color: getMentionColor(b.moyenneGenerale) }}>
-                            {b.moyenneGenerale !== null && b.moyenneGenerale !== undefined ? `${Number(b.moyenneGenerale).toFixed(2)}/20` : <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Aucune note</span>}
-                          </span>
+                        <td className="results-matricule">{b.matricule}</td>
+                        <td className="results-student-name">
+                          {b.nom} {b.prenom}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {b.moyenneGenerale !== null && b.moyenneGenerale !== undefined ? (
+                            <span
+                              className="results-avg-chip"
+                              style={{
+                                color: getMentionColor(b.moyenneGenerale),
+                                background: getMentionBg(b.moyenneGenerale),
+                              }}
+                            >
+                              {Number(b.moyenneGenerale).toFixed(2)}/20
+                            </span>
+                          ) : (
+                            <span style={{ color: '#cbd5e1', fontStyle: 'italic', fontSize: '0.82rem' }}>
+                              Aucune note
+                            </span>
+                          )}
                         </td>
                         <td>
                           {b.moyenneGenerale && (
-                            <span style={{ padding: '0.2rem 0.65rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600, background: getMentionColor(b.moyenneGenerale) + '18', color: getMentionColor(b.moyenneGenerale) }}>
+                            <span
+                              className="results-mention-pill"
+                              style={{
+                                background: getMentionBg(b.moyenneGenerale),
+                                color: getMentionColor(b.moyenneGenerale),
+                              }}
+                            >
                               {getMention(b.moyenneGenerale)}
                             </span>
                           )}
                         </td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>
                           {b.moyenneGenerale ? (
-                            <span className={`status-badge ${!isNaN(moy) && moy >= 10 ? 'status-badge--success' : 'status-badge--warning'}`}>
-                              {!isNaN(moy) && moy >= 10 ? 'Admis' : 'Non admis'}
+                            <span className={`results-status-badge ${admis ? 'results-status-badge--success' : 'results-status-badge--fail'}`}>
+                              {admis
+                                ? <><CheckCircle size={12} /> Admis</>
+                                : <><XCircle size={12} /> Non admis</>}
                             </span>
                           ) : null}
                         </td>
-                        <td>
-                          <button className="action-btn action-btn--view" title="Voir le bulletin" onClick={() => setSelectedEleve(b)}>
-                            <User size={15} />
+                        <td style={{ textAlign: 'center' }}>
+                          <button
+                            className="results-view-btn"
+                            title="Voir le bulletin"
+                            onClick={() => setSelectedEleve(b)}
+                          >
+                            <User size={14} />
+                            Bulletin
                           </button>
                         </td>
                       </tr>

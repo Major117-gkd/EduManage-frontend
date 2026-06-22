@@ -139,6 +139,16 @@
   color: #d97706;
 }
 
+.status-badge--error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge--info {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
 .quick-actions {
   padding: 1.5rem;
   display: flex;
