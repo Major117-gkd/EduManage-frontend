@@ -5,6 +5,8 @@ import '../admin/Modal.css';
 import './TeachersPage.css';
 
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { canDeleteTeachers } from '../../utils/rbac';
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
@@ -100,7 +102,7 @@ function TeacherAssignmentPanel({
       <div className="teacher-assign-section__head">
         <h3 className="teacher-assign-section__title">Affectation des matières</h3>
         <p className="teacher-assign-section__hint">
-          Cliquez sur les cours à assigner. Même matière dans plusieurs classes, ou matières différentes par classe.
+          Sélectionnez ici les matières que ce professeur dispense. L&apos;affectation se fait uniquement depuis cette fiche, pas lors de la création d&apos;une matière.
         </p>
       </div>
 
@@ -280,6 +282,9 @@ function TeacherAssignmentPanel({
 }
 
 export default function TeachersPage() {
+  const { user } = useAuth();
+  const canRemoveTeachers = canDeleteTeachers(user?.role);
+
   const [professeurs, setProfesseurs] = useState([]);
   const [matieres, setMatieres] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -419,9 +424,10 @@ export default function TeachersPage() {
     return haystack.includes(search.toLowerCase());
   });
 
-  const displayedMatieres = classFilter
+  const displayedMatieres = (classFilter
     ? matieres.filter((m) => m.classe?.id.toString() === classFilter)
-    : matieres;
+    : matieres
+  ).filter((m) => m.classeId != null);
 
   const matieresGrouped = useMemo(() => groupMatieresByNom(displayedMatieres), [displayedMatieres]);
   const classesGrouped = useMemo(() => groupMatieresByClasse(displayedMatieres), [displayedMatieres]);
@@ -449,6 +455,12 @@ export default function TeachersPage() {
           Ajouter un professeur
         </button>
       </div>
+
+      {user?.role === 'DIRECTEUR' && user?.perimetre && (
+        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', borderRadius: '8px', background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', fontSize: '0.9rem' }}>
+          Périmètre <strong>{user.perimetre}</strong> — professeurs et matières filtrés pour votre cycle. Vous pouvez ajouter et affecter dans ce périmètre.
+        </div>
+      )}
 
       <div className="teachers-page__stats">
         <div className="teachers-stat">
@@ -558,9 +570,11 @@ export default function TeachersPage() {
                   <button type="button" className="action-btn action-btn--edit" title="Modifier" onClick={() => openModal(p)}>
                     <Edit size={16} />
                   </button>
-                  <button type="button" className="action-btn action-btn--delete" title="Supprimer" onClick={() => handleDelete(p.id)}>
-                    <Trash2 size={16} />
-                  </button>
+                  {canRemoveTeachers && (
+                    <button type="button" className="action-btn action-btn--delete" title="Supprimer" onClick={() => handleDelete(p.id)}>
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             </article>

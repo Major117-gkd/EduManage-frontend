@@ -108,6 +108,9 @@ export default function SchoolInfoPage() {
           <Link to="/" className="sip__back">
             <ArrowLeft size={18} /> Retour à l'accueil
           </Link>
+          <Link to="/annonces" className="sip__back" style={{ marginLeft: 'auto', marginRight: '1rem' }}>
+            Annonces
+          </Link>
           <img src="/images/logo_boubacar.png" alt="Logo" className="sip__nav-logo" />
         </nav>
         <div className="sip__hero">

@@ -1,0 +1,411 @@
+/* ── En-tête intégré (espaces connectés) ── */
+.annonces-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0A2F6B 0%, #1a4d8f 55%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(10, 47, 107, 0.22);
+}
+
+.annonces-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -8%;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+
+.annonces-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: 10%;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.annonces-hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.annonces-hero__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.annonces-hero__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.annonces-hero__sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  opacity: 0.88;
+  max-width: 520px;
+}
+
+.annonces-hero__count {
+  margin-top: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ── Liste ── */
+.annonces-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.annonces-feed__section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.annonces-feed__section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #e2e8f0, transparent);
+}
+
+/* ── Carte annonce ── */
+.annonce-card {
+  --annonce-accent: #3b82f6;
+  position: relative;
+  display: flex;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e8edf4;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.annonce-card:hover {
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+  border-color: #dbeafe;
+}
+
+.annonce-card__accent {
+  flex-shrink: 0;
+  width: 5px;
+  background: var(--annonce-accent);
+}
+
+.annonce-card__inner {
+  flex: 1;
+  min-width: 0;
+  padding: 1.15rem 1.25rem 0;
+}
+
+.annonce-card__top {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.annonce-card__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.annonce-card__head {
+  flex: 1;
+  min-width: 0;
+}
+
+.annonce-card__labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.5rem;
+}
+
+.annonce-card__category {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.annonce-card__pin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0A2F6B;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #93c5fd;
+}
+
+.annonce-card__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.annonce-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.annonce-card__meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+}
+
+.annonce-card__body {
+  padding: 0.85rem 0 1rem;
+  margin-left: calc(44px + 1rem);
+  line-height: 1.75;
+  color: #475569;
+  font-size: 0.94rem;
+}
+
+.annonce-card__body p {
+  margin: 0 0 0.65rem;
+}
+
+.annonce-card__body p:last-child {
+  margin-bottom: 0;
+}
+
+.annonce-card__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: calc(100% + 2.5rem);
+  margin: 0 -1.25rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  background: linear-gradient(180deg, #fafbfc, #f8fafc);
+  color: #0A2F6B;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.annonce-card__more:hover {
+  background: #eff6ff;
+}
+
+/* Carte à la une */
+.annonce-card--featured {
+  border-color: #93c5fd;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 10px 36px rgba(10, 47, 107, 0.1);
+}
+
+.annonce-card--featured .annonce-card__accent {
+  width: 6px;
+}
+
+.annonce-card--featured .annonce-card__title {
+  font-size: 1.22rem;
+  color: #0A2F6B;
+}
+
+.annonce-card--featured:hover {
+  box-shadow: 0 14px 40px rgba(10, 47, 107, 0.14);
+}
+
+/* ── États vides / chargement ── */
+.annonces-feed__state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+}
+
+.annonces-feed__state--error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.annonces-feed__state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+  background: #f1f5f9;
+}
+
+.annonces-feed__state p {
+  margin: 0.35rem 0;
+}
+
+.annonces-feed__state p:last-child {
+  font-size: 0.88rem;
+  color: #94a3b8;
+}
+
+.annonces-feed__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.annonces-feed__skeleton-card {
+  height: 140px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e8edf4 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: annonces-shimmer 1.4s infinite;
+}
+
+@keyframes annonces-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Dark mode ── */
+html.dark-mode .annonce-card {
+  background: var(--st-surface, #1e293b);
+  border-color: var(--st-border, #334155);
+}
+
+html.dark-mode .annonce-card:hover {
+  border-color: #3b82f6;
+}
+
+html.dark-mode .annonce-card--featured {
+  background: linear-gradient(180deg, var(--st-surface, #1e293b) 0%, #172554 100%);
+  border-color: #3b82f6;
+}
+
+html.dark-mode .annonce-card__title {
+  color: var(--st-text, #f1f5f9);
+}
+
+html.dark-mode .annonce-card--featured .annonce-card__title {
+  color: #93c5fd;
+}
+
+html.dark-mode .annonce-card__body {
+  color: #cbd5e1;
+}
+
+html.dark-mode .annonce-card__meta-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+html.dark-mode .annonce-card__more {
+  background: rgba(255, 255, 255, 0.03);
+  border-top-color: var(--st-border, #334155);
+  color: #93c5fd;
+}
+
+html.dark-mode .annonce-card__more:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+html.dark-mode .annonces-feed__state {
+  background: var(--st-surface, #1e293b);
+  border-color: var(--st-border, #334155);
+  color: #94a3b8;
+}
+
+html.dark-mode .annonces-feed__section-label {
+  color: #94a3b8;
+}
+
+html.dark-mode .annonces-feed__section-label::after {
+  background: linear-gradient(90deg, #334155, transparent);
+}
+
+@media (max-width: 600px) {
+  .annonces-hero {
+    padding: 1.25rem;
+  }
+
+  .annonces-hero__title {
+    font-size: 1.25rem;
+  }
+
+  .annonce-card__body {
+    margin-left: 0;
+    padding-top: 0.65rem;
+  }
+
+  .annonce-card__top {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+}

@@ -6,8 +6,10 @@ import {
   PrintSection,
   PrintFooter,
 } from '../PrintLayout/PrintLayout';
-import { formatPrintDate, formatPrintAmount } from '../../utils/printConstants';
+import { formatPrintDate } from '../../utils/printConstants';
 import { printDocument } from '../../utils/printDocument';
+import PaymentSummaryCard from './PaymentSummaryCard';
+import './PaymentSummaryCard.css';
 
 export default function PaymentReceipt({ paiement }) {
   if (!paiement) return null;
@@ -58,26 +60,7 @@ export default function PaymentReceipt({ paiement }) {
         </div>
       </PrintSection>
 
-      <div className="edu-print-amount-box">
-        <div className="edu-print-amount-row">
-          <span>Montant payé</span>
-          <strong className="edu-print-amount-value">{formatPrintAmount(paiement.montant)}</strong>
-        </div>
-        <div className="edu-print-field-grid">
-          <div className="edu-print-field">
-            <label>Mode de paiement</label>
-            <strong>{paiement.mode_paiement || '—'}</strong>
-          </div>
-          <div className="edu-print-field">
-            <label>Solde restant</label>
-            <strong>{formatPrintAmount(eleve.solde)}</strong>
-          </div>
-          <div className="edu-print-field">
-            <label>Statut financier</label>
-            <strong>{eleve.statut_financier || '—'}</strong>
-          </div>
-        </div>
-      </div>
+      <PaymentSummaryCard paiement={paiement} finances={paiement.finances} variant="print" />
 
       {paiement.notes && (
         <PrintSection title="Notes">

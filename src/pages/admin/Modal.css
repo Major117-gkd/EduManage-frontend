@@ -158,8 +158,13 @@
   transition: background-color 0.2s;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   background: #06204a;
+}
+
+.btn-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {

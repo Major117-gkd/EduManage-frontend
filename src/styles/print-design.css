@@ -591,41 +591,52 @@
     color: #fff !important;
   }
 
-  /* Carte élève — format paysage */
+  /* Carte élève — même échelle et ratio qu'à l'écran (1000×600 @ zoom 0.68) */
   body.printing-card .edu-print-root {
     position: fixed;
-    width: 297mm;
-    height: 210mm;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6mm;
-    padding: 6mm;
+    gap: calc(2rem * 0.68);
+    padding: 8mm;
     box-sizing: border-box;
+    background: #fff !important;
   }
 
   @page printing-card {
     size: A4 landscape;
-    margin: 0;
+    margin: 8mm;
   }
 
   body.printing-card {
     page: printing-card;
   }
 
+  body.printing-card .id-card-wrapper {
+    width: calc(1000px * 0.68);
+    max-width: none;
+    gap: calc(2rem * 0.68);
+  }
+
   body.printing-card .id-card {
-    width: 270mm !important;
-    height: 85mm !important;
-    zoom: 1 !important;
+    width: 1000px !important;
+    height: 600px !important;
+    zoom: 0.68 !important;
     transform: none !important;
     margin: 0 !important;
     box-shadow: none !important;
     page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 24px;
   }
 
   body.printing-card .page-break-print {
-    display: none;
+    display: none !important;
   }
 
   /* Liste élèves (impression directe page) */
@@ -681,5 +692,29 @@
 
   tr {
     page-break-inside: avoid;
+  }
+
+  /* Notes espace parent */
+  body.printing-parent-grades .student-sidebar,
+  body.printing-parent-grades .student-sidebar-overlay,
+  body.printing-parent-grades .student-header {
+    display: none !important;
+  }
+
+  body.printing-parent-grades .student-main,
+  body.printing-parent-grades .student-content,
+  body.printing-parent-grades .student-layout {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  body.printing-parent-grades .parent-grades-print {
+    position: static !important;
+    left: auto !important;
+    visibility: visible !important;
+    width: 100% !important;
+    pointer-events: auto !important;
   }
 }

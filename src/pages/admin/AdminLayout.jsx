@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Search, Calendar, Menu, ClipboardList, DollarSign, Sun, Moon, UserCircle, Layers, Bell, Wallet } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { LayoutDashboard, Users, GraduationCap, BookOpen, FileText, Settings, LogOut, Calendar, Menu, ClipboardList, DollarSign, Sun, Moon, UserCircle, Layers, Bell, Wallet, UserCog, Megaphone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import { useContext } from 'react';
 import LogoutConfirmModal from '../../components/LogoutConfirmModal';
 import NotificationBell from '../../components/NotificationBell';
-import { isNavItemActive } from '../../utils/navActive';
-import './AdminLayout.css';
+import AdminGlobalSearch from '../../components/AdminGlobalSearch';
+import DirecteurPerimetreBanner from '../../components/DirecteurPerimetreBanner';
+import { getStaffNavItems, getStaffRoleLabel, canAccessStaffRoute } from '../../utils/rbac';
+import { getHomePathForRole, isNavItemActive } from '../../utils/rolePaths';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -46,26 +48,33 @@ export default function AdminLayout() {
     setTimeout(() => setRipples(prev => { const n = { ...prev }; delete n[path]; return n; }), 600);
   };
 
-  const navItems = [
-    { path: '/admin', icon: <LayoutDashboard size={20} />, label: 'Vue d\'ensemble', exact: true },
-    { path: '/admin/students', icon: <Users size={20} />, label: 'Élèves' },
-    { path: '/admin/teachers', icon: <GraduationCap size={20} />, label: 'Professeurs' },
-    { path: '/admin/classes', icon: <BookOpen size={20} />, label: 'Classes' },
-    { path: '/admin/niveaux', icon: <Layers size={20} />, label: 'Niveaux d\'étude' },
-    { path: '/admin/subjects', icon: <BookOpen size={20} />, label: 'Matières' },
-    { path: '/admin/years', icon: <Calendar size={20} />, label: 'Années Scolaires' },
-    { path: '/admin/payments', icon: <DollarSign size={20} />, label: 'Paiements' },
-    { path: '/admin/teacher-pay', icon: <Wallet size={20} />, label: 'Paie professeurs' },
-    { path: '/admin/notifications', icon: <Bell size={20} />, label: 'Notifications' },
-    { path: '/admin/grades/consultation', icon: <FileText size={20} />, label: 'Consultation notes', isActive: (p) => p === '/admin/grades' || p.startsWith('/admin/grades/consultation') },
-    { path: '/admin/grades/results', icon: <ClipboardList size={20} />, label: 'Bulletins & Résultats', isActive: (p) => p.startsWith('/admin/grades/results') },
-    { path: '/admin/settings', icon: <Settings size={20} />, label: 'Paramètres site' },
-  ];
+  const navItems = getStaffNavItems(user?.role || 'ADMIN').map((item) => {
+    const icons = {
+      dashboard: <LayoutDashboard size={20} />,
+      students: <Users size={20} />,
+      teachers: <GraduationCap size={20} />,
+      classes: <BookOpen size={20} />,
+      niveaux: <Layers size={20} />,
+      subjects: <BookOpen size={20} />,
+      years: <Calendar size={20} />,
+      payments: <DollarSign size={20} />,
+      finance: <ClipboardList size={20} />,
+      teacherPay: <Wallet size={20} />,
+      notifications: <Bell size={20} />,
+      annonces: <Megaphone size={20} />,
+      grades: <FileText size={20} />,
+      results: <ClipboardList size={20} />,
+      users: <UserCog size={20} />,
+      settings: <Settings size={20} />,
+    };
+    return { ...item, icon: icons[item.iconKey] || <LayoutDashboard size={20} /> };
+  });
 
   const profilePath = '/admin/profile';
   const isProfileActive = location.pathname === profilePath;
   const displayName = user?.nom || 'Mon compte';
-  const roleLabel = user?.role === 'ADMIN' ? 'Administrateur' : 'Utilisateur';
+  const roleLabel = getStaffRoleLabel(user?.role, user?.perimetre);
+  const staffRouteAllowed = canAccessStaffRoute(user?.role, location.pathname);
 
   const handleLogout = () => {
     logout();
@@ -167,10 +176,10 @@ export default function AdminLayout() {
           >
             <Menu size={24} />
           </button>
-          <div className="admin-header__search">
-            <Search size={20} color="#94a3b8" />
-            <input type="text" placeholder="Rechercher un élève, une classe..." />
-          </div>
+          {user?.role === 'ADMIN' && <AdminGlobalSearch />}
+          {user?.role === 'DIRECTEUR' && user?.perimetre && (
+            <DirecteurPerimetreBanner perimetre={user.perimetre} compact />
+          )}
           <div className="admin-header__actions">
             <button className="admin-header__btn theme-toggle-btn" onClick={toggleTheme} title="Basculer le thème" aria-label={isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'}>
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -201,8 +210,15 @@ export default function AdminLayout() {
 
         {/* Page Content */}
         <main className="admin-content">
+          {user?.role === 'DIRECTEUR' && user?.perimetre && (
+            <DirecteurPerimetreBanner perimetre={user.perimetre} />
+          )}
           <div className={`page-transition ${animating ? 'page-enter' : 'page-visible'}`}>
-            <Outlet />
+            {!staffRouteAllowed ? (
+              <Navigate to={getHomePathForRole(user?.role)} replace />
+            ) : (
+              <Outlet />
+            )}
           </div>
         </main>
       </div>

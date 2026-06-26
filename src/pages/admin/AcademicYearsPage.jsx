@@ -4,8 +4,13 @@ import '../admin/AdminDashboard.css';
 import './Modal.css';
 
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { canManageSchoolStructure } from '../../utils/rbac';
 
 export default function AcademicYearsPage() {
+  const { user } = useAuth();
+  const canEditStructure = canManageSchoolStructure(user?.role);
+
   const [years, setYears] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({ nom: '' });
@@ -47,9 +52,11 @@ export default function AcademicYearsPage() {
     <div className="admin-dashboard">
       <div className="admin-dashboard__header">
         <h1 className="admin-title">Années Scolaires</h1>
-        <button className="btn btn--primary" onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Plus size={18} /> Nouvelle Année
-        </button>
+        {canEditStructure && (
+          <button className="btn btn--primary" onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Plus size={18} /> Nouvelle Année
+          </button>
+        )}
       </div>
 
       <div className="admin-panel">
@@ -88,11 +95,12 @@ export default function AcademicYearsPage() {
                       )}
                     </td>
                     <td>
-                      {!y.active && (
+                      {!y.active && canEditStructure && (
                         <button className="btn" style={{ background: 'white', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '0.75rem', padding: '0.4rem 0.8rem' }} onClick={() => setActiveYear(y.id)}>
                           Définir comme active
                         </button>
                       )}
+                      {!y.active && !canEditStructure && '—'}
                     </td>
                   </tr>
                 ))

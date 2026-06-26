@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MapPin, Phone, Globe, BookOpen, Shield, TrendingUp, Users } from 'lucide-react';
+import { api } from '../../services/api';
 import './StudentCard.css';
 
 export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) {
@@ -10,7 +11,19 @@ export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) 
   const classe = student?.inscriptions?.[0]?.classe?.nom || '5ème A';
   const matricule = student?.matricule || 'GSP-2024-0521';
   const photoUrl = student?.photoUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200';
-  const qrData = `Nom: ${nom}\nPrénoms: ${prenoms}\nNé(e) le: ${dateNaissance}\nClasse: ${classe}\nMatricule: ${matricule}`;
+  const parentTelephone = student?.parent_telephone?.trim() || 'Non renseigné';
+  const parentNom = student?.parent_nom?.trim() || 'Parent / Tuteur';
+
+  const [qrLoginData, setQrLoginData] = useState(null);
+
+  useEffect(() => {
+    if (!student?.id) return;
+    api.get(`/admin/eleves/${student.id}/qr-login`)
+      .then((data) => setQrLoginData(data?.qrData || null))
+      .catch(() => setQrLoginData(null));
+  }, [student?.id]);
+
+  const qrData = qrLoginData || `EDUMANAGE:ELEVE:${matricule}`;
 
   return (
     <div className="id-card-wrapper edu-print-root">
@@ -76,8 +89,13 @@ export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) 
                 ))}
               </div>
 
-              <div style={{ alignSelf: 'center', border: '3px solid #e2e8f0', padding: '0.5rem', borderRadius: '12px', background: 'white' }}>
-                <QRCodeSVG value={qrData} size={90} level="M" />
+              <div style={{ alignSelf: 'center', textAlign: 'center' }}>
+                <div style={{ border: '3px solid #e2e8f0', padding: '0.5rem', borderRadius: '12px', background: 'white' }}>
+                  <QRCodeSVG value={qrData} size={90} level="M" />
+                </div>
+                <div style={{ marginTop: '0.35rem', fontSize: '0.62rem', fontWeight: 800, color: '#0A2F6B', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Connexion élève
+                </div>
               </div>
             </div>
           </div>
@@ -87,7 +105,7 @@ export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) 
         <div className="id-card-footer">
           <div className="footer-item"><MapPin size={14} color="#C59B27" /><span>Quartier Kouléwondy, Commune de Matam</span></div>
           <div className="footer-divider">|</div>
-          <div className="footer-item"><Phone size={14} color="#C59B27" /><span>+224 620 00 00 00</span></div>
+          <div className="footer-item"><Phone size={14} color="#C59B27" /><span>{parentTelephone}</span></div>
           <div className="footer-divider">|</div>
           <div className="footer-item"><Globe size={14} color="#C59B27" /><span>www.gsp-emsd.com</span></div>
         </div>
@@ -153,11 +171,10 @@ export default function StudentCard({ student, anneeScolaire = '2024 - 2025' }) 
 
             {/* Contact */}
             <div style={{ borderTop: '1px solid rgba(197,155,39,0.5)', paddingTop: '0.9rem' }}>
-              <h4 style={{ color: '#C59B27', fontSize: '0.7rem', marginBottom: '0.65rem', fontWeight: 900, letterSpacing: '0.1em' }}>NOUS CONTACTER</h4>
+              <h4 style={{ color: '#C59B27', fontSize: '0.7rem', marginBottom: '0.65rem', fontWeight: 900, letterSpacing: '0.1em' }}>CONTACT PARENT / TUTEUR</h4>
               {[
-                { Icon: MapPin, text: 'Kouléwondy, Commune de Matam' },
-                { Icon: Phone, text: '+224 620 00 00 00' },
-                { Icon: Globe, text: 'www.gsp-emsd.com' },
+                { Icon: Users, text: parentNom },
+                { Icon: Phone, text: parentTelephone },
               ].map(({ Icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', fontSize: '0.7rem', color: '#e2e8f0' }}>
                   <Icon size={12} color="#C59B27" style={{ flexShrink: 0 }} /> {text}

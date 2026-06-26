@@ -23,6 +23,22 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const loginStudent = async (identifiant, password) => {
+    const data = await api.post('/login/eleve', { identifiant, password }, { skipAuth: true });
+    localStorage.setItem('authToken', data.token);
+    localStorage.setItem('authUser', JSON.stringify(data.user));
+    setUser(data.user);
+    return data;
+  };
+
+  const loginStudentQr = async (qrData) => {
+    const data = await api.post('/login/eleve/qr', { qrData }, { skipAuth: true });
+    localStorage.setItem('authToken', data.token);
+    localStorage.setItem('authUser', JSON.stringify(data.user));
+    setUser(data.user);
+    return data;
+  };
+
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
@@ -39,6 +55,8 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       login,
+      loginStudent,
+      loginStudentQr,
       logout,
       updateUser,
       isAuthenticated: Boolean(user && localStorage.getItem('authToken')),

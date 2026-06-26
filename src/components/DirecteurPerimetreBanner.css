@@ -1,0 +1,82 @@
+.directeur-perimetre-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.35rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0A2F6B 0%, #1a4480 55%, #2563eb 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 32px rgba(10, 47, 107, 0.28);
+  color: #fff;
+}
+
+.directeur-perimetre-banner__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.directeur-perimetre-banner__body {
+  min-width: 0;
+}
+
+.directeur-perimetre-banner__label {
+  margin: 0 0 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.directeur-perimetre-banner__cycle {
+  margin: 0 0 0.35rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.directeur-perimetre-banner__hint {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.directeur-perimetre-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0A2F6B, #2563eb);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(10, 47, 107, 0.25);
+}
+
+html.dark-mode .directeur-perimetre-banner {
+  background: linear-gradient(135deg, #172554 0%, #1e3a8a 55%, #2563eb 100%);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 560px) {
+  .directeur-perimetre-banner__cycle {
+    font-size: 1.3rem;
+  }
+
+  .directeur-perimetre-badge {
+    font-size: 0.72rem;
+    padding: 0.35rem 0.65rem;
+  }
+}

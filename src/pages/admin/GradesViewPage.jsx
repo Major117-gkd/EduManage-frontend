@@ -21,8 +21,10 @@ import {
 } from '../../utils/gradeEntry';
 
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function GradesViewPage() {
+  const { user } = useAuth();
   const [annees, setAnnees] = useState([]);
   const [classes, setClasses] = useState([]);
   const [annee, setAnnee] = useState('');
@@ -128,6 +130,7 @@ export default function GradesViewPage() {
 
   return (
     <div className="admin-dashboard grades-view">
+      {user?.role !== 'DIRECTEUR' && (
       <div className="grades-view-readonly-banner">
         <Eye size={18} />
         <div>
@@ -139,6 +142,7 @@ export default function GradesViewPage() {
           </p>
         </div>
       </div>
+      )}
 
       <div className="grades-view-intro">
         <p>

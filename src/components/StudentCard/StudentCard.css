@@ -6,6 +6,9 @@
   gap: 2rem;
   align-items: center;
   font-family: 'Inter', sans-serif;
+  /* Empreinte visuelle = taille réelle × zoom (comme à l'impression) */
+  width: calc(1000px * 0.68);
+  max-width: 100%;
 }
 
 .id-card {
@@ -17,7 +20,8 @@
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
-  zoom: 0.68; /* Shrinks the card AND its layout footprint */
+  zoom: 0.68;
+  /* Ratio carte scolaire 5:3 — identique écran / impression */
 }
 
 /* ─── FRONT CARD STYLES ─── */

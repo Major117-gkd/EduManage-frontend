@@ -1,0 +1,115 @@
+.admin-global-search {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+
+.admin-global-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.admin-global-search__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  max-height: 360px;
+  overflow-y: auto;
+  z-index: 200;
+  padding: 0.5rem 0;
+}
+
+.admin-global-search__empty {
+  padding: 1rem;
+  margin: 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.admin-global-search__group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.admin-global-search__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  gap: 0.75rem;
+}
+
+.admin-global-search__item:hover {
+  background: #f8fafc;
+}
+
+.admin-global-search__item strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.admin-global-search__item small {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.admin-global-search__badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  white-space: nowrap;
+}
+
+html.dark-mode .admin-global-search {
+  background: #1e293b;
+}
+
+html.dark-mode .admin-global-search input {
+  color: #f1f5f9;
+}
+
+html.dark-mode .admin-global-search__panel {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html.dark-mode .admin-global-search__item:hover {
+  background: #1e293b;
+}
+
+html.dark-mode .admin-global-search__item strong {
+  color: #f1f5f9;
+}

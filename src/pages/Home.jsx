@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, GraduationCap, Heart, Rocket, Play, BookOpen, BarChart2, User, Microscope, PenTool, MessageCircle, ClipboardList, Trophy, Phone, Mail, MapPin, Send, Share2, Camera, Briefcase, MonitorPlay, Star, Sun, Moon } from 'lucide-react';
+import { Users, GraduationCap, Heart, Rocket, Play, BookOpen, BarChart2, User, Microscope, PenTool, MessageCircle, ClipboardList, Trophy, Phone, Mail, MapPin, Send, Share2, Camera, Briefcase, MonitorPlay, Star, Sun, Moon, Megaphone, Pin } from 'lucide-react';
 import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 import { api } from '../services/api';
+import { plainTextExcerpt } from '../components/announcements/announcementUtils';
 import './Home.css';
 
 /* ─── NAVBAR ─────────────────────────────────────────────── */
@@ -20,6 +21,7 @@ function Navbar() {
 
   const navLinks = [
     { label: 'Accueil', href: '#accueil' },
+    { label: 'Annonces', href: '/annonces', isRoute: true },
     { label: 'À Propos', href: '#apropos' },
     { label: 'Galerie', href: '#galerie' },
     { label: 'Contact', href: '#contact' },
@@ -44,9 +46,15 @@ function Navbar() {
           <ul className="navbar__links">
             {navLinks.map(link => (
               <li key={link.label}>
-                <a href={link.href} className="navbar__link" onClick={() => setMenuOpen(false)}>
-                  {link.label}
-                </a>
+                {link.isRoute ? (
+                  <Link to={link.href} className="navbar__link" onClick={() => setMenuOpen(false)}>
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a href={link.href} className="navbar__link" onClick={() => setMenuOpen(false)}>
+                    {link.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -62,6 +70,8 @@ function Navbar() {
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <Link to="/infos" className="btn btn--ghost" id="nav-infos" style={{ marginRight: '0.5rem' }} onClick={() => setMenuOpen(false)}>Infos &amp; Tarifs</Link>
+            <Link to="/login?profil=eleve" className="btn btn--ghost" onClick={() => setMenuOpen(false)}>Espace élève</Link>
+            <Link to="/login?profil=parent" className="btn btn--ghost" onClick={() => setMenuOpen(false)}>Espace parent</Link>
             <Link to="/login" className="btn btn--ghost" id="nav-connexion" onClick={() => setMenuOpen(false)}>Connexion</Link>
           </div>
         </div>
@@ -173,6 +183,32 @@ function Hero() {
               aria-label={`Slide ${i + 1}`}
             />
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── ANNONCE ÉPINGLÉE ───────────────────────────────────── */
+function PinnedAnnouncement({ annonce }) {
+  if (!annonce) return null;
+  const excerpt = plainTextExcerpt(annonce.contenu, 220);
+
+  return (
+    <section className="home-pinned" aria-label="Annonce à la une">
+      <div className="home-pinned__inner">
+        <div className="home-pinned__badge">
+          <Pin size={16} /> À la une
+        </div>
+        <div className="home-pinned__content">
+          <h2 className="home-pinned__title">
+            <Megaphone size={22} />
+            {annonce.titre}
+          </h2>
+          <p className="home-pinned__text">{excerpt}</p>
+          <Link to="/annonces" className="home-pinned__link">
+            Lire toutes les annonces →
+          </Link>
         </div>
       </div>
     </section>
@@ -338,7 +374,7 @@ function TeamSection() {
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    api.get('/admin/professeurs', { skipAuth: true })
+    api.get('/public/professeurs', { skipAuth: true })
       .then(data => {
         if (Array.isArray(data)) {
           const formatted = data.map(prof => ({
@@ -677,6 +713,7 @@ function Footer() {
 export default function Home() {
   const [publicStats, setPublicStats] = useState(null);
   const [siteInfo, setSiteInfo] = useState(null);
+  const [pinnedAnnonce, setPinnedAnnonce] = useState(null);
 
   useEffect(() => {
     api.get('/public/stats', { skipAuth: true })
@@ -697,12 +734,17 @@ export default function Home() {
     api.get('/public/site-info', { skipAuth: true })
       .then((data) => setSiteInfo(data))
       .catch(() => {});
+
+    api.get('/public/annonces/epinglee', { skipAuth: true })
+      .then((data) => setPinnedAnnonce(data?.id ? data : null))
+      .catch(() => {});
   }, []);
 
   return (
     <div className="home-page">
       <Navbar />
       <Hero />
+      <PinnedAnnouncement annonce={pinnedAnnonce} />
       <StatsBar stats={publicStats} />
       <AboutSection stats={publicStats} />
 

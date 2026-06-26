@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { UserPlus, Search, Eye, Edit, X, RotateCw, Check, Printer, CreditCard, Save, UserX, Filter, RotateCcw } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { UserPlus, Search, Eye, Edit, X, RotateCw, Check, Printer, CreditCard, Save, UserX, Filter, RotateCcw, XCircle } from 'lucide-react';
 import StudentCard from '../../components/StudentCard/StudentCard';
 import { PrintHeader, PrintMeta } from '../../components/PrintLayout/PrintLayout';
 import { formatPrintDate } from '../../utils/printConstants';
@@ -9,6 +10,8 @@ import '../admin/Modal.css';
 import './StudentsPage.css';
 
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { canManageStudents, canDeleteStudents, canManageFinances } from '../../utils/rbac';
 
 const ELEVE_STATUTS = [
   { value: 'Actif', label: 'Actif (inscrit)' },
@@ -76,13 +79,37 @@ function todayInputValue() {
   return new Date().toISOString().substring(0, 10);
 }
 
+function pickDefaultAnneeScolaire(annees) {
+  if (!annees?.length) return '';
+  const active = annees.find((y) => y.active);
+  return active?.nom || annees[0].nom;
+}
+
 export default function StudentsPage() {
+  const { user } = useAuth();
+  const canWriteStudents = canManageStudents(user?.role);
+  const canRemoveStudents = canDeleteStudents(user?.role);
+  const showFinancial = canManageFinances(user?.role);
+  const isAdmin = user?.role === 'ADMIN';
+  const tableColSpan = showFinancial ? 8 : 7;
+
+  const [searchParams] = useSearchParams();
   const [eleves, setEleves] = useState([]);
   const [classes, setClasses] = useState([]);
   const [annees, setAnnees] = useState([]);
   const [activeYear, setActiveYear] = useState('');
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [filters, setFilters] = useState(() => ({
+    ...EMPTY_FILTERS,
+    inscriptionStatut: searchParams.get('inscription_statut') || '',
+  }));
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q) setSearch(q);
+    const ins = searchParams.get('inscription_statut');
+    if (ins) setFilters((f) => ({ ...f, inscriptionStatut: ins }));
+  }, [searchParams]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [expandedRows, setExpandedRows] = useState([]);
@@ -91,6 +118,12 @@ export default function StudentsPage() {
   const [selectedCardStudent, setSelectedCardStudent] = useState(null);
   const [reInscrireEleve, setReInscrireEleve] = useState(null);
   const [validateConfirmId, setValidateConfirmId] = useState(null);
+  const [rejectModal, setRejectModal] = useState(null);
+  const [rejectMotif, setRejectMotif] = useState('');
+  const [rejectSubmitting, setRejectSubmitting] = useState(false);
+  const [financierForm, setFinancierForm] = useState({ solde: '', statut_financier: 'En attente' });
+  const [financierSubmitting, setFinancierSubmitting] = useState(false);
+  const [financierMessage, setFinancierMessage] = useState('');
   const [deleteConfirmStudent, setDeleteConfirmStudent] = useState(null);
   const [abandonForm, setAbandonForm] = useState({ motif_abandon: '', date_abandon: todayInputValue() });
   const [statusSubmitting, setStatusSubmitting] = useState(false);
@@ -101,9 +134,15 @@ export default function StudentsPage() {
   const [editForm, setEditForm] = useState({});
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editMessage, setEditMessage] = useState('');
+  const [compteForm, setCompteForm] = useState({ mot_de_passe: 'password123' });
+  const [compteSubmitting, setCompteSubmitting] = useState(false);
+  const [compteMessage, setCompteMessage] = useState('');
+  const [parentCompteForm, setParentCompteForm] = useState({ mot_de_passe: 'password123', email: '' });
+  const [parentCompteSubmitting, setParentCompteSubmitting] = useState(false);
+  const [parentCompteMessage, setParentCompteMessage] = useState('');
 
   const [form, setForm] = useState({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: '', matricule: '', photoUrl: '', exception_paiement_mensuel: false });
-  const [reForm, setReForm] = useState({ classeId: '' });
+  const [reForm, setReForm] = useState({ classeId: '', annee_scolaire: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -134,9 +173,11 @@ export default function StudentsPage() {
       if (Array.isArray(d)) {
         setAnnees(d);
         const active = d.find((y) => y.active);
-        if (active) {
-          setActiveYear(active.nom);
-          setForm((f) => ({ ...f, annee_scolaire: active.nom }));
+        const defaultNom = pickDefaultAnneeScolaire(d);
+        setActiveYear(active?.nom || defaultNom);
+        if (defaultNom) {
+          setForm((f) => ({ ...f, annee_scolaire: f.annee_scolaire || defaultNom }));
+          setReForm((f) => ({ ...f, annee_scolaire: f.annee_scolaire || defaultNom }));
         }
       }
     }).catch(() => {});
@@ -200,7 +241,7 @@ export default function StudentsPage() {
     e.preventDefault(); setSubmitting(true); setMessage('');
     try {
       const data = await api.post('/admin/eleves', form);
-      setMessage('' + data.message); loadData(); setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: activeYear, exception_paiement_mensuel: false }); setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
+      setMessage('' + data.message); loadData(); setForm({ prenom: '', nom: '', date_naissance: '', adresse: '', parent_nom: '', filiation: '', parent_telephone: '', parent_email: '', infos_importantes: '', classeId: '', annee_scolaire: pickDefaultAnneeScolaire(annees), matricule: '', photoUrl: '', exception_paiement_mensuel: false }); setTimeout(() => { setIsModalOpen(false); setMessage(''); }, 1500);
     } catch (err) { setMessage('' + (err.data?.error || err.message || 'Erreur')); }
     setSubmitting(false);
   };
@@ -210,7 +251,7 @@ export default function StudentsPage() {
     try {
       const data = await api.post(`/admin/eleves/${reInscrireEleve.id}/reinscription`, {
         classeId: reForm.classeId,
-        annee_scolaire: activeYear,
+        annee_scolaire: reForm.annee_scolaire,
       });
       setMessage('' + data.message);
       loadData();
@@ -223,6 +264,36 @@ export default function StudentsPage() {
       }
     }
     setSubmitting(false);
+  };
+
+  const openInscriptionModal = () => {
+    setMessage('');
+    setForm({
+      prenom: '',
+      nom: '',
+      date_naissance: '',
+      adresse: '',
+      parent_nom: '',
+      filiation: '',
+      parent_telephone: '',
+      parent_email: '',
+      infos_importantes: '',
+      classeId: '',
+      matricule: '',
+      photoUrl: '',
+      annee_scolaire: pickDefaultAnneeScolaire(annees),
+      exception_paiement_mensuel: false,
+    });
+    setIsModalOpen(true);
+  };
+
+  const openReinscription = (el) => {
+    setMessage('');
+    setReForm({
+      classeId: '',
+      annee_scolaire: pickDefaultAnneeScolaire(annees),
+    });
+    setReInscrireEleve(el);
   };
 
   const openEdit = (el) => {
@@ -243,7 +314,76 @@ export default function StudentsPage() {
       motif_abandon: el.motif_abandon || '',
       date_abandon: el.date_abandon ? el.date_abandon.substring(0, 10) : todayInputValue(),
     });
-    setEditMessage('');
+    setCompteForm({ mot_de_passe: 'password123' });
+    setCompteMessage('');
+    setParentCompteForm({ mot_de_passe: 'password123', email: el.parent_email || '' });
+    setParentCompteMessage('');
+    setFinancierForm({
+      solde: el.solde != null ? String(el.solde) : '0',
+      statut_financier: el.statut_financier || 'En attente',
+    });
+    setFinancierMessage('');
+  };
+
+  const handleCreateCompte = async () => {
+    if (!editingStudent) return;
+    if (!compteForm.mot_de_passe || compteForm.mot_de_passe.length < 6) {
+      setCompteMessage('❌ Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    setCompteSubmitting(true);
+    setCompteMessage('');
+    try {
+      const data = await api.post(`/admin/eleves/${editingStudent.id}/compte`, {
+        mot_de_passe: compteForm.mot_de_passe,
+        nom: `${editForm.prenom} ${editForm.nom}`.trim(),
+      });
+      setCompteMessage(`✅ Compte créé — Identifiant : ${data.identifiant || editingStudent.matricule}${
+        data.emailSent ? ' · E-mail envoyé au parent.' : (data.emailError && !data.emailSkipped ? ` · E-mail non envoyé : ${data.emailError}` : '')
+      }`);
+      setEditingStudent((prev) => (
+        prev ? { ...prev, utilisateur: data.compte } : prev
+      ));
+      loadData();
+    } catch (err) {
+      setCompteMessage(`❌ ${err.data?.error || err.message || 'Erreur'}`);
+    }
+    setCompteSubmitting(false);
+  };
+
+  const handleCreateParentCompte = async () => {
+    if (!editingStudent) return;
+    if (!parentCompteForm.mot_de_passe || parentCompteForm.mot_de_passe.length < 6) {
+      setParentCompteMessage('❌ Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    setParentCompteSubmitting(true);
+    setParentCompteMessage('');
+    try {
+      const data = await api.post(`/admin/eleves/${editingStudent.id}/compte-parent`, {
+        mot_de_passe: parentCompteForm.mot_de_passe,
+        email: parentCompteForm.email || editForm.parent_email,
+        nom: editForm.parent_nom || undefined,
+      });
+      setParentCompteMessage(`✅ ${data.message || 'Compte parent créé'} — E-mail : ${data.compte.email}${
+        data.emailSent ? ' · Notification envoyée.' : (data.emailError && !data.emailSkipped ? ` · E-mail non envoyé : ${data.emailError}` : '')
+      }`);
+      loadData();
+      setEditingStudent((prev) => (
+        prev
+          ? {
+              ...prev,
+              parentLiens: [
+                ...(prev.parentLiens || []),
+                { utilisateur: data.compte },
+              ],
+            }
+          : prev
+      ));
+    } catch (err) {
+      setParentCompteMessage(`❌ ${err.data?.error || err.message || 'Erreur'}`);
+    }
+    setParentCompteSubmitting(false);
   };
 
   const handleEditSubmit = async (e) => {
@@ -278,6 +418,46 @@ export default function StudentsPage() {
     } catch {
       alert("Erreur réseau");
     }
+  };
+
+  const handleReject = async () => {
+    if (!rejectModal || !rejectMotif.trim()) return;
+    setRejectSubmitting(true);
+    try {
+      await api.put(`/admin/inscriptions/${rejectModal}/rejeter`, { motif_rejet: rejectMotif.trim() });
+      loadData();
+      setRejectModal(null);
+      setRejectMotif('');
+    } catch (err) {
+      alert(err.data?.error || 'Erreur lors du rejet');
+    }
+    setRejectSubmitting(false);
+  };
+
+  const handleFinancierSave = async () => {
+    if (!editingStudent) return;
+    setFinancierSubmitting(true);
+    setFinancierMessage('');
+    try {
+      await api.put(`/admin/eleves/${editingStudent.id}/financier`, {
+        solde: parseFloat(financierForm.solde) || 0,
+        statut_financier: financierForm.statut_financier,
+      });
+      setFinancierMessage('✅ Situation financière mise à jour');
+      loadData();
+      setEditingStudent((prev) => (
+        prev
+          ? {
+              ...prev,
+              solde: parseFloat(financierForm.solde) || 0,
+              statut_financier: financierForm.statut_financier,
+            }
+          : prev
+      ));
+    } catch (err) {
+      setFinancierMessage(`❌ ${err.data?.error || 'Erreur'}`);
+    }
+    setFinancierSubmitting(false);
   };
 
   const handleDeleteStudent = async () => {
@@ -346,14 +526,30 @@ export default function StudentsPage() {
           <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => printDocument('printing-students')}>
             <Printer size={18} /> Imprimer
           </button>
-          <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsGlobalReInscriptionOpen(true)}>
-            <RotateCw size={18} /> Réinscription
-          </button>
-          <button className="btn btn--primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsModalOpen(true)}>
-            <UserPlus size={18} /> Nouvelle Inscription
-          </button>
+          {canWriteStudents && (
+            <>
+              <button className="btn btn--outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsGlobalReInscriptionOpen(true)}>
+                <RotateCw size={18} /> Réinscription
+              </button>
+              <button className="btn btn--primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={openInscriptionModal}>
+                <UserPlus size={18} /> Nouvelle Inscription
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {user?.role === 'DIRECTEUR' && user?.perimetre && (
+        <div className="print-hide" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', borderRadius: '8px', background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', fontSize: '0.9rem' }}>
+          Périmètre : <strong>{user.perimetre}</strong> — liste filtrée aux élèves de ce cycle.
+        </div>
+      )}
+
+      {user?.role === 'COMPTABLE' && (
+        <div className="print-hide" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', borderRadius: '8px', background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.9rem' }}>
+          Comptable — <strong>tous niveaux</strong> : inscriptions, soldes et comptes élèves/parents.
+        </div>
+      )}
 
       {/* Filtres */}
       <div className="print-hide students-filters">
@@ -414,15 +610,17 @@ export default function StudentsPage() {
               ))}
             </select>
           </div>
-          <div className="students-filters__field">
-            <label>Statut financier</label>
-            <select value={filters.statutFinancier} onChange={(e) => updateFilter('statutFinancier', e.target.value)}>
-              <option value="">Tous</option>
-              {FINANCIER_STATUTS.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
+          {showFinancial && (
+            <div className="students-filters__field">
+              <label>Statut financier</label>
+              <select value={filters.statutFinancier} onChange={(e) => updateFilter('statutFinancier', e.target.value)}>
+                <option value="">Tous</option>
+                {FINANCIER_STATUTS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="students-filters__actions">
@@ -462,15 +660,15 @@ export default function StudentsPage() {
         <div className="table-responsive">
           <table className="admin-table">
             <thead>
-              <tr><th></th><th>Matricule</th><th>Nom Complet</th><th>Date de naissance</th><th>Classe</th><th>Statut</th><th>Financier</th><th className="print-hide">Actions</th></tr>
+              <tr><th></th><th>Matricule</th><th>Nom Complet</th><th>Date de naissance</th><th>Classe</th><th>Statut</th>{showFinancial && <th>Financier</th>}<th className="print-hide">Actions</th></tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>Chargement des élèves…</td></tr>
+                <tr><td colSpan={tableColSpan} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>Chargement des élèves…</td></tr>
               ) : loadError ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#dc2626' }}>{loadError}</td></tr>
+                <tr><td colSpan={tableColSpan} style={{ textAlign: 'center', padding: '2rem', color: '#dc2626' }}>{loadError}</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', fontStyle: 'italic' }}>Aucun élève trouvé.</td></tr>
+                <tr><td colSpan={tableColSpan} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', fontStyle: 'italic' }}>Aucun élève trouvé.</td></tr>
               ) : filtered.map(el => {
                 const isExpanded = expandedRows.includes(el.id);
                 const ins = getLatestInscription(el, filters.anneeScolaire || activeYear);
@@ -483,6 +681,15 @@ export default function StudentsPage() {
                       <td style={{ fontWeight: 600, color: '#0A2F6B' }}>{el.matricule}</td>
                       <td style={{ fontWeight: 500, color: '#0f172a' }}>
                         {el.prenom} {el.nom}
+                        {el.utilisateur ? (
+                          <span className="status-badge status-badge--info" style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }} title={`Identifiant : ${el.matricule}`}>
+                            Compte actif
+                          </span>
+                        ) : (
+                          <span className="status-badge status-badge--warning" style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>
+                            Sans compte
+                          </span>
+                        )}
                         {!isEleveActif(el.statut) && (
                           <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem', borderRadius: '4px', background: '#fee2e2', color: '#ef4444', marginLeft: '0.5rem' }}>
                             {normalizeStatut(el.statut)}
@@ -501,33 +708,46 @@ export default function StudentsPage() {
                           </span>
                         )}
                       </td>
-                      <td>
-                        <span className={`students-fin-badge ${getFinancierBadgeClass(el.statut_financier)}`}>
-                          {el.statut_financier || '—'}
-                        </span>
-                      </td>
+                      {showFinancial && (
+                        <td>
+                          <span className={`students-fin-badge ${getFinancierBadgeClass(el.statut_financier)}`}>
+                            {el.statut_financier || '—'}
+                          </span>
+                        </td>
+                      )}
                       <td className="print-hide table-actions" onClick={e => e.stopPropagation()}>
-                        {ins?.statut === 'En attente' && (
-                          <button className="action-btn action-btn--view" title="Valider l'inscription" style={{ background: '#fef08a', color: '#854d0e' }} onClick={() => setValidateConfirmId(ins.id)}>
-                            <Check size={16} />
-                          </button>
+                        {canWriteStudents && ins?.statut === 'En attente' && (
+                          <>
+                            <button className="action-btn action-btn--view" title="Valider l'inscription" style={{ background: '#fef08a', color: '#854d0e' }} onClick={() => setValidateConfirmId(ins.id)}>
+                              <Check size={16} />
+                            </button>
+                            <button className="action-btn action-btn--delete" title="Rejeter l'inscription" onClick={() => { setRejectModal(ins.id); setRejectMotif(''); }}>
+                              <XCircle size={16} />
+                            </button>
+                          </>
                         )}
-                        <button className="action-btn action-btn--view" title="Réinscrire" style={{ background: '#dcfce7', color: '#16a34a' }} onClick={() => setReInscrireEleve(el)}><RotateCw size={16} /></button>
+                        {canWriteStudents && (
+                          <button className="action-btn action-btn--view" title="Réinscrire" style={{ background: '#dcfce7', color: '#16a34a' }} onClick={() => openReinscription(el)}><RotateCw size={16} /></button>
+                        )}
                         <button className="action-btn action-btn--view" title="Générer Carte" style={{ background: '#e0e7ff', color: '#4f46e5' }} onClick={() => setSelectedCardStudent(el)}>
                           <CreditCard size={16} />
                         </button>
                         <button className="action-btn action-btn--view" title="Voir le profil" onClick={() => setViewingStudent(el)}><Eye size={16} /></button>
-                        <button className="action-btn action-btn--edit" title="Modifier" onClick={() => openEdit(el)}><Edit size={16} /></button>
-                        {isEleveActif(el.statut) ? (
-                          <button className="action-btn action-btn--delete" title="Marquer abandon / départ" onClick={() => openAbandonModal(el)}><UserX size={16} /></button>
-                        ) : (
-                          <button className="action-btn action-btn--view" title="Réactiver l'élève" style={{ background: '#dcfce7', color: '#16a34a' }} onClick={() => handleReactivateStudent(el)}><RotateCw size={16} /></button>
+                        {canWriteStudents && (
+                          <button className="action-btn action-btn--edit" title="Modifier" onClick={() => openEdit(el)}><Edit size={16} /></button>
+                        )}
+                        {canRemoveStudents && (
+                          isEleveActif(el.statut) ? (
+                            <button className="action-btn action-btn--delete" title="Marquer abandon / départ" onClick={() => openAbandonModal(el)}><UserX size={16} /></button>
+                          ) : (
+                            <button className="action-btn action-btn--view" title="Réactiver l'élève" style={{ background: '#dcfce7', color: '#16a34a' }} onClick={() => handleReactivateStudent(el)}><RotateCw size={16} /></button>
+                          )
                         )}
                       </td>
                     </tr>
                     {isExpanded && (
                       <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                        <td colSpan="8" style={{ padding: '1rem 2rem' }}>
+                        <td colSpan={tableColSpan} style={{ padding: '1rem 2rem' }}>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', fontSize: '0.9rem', color: '#475569' }}>
                             <div>
                               <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Parent / Tuteur</p>
@@ -545,6 +765,21 @@ export default function StudentsPage() {
                             <div>
                               <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Infos Médicales/Importantes</p>
                               <p style={{ margin: 0, color: el.infos_importantes ? '#b91c1c' : '#475569', fontWeight: el.infos_importantes ? 500 : 400 }}>{el.infos_importantes || 'Aucune'}</p>
+                            </div>
+                            <div>
+                              <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Espace élève</p>
+                              {el.utilisateur ? (
+                                <p style={{ margin: 0, fontWeight: 500, color: '#0f172a' }}>🪪 {el.matricule}</p>
+                              ) : (
+                                <p style={{ margin: 0, color: '#b45309' }}>Aucun compte — créez-le depuis « Modifier »</p>
+                              )}
+                            </div>
+                            <div>
+                              <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Inscription</p>
+                              <p style={{ margin: 0, fontWeight: 500, color: '#0f172a' }}>{ins?.statut || '—'} {ins?.annee_scolaire ? `· ${ins.annee_scolaire}` : ''}</p>
+                              {ins?.statut === 'Rejeté' && ins?.motif_rejet && (
+                                <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#b45309' }}>Motif : {ins.motif_rejet}</p>
+                              )}
                             </div>
                             <div>
                               <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Statut scolaire</p>
@@ -602,8 +837,10 @@ export default function StudentsPage() {
                     { label: 'Motif', value: viewingStudent.motif_abandon || '—' },
                     { label: 'Date de départ', value: viewingStudent.date_abandon ? new Date(viewingStudent.date_abandon).toLocaleDateString('fr-FR') : '—' },
                   ] : []),
-                  { label: 'Statut financier', value: viewingStudent.statut_financier || '—' },
-                  { label: 'Solde restant', value: viewingStudent.solde ? `${viewingStudent.solde.toLocaleString()} GNF` : '0 GNF' },
+                  ...(showFinancial ? [
+                    { label: 'Statut financier', value: viewingStudent.statut_financier || '—' },
+                    { label: 'Solde restant', value: viewingStudent.solde ? `${viewingStudent.solde.toLocaleString()} GNF` : '0 GNF' },
+                  ] : []),
                   { label: 'Parent / Tuteur', value: `${viewingStudent.parent_nom || '—'} (${viewingStudent.filiation || '—'})` },
                   { label: 'Téléphone parent', value: viewingStudent.parent_telephone || '—' },
                   { label: 'Email parent', value: viewingStudent.parent_email || '—' },
@@ -682,6 +919,8 @@ export default function StudentsPage() {
                 </div>
                 <div className="modal-form-group"><label>Informations importantes</label><input type="text" value={editForm.infos_importantes} onChange={e => setEditForm({...editForm, infos_importantes: e.target.value})} placeholder="Ex: Allergies, asthme..." /></div>
 
+                {isAdmin && (
+                  <>
                 <h3 style={{ fontSize: '1rem', color: '#1e293b', margin: '1.25rem 0 0.75rem 0', fontWeight: 600 }}>Statut scolaire</h3>
                 <div className="modal-form-row">
                   <div className="modal-form-group">
@@ -725,6 +964,34 @@ export default function StudentsPage() {
                     )}
                   </div>
                 )}
+                  </>
+                )}
+
+                {showFinancial && (
+                <>
+                <div className="modal-form-group" style={{ marginTop: '1rem', padding: '1rem', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fde68a' }}>
+                  <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem', color: '#92400e' }}>Ajustement financier manuel</h4>
+                  {financierMessage && (
+                    <div style={{ marginBottom: '0.75rem', padding: '0.5rem', borderRadius: '6px', fontSize: '0.85rem', background: financierMessage.includes('✅') ? '#d1fae5' : '#fee2e2', color: financierMessage.includes('✅') ? '#065f46' : '#991b1b' }}>
+                      {financierMessage}
+                    </div>
+                  )}
+                  <div className="modal-form-row">
+                    <div className="modal-form-group">
+                      <label>Solde (GNF)</label>
+                      <input type="number" value={financierForm.solde} onChange={(e) => setFinancierForm({ ...financierForm, solde: e.target.value })} />
+                    </div>
+                    <div className="modal-form-group">
+                      <label>Statut financier</label>
+                      <select value={financierForm.statut_financier} onChange={(e) => setFinancierForm({ ...financierForm, statut_financier: e.target.value })}>
+                        {FINANCIER_STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <button type="button" className="btn-submit" style={{ marginTop: '0.5rem' }} disabled={financierSubmitting} onClick={handleFinancierSave}>
+                    {financierSubmitting ? 'Enregistrement…' : 'Enregistrer la situation financière'}
+                  </button>
+                </div>
 
                 <div className="modal-form-group" style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 500 }}>
@@ -732,10 +999,116 @@ export default function StudentsPage() {
                     <span>Exception paiement mensuel</span>
                   </label>
                 </div>
+                </>
+                )}
               </form>
+
+                <h3 style={{ fontSize: '1rem', color: '#1e293b', margin: '1.25rem 0 0.75rem 0', fontWeight: 600 }}>Espace élève (connexion)</h3>
+                {editingStudent.utilisateur ? (
+                  <div style={{ padding: '1rem', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.9rem' }}>
+                    <strong>Compte actif</strong>
+                    <p style={{ margin: '0.35rem 0 0' }}>Identifiant de connexion : <strong>{editingStudent.matricule}</strong></p>
+                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.82rem', opacity: 0.9 }}>
+                      L&apos;élève se connecte sur <strong>/login</strong> (profil Élève) avec ce matricule.
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    {compteMessage && (
+                      <div style={{ marginBottom: '0.75rem', padding: '0.75rem', borderRadius: '8px', background: compteMessage.includes('✅') ? '#d1fae5' : '#fee2e2', color: compteMessage.includes('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
+                        {compteMessage}
+                      </div>
+                    )}
+                    <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: '#64748b' }}>
+                      Créez un compte <strong>ELEVE</strong>. L&apos;élève se connectera avec son matricule{' '}
+                      <strong>{editingStudent.matricule}</strong> (carte scolaire).
+                    </p>
+                    <div>
+                      <div className="modal-form-group">
+                        <label>Identifiant (matricule)</label>
+                        <input type="text" value={editingStudent.matricule} disabled style={{ background: '#f1f5f9', color: '#475569' }} />
+                      </div>
+                      <div className="modal-form-group">
+                        <label>Mot de passe initial</label>
+                        <input
+                          type="text"
+                          value={compteForm.mot_de_passe}
+                          onChange={(e) => setCompteForm({ ...compteForm, mot_de_passe: e.target.value })}
+                          minLength={6}
+                        />
+                        <p style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
+                          L&apos;élève pourra le modifier depuis son profil après la première connexion.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-submit"
+                        onClick={handleCreateCompte}
+                        disabled={compteSubmitting || compteForm.mot_de_passe.length < 6}
+                        style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                      >
+                        <UserPlus size={16} />
+                        {compteSubmitting ? 'Création...' : 'Créer le compte espace élève'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <h3 style={{ fontSize: '1rem', color: '#1e293b', margin: '1.25rem 0 0.75rem 0', fontWeight: 600 }}>Espace parent (connexion)</h3>
+                {(editingStudent.parentLiens || []).length > 0 ? (
+                  <div style={{ padding: '1rem', background: '#fff7ed', borderRadius: '8px', border: '1px solid #fed7aa', color: '#9a3412', fontSize: '0.9rem' }}>
+                    <strong>Compte(s) parent lié(s)</strong>
+                    {(editingStudent.parentLiens || []).map((l) => (
+                      <p key={l.utilisateur?.id || l.id} style={{ margin: '0.35rem 0 0' }}>
+                        {l.utilisateur?.nom} — <strong>{l.utilisateur?.email}</strong>
+                      </p>
+                    ))}
+                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.82rem' }}>
+                      Connexion sur <strong>/login</strong> (profil Parent).
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    {parentCompteMessage && (
+                      <div style={{ marginBottom: '0.75rem', padding: '0.75rem', borderRadius: '8px', background: parentCompteMessage.includes('✅') ? '#d1fae5' : '#fee2e2', color: parentCompteMessage.includes('✅') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>
+                        {parentCompteMessage}
+                      </div>
+                    )}
+                    <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: '#64748b' }}>
+                      Le parent se connectera avec son e-mail sur <strong>/login</strong> (profil Parent).
+                    </p>
+                    <div className="modal-form-group">
+                      <label>E-mail parent</label>
+                      <input
+                        type="email"
+                        value={parentCompteForm.email}
+                        onChange={(e) => setParentCompteForm({ ...parentCompteForm, email: e.target.value })}
+                        placeholder={editForm.parent_email || 'contact@email.com'}
+                      />
+                    </div>
+                    <div className="modal-form-group">
+                      <label>Mot de passe initial</label>
+                      <input
+                        type="text"
+                        value={parentCompteForm.mot_de_passe}
+                        onChange={(e) => setParentCompteForm({ ...parentCompteForm, mot_de_passe: e.target.value })}
+                        minLength={6}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-submit"
+                      onClick={handleCreateParentCompte}
+                      disabled={parentCompteSubmitting || parentCompteForm.mot_de_passe.length < 6}
+                      style={{ marginTop: '0.5rem' }}
+                    >
+                      {parentCompteSubmitting ? 'Création...' : 'Créer le compte parent'}
+                    </button>
+                  </div>
+                )}
             </div>
             <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setEditingStudent(null)}>Annuler</button>
+              <button type="button" className="btn-cancel" onClick={() => setEditingStudent(null)}>Annuler</button>
               <button type="submit" form="editStudentForm" className="btn-submit" disabled={editSubmitting} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Save size={16} /> {editSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
               </button>
@@ -770,7 +1143,27 @@ export default function StudentsPage() {
                 </div>
                 <div className="modal-form-row">
                   <div className="modal-form-group"><label>Date de naissance</label><input type="date" value={form.date_naissance} onChange={e => setForm({...form, date_naissance: e.target.value})} /></div>
-                  <div className="modal-form-group"><label>Année scolaire</label><input type="text" value={form.annee_scolaire} onChange={e => setForm({...form, annee_scolaire: e.target.value})} required /></div>
+                  <div className="modal-form-group">
+                    <label>Année scolaire</label>
+                    {annees.length === 0 ? (
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#b45309', padding: '0.65rem 0.75rem', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fef3c7' }}>
+                        Aucune année scolaire définie. Créez-en une dans « Années Scolaires ».
+                      </p>
+                    ) : (
+                      <select
+                        value={form.annee_scolaire}
+                        onChange={(e) => setForm({ ...form, annee_scolaire: e.target.value })}
+                        required
+                      >
+                        <option value="">Sélectionnez une année</option>
+                        {annees.map((a) => (
+                          <option key={a.id} value={a.nom}>
+                            {a.nom}{a.active ? ' (active)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
                 <div className="modal-form-row">
                   <div className="modal-form-group"><label>N° d'élève (Matricule)</label><input type="text" value={form.matricule} onChange={e => setForm({...form, matricule: e.target.value})} placeholder="Ex: GSP-2024-001 (Laisser vide pour auto)" /></div>
@@ -821,8 +1214,10 @@ export default function StudentsPage() {
               </form>
             </div>
             <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Annuler</button>
-              <button type="submit" form="studentForm" className="btn-submit" disabled={submitting || !activeYear}>{submitting ? 'Enregistrement...' : 'Confirmer'}</button>
+              <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Annuler</button>
+              <button type="submit" form="studentForm" className="btn-submit" disabled={submitting || !form.annee_scolaire || annees.length === 0}>
+                {submitting ? 'Enregistrement...' : 'Confirmer'}
+              </button>
             </div>
           </div>
         </div>
@@ -842,15 +1237,26 @@ export default function StudentsPage() {
             <div className="modal-body">
               {message && <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#d1fae5' : '#fee2e2', color: !message.toLowerCase().includes('erreur') && !message.toLowerCase().includes('impossible') ? '#065f46' : '#991b1b', fontSize: '0.9rem' }}>{message}</div>}
               
-              {!activeYear ? (
+              {!annees.length ? (
                 <div style={{ padding: '1rem', background: '#fee2e2', color: '#991b1b', borderRadius: '8px' }}>
-                  Aucune année scolaire active. Veuillez en définir une dans les paramètres.
+                  Aucune année scolaire définie. Veuillez en créer une dans « Années Scolaires ».
                 </div>
               ) : (
                 <form id="reForm" onSubmit={handleReInscription}>
                   <div className="modal-form-group">
-                    <label>Année Scolaire</label>
-                    <input type="text" value={activeYear} disabled style={{ background: '#f1f5f9', color: '#64748b' }} />
+                    <label>Année scolaire</label>
+                    <select
+                      value={reForm.annee_scolaire}
+                      onChange={(e) => setReForm({ ...reForm, annee_scolaire: e.target.value })}
+                      required
+                    >
+                      <option value="">Sélectionnez une année</option>
+                      {annees.map((a) => (
+                        <option key={a.id} value={a.nom}>
+                          {a.nom}{a.active ? ' (active)' : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="modal-form-group">
                     <label>Nouvelle Classe</label>
@@ -863,8 +1269,10 @@ export default function StudentsPage() {
               )}
             </div>
             <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setReInscrireEleve(null)}>Annuler</button>
-              <button type="submit" form="reForm" className="btn-submit" disabled={submitting || !activeYear}>{submitting ? 'Enregistrement...' : 'Confirmer la réinscription'}</button>
+              <button type="button" className="btn-cancel" onClick={() => setReInscrireEleve(null)}>Annuler</button>
+              <button type="submit" form="reForm" className="btn-submit" disabled={submitting || !reForm.annee_scolaire || !reForm.classeId || annees.length === 0}>
+                {submitting ? 'Enregistrement...' : 'Confirmer la réinscription'}
+              </button>
             </div>
           </div>
         </div>
@@ -884,6 +1292,39 @@ export default function StudentsPage() {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button onClick={() => setValidateConfirmId(null)} style={{ flex: 1, padding: '0.875rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '1rem' }}>Annuler</button>
               <button onClick={handleValidate} style={{ flex: 1, padding: '0.875rem', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #0A2F6B 0%, #1e40af 100%)', color: 'white', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(10, 47, 107, 0.2)', fontSize: '1rem' }}>Confirmer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rejet inscription */}
+      {rejectModal && (
+        <div className="modal-overlay" onClick={() => setRejectModal(null)}>
+          <div className="modal-content" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Rejeter l&apos;inscription</h2>
+              <button type="button" className="modal-close-btn" onClick={() => setRejectModal(null)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                Indiquez le motif du rejet. L&apos;élève et les parents pourront être informés par l&apos;administration.
+              </p>
+              <div className="modal-form-group">
+                <label>Motif du rejet *</label>
+                <textarea
+                  rows={4}
+                  value={rejectMotif}
+                  onChange={(e) => setRejectMotif(e.target.value)}
+                  placeholder="Ex : Dossier incomplet, classe saturée…"
+                  required
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn-cancel" onClick={() => setRejectModal(null)}>Annuler</button>
+              <button type="button" className="btn-submit" style={{ background: '#dc2626' }} disabled={rejectSubmitting || !rejectMotif.trim()} onClick={handleReject}>
+                {rejectSubmitting ? 'Rejet…' : 'Confirmer le rejet'}
+              </button>
             </div>
           </div>
         </div>
@@ -912,7 +1353,7 @@ export default function StudentsPage() {
                   onChange={(e) => {
                     const selected = eleves.find(el => el.id === parseInt(e.target.value));
                     if (selected) {
-                      setReInscrireEleve(selected);
+                      openReinscription(selected);
                       setIsGlobalReInscriptionOpen(false);
                     }
                   }}

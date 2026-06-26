@@ -3,6 +3,10 @@ import { Award, Star, CheckCircle, XCircle } from 'lucide-react';
 import { getMention, getMentionColor, getMentionBg } from './bulletinHelpers';
 
 export default function BulletinCard({ eleve, classeInfo, periode, onBack, className = '' }) {
+  if (!eleve) return null;
+
+  const classeNom = classeInfo?.nom || '—';
+
   return (
     <div className={`admin-panel bulletin-card ${className}`.trim()}>
       <div className="bulletin-card__header">
@@ -16,7 +20,7 @@ export default function BulletinCard({ eleve, classeInfo, periode, onBack, class
               {eleve.prenom} {eleve.nom}
             </h2>
             <p className="bulletin-card__meta">
-              {classeInfo.nom} · {periode} · Matricule : <strong>{eleve.matricule}</strong>
+              {classeNom} · {periode} · Matricule : <strong>{eleve.matricule || '—'}</strong>
             </p>
           </div>
           <div className="bulletin-card__avg-block">

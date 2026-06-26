@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit, Trash2, X, Layers, Info } from 'lucide-react';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { canManageSchoolStructure } from '../../utils/rbac';
 import {
   CYCLES,
   normalizeRegle,
@@ -19,6 +21,9 @@ function cycleBadgeClass(cycle) {
 }
 
 export default function NiveauxPage() {
+  const { user } = useAuth();
+  const canEditStructure = canManageSchoolStructure(user?.role);
+
   const [niveaux, setNiveaux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -177,10 +182,12 @@ export default function NiveauxPage() {
             Définissez les niveaux scolaires et les règles de calcul des moyennes par matière et générale.
           </p>
         </div>
-        <button type="button" className="btn btn--primary niveaux-page__add" onClick={openCreate}>
-          <Plus size={18} />
-          Ajouter un niveau
-        </button>
+        {canEditStructure && (
+          <button type="button" className="btn btn--primary niveaux-page__add" onClick={openCreate}>
+            <Plus size={18} />
+            Ajouter un niveau
+          </button>
+        )}
       </div>
 
       <div className="niveaux-info-banner">
@@ -297,6 +304,7 @@ export default function NiveauxPage() {
                         )}
                       </td>
                       <td>
+                        {canEditStructure ? (
                         <div className="action-buttons">
                           <button
                             type="button"
@@ -316,6 +324,7 @@ export default function NiveauxPage() {
                             <Trash2 size={15} />
                           </button>
                         </div>
+                        ) : '—'}
                       </td>
                     </tr>
                   );

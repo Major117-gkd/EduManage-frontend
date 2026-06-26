@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users } from 'lucide-react';
 import { api } from '../../services/api';
+import PinnedAnnouncementBanner from '../../components/announcements/PinnedAnnouncementBanner';
 import '../admin/AdminDashboard.css';
 
 export default function TeacherDashboard() {
@@ -43,6 +44,8 @@ export default function TeacherDashboard() {
           )}
         </div>
       </div>
+
+      <PinnedAnnouncementBanner linkTo="/teacher/annonces" />
 
       {error && (
         <div style={{ padding: '1rem', background: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '1.5rem' }}>

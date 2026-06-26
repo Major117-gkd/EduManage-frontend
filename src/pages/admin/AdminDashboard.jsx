@@ -6,9 +6,18 @@ import './AdminDashboard.css';
 import './Modal.css';
 
 import { api } from '../../services/api';
+import PinnedAnnouncementBanner from '../../components/announcements/PinnedAnnouncementBanner';
+import { useAuth } from '../../context/AuthContext';
+import { canManageStudents, canManageSchoolStructure } from '../../utils/rbac';
+import { DIRECTEUR_CYCLES } from '../../utils/rolePaths';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canInscribe = canManageStudents(user?.role);
+  const isAdmin = canManageSchoolStructure(user?.role);
+  const [staffSummary, setStaffSummary] = useState(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
   const [classes, setClasses] = useState([]);
@@ -95,12 +104,14 @@ export default function AdminDashboard() {
   const [chartData, setChartData] = useState({ studentsPerLevel: [], enrollmentsTrend: [] });
 
   useEffect(() => {
+    const cycleLabel = user?.role === 'DIRECTEUR' && user?.perimetre ? user.perimetre : null;
+
     api.get('/admin/stats')
       .then(data => {
         setStats([
-          { label: 'Total Élèves', value: data.eleves ?? '0', trend: 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
-          { label: 'Professeurs', value: data.professeurs ?? '0', trend: 'Effectif enseignant', icon: <GraduationCap size={24} color="#7c3aed" />, bg: '#f3e8ff' },
-          { label: 'Classes Actives', value: data.classes ?? '0', trend: 'Du primaire au lycée', icon: <BookOpen size={24} color="#059669" />, bg: '#d1fae5' },
+          { label: 'Total Élèves', value: data.eleves ?? '0', trend: cycleLabel ? `Cycle ${cycleLabel}` : 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
+          { label: 'Professeurs', value: data.professeurs ?? '0', trend: cycleLabel ? `Affectés — ${cycleLabel}` : 'Effectif enseignant', icon: <GraduationCap size={24} color="#7c3aed" />, bg: '#f3e8ff' },
+          { label: 'Classes Actives', value: data.classes ?? '0', trend: cycleLabel ? `Classes — ${cycleLabel}` : 'Du primaire au lycée', icon: <BookOpen size={24} color="#059669" />, bg: '#d1fae5' },
           { label: 'Inscriptions en attente', value: data.inscriptionsEnAttente ?? '0', trend: 'Action requise', icon: <AlertCircle size={24} color="#dc2626" />, bg: '#fee2e2' },
         ]);
       })
@@ -118,15 +129,33 @@ export default function AdminDashboard() {
       .then(data => { if (Array.isArray(data)) setTauxReussite(data); })
       .catch(() => setTauxReussite([]))
       .finally(() => setTauxLoading(false));
-  }, []);
+  }, [user?.role, user?.perimetre]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.get('/admin/users')
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const staff = data.filter((u) => ['ADMIN', 'COMPTABLE', 'DIRECTEUR'].includes(u.role));
+        setStaffSummary({
+          comptable: staff.find((u) => u.role === 'COMPTABLE'),
+          directeurs: DIRECTEUR_CYCLES.map((cycle) => ({
+            cycle,
+            user: staff.find((u) => u.role === 'DIRECTEUR' && u.perimetre === cycle),
+          })),
+        });
+      })
+      .catch(() => {});
+  }, [isAdmin]);
 
   // Refresh after new student is added
   const refreshData = () => {
+    const cycleLabel = user?.role === 'DIRECTEUR' && user?.perimetre ? user.perimetre : null;
     api.get('/admin/stats').then(data => {
       setStats([
-        { label: 'Total Élèves', value: data.eleves ?? '0', trend: 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
-        { label: 'Professeurs', value: data.professeurs ?? '0', trend: 'Effectif enseignant', icon: <GraduationCap size={24} color="#7c3aed" />, bg: '#f3e8ff' },
-        { label: 'Classes Actives', value: data.classes ?? '0', trend: 'Du primaire au lycée', icon: <BookOpen size={24} color="#059669" />, bg: '#d1fae5' },
+        { label: 'Total Élèves', value: data.eleves ?? '0', trend: cycleLabel ? `Cycle ${cycleLabel}` : 'Inscrits dans l\'école', icon: <Users size={24} color="#0A2F6B" />, bg: '#eff6ff' },
+        { label: 'Professeurs', value: data.professeurs ?? '0', trend: cycleLabel ? `Affectés — ${cycleLabel}` : 'Effectif enseignant', icon: <GraduationCap size={24} color="#7c3aed" />, bg: '#f3e8ff' },
+        { label: 'Classes Actives', value: data.classes ?? '0', trend: cycleLabel ? `Classes — ${cycleLabel}` : 'Du primaire au lycée', icon: <BookOpen size={24} color="#059669" />, bg: '#d1fae5' },
         { label: 'Inscriptions en attente', value: data.inscriptionsEnAttente ?? '0', trend: 'Action requise', icon: <AlertCircle size={24} color="#dc2626" />, bg: '#fee2e2' },
       ]);
     }).catch(() => {});
@@ -139,6 +168,7 @@ export default function AdminDashboard() {
     <div className="admin-dashboard">
       <div className="admin-dashboard__header">
         <h1 className="admin-title">Vue d'ensemble</h1>
+        {canInscribe && (
         <button 
           className="btn btn--primary" 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -146,7 +176,37 @@ export default function AdminDashboard() {
         >
           <UserPlus size={18} /> Nouvelle Inscription
         </button>
+        )}
       </div>
+
+      <PinnedAnnouncementBanner linkTo="/admin/annonces/consulter" />
+
+      {isAdmin && staffSummary && (
+        <div className="admin-panel" style={{ marginBottom: '1.5rem' }}>
+          <div className="admin-panel__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 className="admin-panel__title">Équipe de direction & finances</h2>
+            <button type="button" className="btn btn--outline" style={{ fontSize: '0.85rem' }} onClick={() => navigate('/admin/users')}>
+              Gérer les comptes
+            </button>
+          </div>
+          <div style={{ padding: '0.75rem 1rem 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+            <div style={{ padding: '0.75rem', borderRadius: '8px', background: '#fef3c7', fontSize: '0.85rem' }}>
+              <strong>Comptable</strong>
+              <div style={{ color: '#78716c', marginTop: '0.25rem' }}>
+                {staffSummary.comptable ? staffSummary.comptable.nom : 'Non créé'}
+              </div>
+            </div>
+            {staffSummary.directeurs.map(({ cycle, user: dir }) => (
+              <div key={cycle} style={{ padding: '0.75rem', borderRadius: '8px', background: '#eff6ff', fontSize: '0.85rem' }}>
+                <strong>Directeur {cycle}</strong>
+                <div style={{ color: '#64748b', marginTop: '0.25rem' }}>
+                  {dir ? dir.nom : 'Vacant'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="admin-stats__grid">
         {stats.map((stat, i) => (

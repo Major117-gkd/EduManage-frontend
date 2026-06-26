@@ -19,6 +19,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { api } from '../services/api';
+import { getStaffRoleLabel } from '../utils/rolePaths';
 import './admin/AdminDashboard.css';
 import './admin/Modal.css';
 import './ProfilePage.css';
@@ -30,9 +31,13 @@ function getInitials(name) {
   return parts[0]?.slice(0, 2).toUpperCase() || 'U';
 }
 
-function getRoleLabel(role) {
-  if (role === 'ADMIN') return 'Administrateur';
+function getRoleLabel(role, perimetre) {
+  if (role === 'ADMIN' || role === 'COMPTABLE' || role === 'DIRECTEUR') {
+    return getStaffRoleLabel(role, perimetre);
+  }
   if (role === 'PROFESSEUR') return 'Professeur';
+  if (role === 'ELEVE') return 'Élève';
+  if (role === 'PARENT') return 'Parent';
   return role || 'Utilisateur';
 }
 
@@ -53,7 +58,10 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const isTeacher = user?.role === 'PROFESSEUR';
+  const isStudent = user?.role === 'ELEVE';
   const photoInputRef = useRef(null);
+
+  const [studentMatricule, setStudentMatricule] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,37 +89,55 @@ export default function ProfilePage() {
     return form.nom || user?.nom || 'Mon profil';
   }, [form.nom, form.prenom, isTeacher, user?.nom]);
 
-  const roleLabel = getRoleLabel(user?.role);
+  const roleLabel = getRoleLabel(user?.role, user?.perimetre);
 
   useEffect(() => {
-    api.get('/me')
-      .then((data) => {
-        const photo = data.user?.photoUrl || data.professeur?.photoUrl || '';
-        setMemberSince(data.user?.createdAt || null);
+    const loadProfile = isStudent
+      ? api.get('/student/me')
+      : api.get('/me');
 
-        if (isTeacher && data.professeur) {
+    loadProfile
+      .then((data) => {
+        if (isStudent) {
+          const photo = data.eleve?.photoUrl || data.utilisateur?.photoUrl || '';
+          setStudentMatricule(data.eleve?.matricule || '');
+          setMemberSince(data.utilisateur?.createdAt || null);
           setForm({
-            nom: data.professeur.nom || '',
-            prenom: data.professeur.prenom || '',
-            email: data.user?.email || '',
-            specialite: data.professeur.specialite || '',
-            contact: data.professeur.contact || '',
-            photoUrl: photo,
-          });
-        } else {
-          setForm({
-            nom: data.user?.nom || '',
-            prenom: '',
-            email: data.user?.email || '',
+            nom: data.utilisateur?.nom || `${data.eleve?.prenom || ''} ${data.eleve?.nom || ''}`.trim(),
+            prenom: data.eleve?.prenom || '',
+            email: '',
             specialite: '',
             contact: '',
             photoUrl: photo,
           });
+        } else {
+          const photo = data.user?.photoUrl || data.professeur?.photoUrl || '';
+          setMemberSince(data.user?.createdAt || null);
+
+          if (isTeacher && data.professeur) {
+            setForm({
+              nom: data.professeur.nom || '',
+              prenom: data.professeur.prenom || '',
+              email: data.user?.email || '',
+              specialite: data.professeur.specialite || '',
+              contact: data.professeur.contact || '',
+              photoUrl: photo,
+            });
+          } else {
+            setForm({
+              nom: data.user?.nom || '',
+              prenom: '',
+              email: data.user?.email || '',
+              specialite: '',
+              contact: '',
+              photoUrl: photo,
+            });
+          }
         }
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [isTeacher]);
+  }, [isTeacher, isStudent]);
 
   useEffect(() => {
     if (!message) return undefined;
@@ -147,7 +173,10 @@ export default function ProfilePage() {
     setSaving(true);
     setMessage('');
     try {
-      const data = await api.put('/me', form);
+      const payload = isStudent
+        ? { nom: form.nom, photoUrl: form.photoUrl }
+        : form;
+      const data = await api.put('/me', payload);
       if (data.user) updateUser(data.user);
       if (data.professeur && isTeacher) {
         setForm((prev) => ({
@@ -328,17 +357,41 @@ export default function ProfilePage() {
 
             <div className="modal-form-group">
               <label htmlFor="profile-email">
-                <Mail size={14} aria-hidden />
-                Adresse email
+                {isStudent ? (
+                  <>
+                    <Hash size={14} aria-hidden />
+                    Identifiant de connexion
+                  </>
+                ) : (
+                  <>
+                    <Mail size={14} aria-hidden />
+                    Adresse email
+                  </>
+                )}
               </label>
-              <input
-                id="profile-email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-                autoComplete="email"
-              />
+              {isStudent ? (
+                <>
+                  <input
+                    id="profile-email"
+                    type="text"
+                    value={studentMatricule}
+                    disabled
+                    style={{ background: '#f1f5f9', color: '#475569' }}
+                  />
+                  <p style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
+                    Matricule figurant sur votre carte scolaire — non modifiable.
+                  </p>
+                </>
+              ) : (
+                <input
+                  id="profile-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                  autoComplete="email"
+                />
+              )}
             </div>
 
             {isTeacher && (

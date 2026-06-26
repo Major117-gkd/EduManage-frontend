@@ -1,4 +1,4 @@
-import { FileText, Bell } from 'lucide-react';
+import { FileText, Bell, UserPlus, DollarSign } from 'lucide-react';
 import React from 'react';
 
 export function formatRelativeTime(dateStr) {
@@ -34,6 +34,10 @@ export function getNotificationTypeLabel(type) {
   switch (type) {
     case 'NOTE_SAISIE':
       return 'Saisie de notes';
+    case 'INSCRIPTION':
+      return 'Inscription';
+    case 'PAIEMENT':
+      return 'Paiement';
     default:
       return type || 'Autre';
   }
@@ -43,6 +47,10 @@ export function getNotificationIcon(type, size = 18) {
   switch (type) {
     case 'NOTE_SAISIE':
       return <FileText size={size} />;
+    case 'INSCRIPTION':
+      return <UserPlus size={size} />;
+    case 'PAIEMENT':
+      return <DollarSign size={size} />;
     default:
       return <Bell size={size} />;
   }

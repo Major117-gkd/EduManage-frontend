@@ -1,0 +1,603 @@
+/* Connexion élève — design EduSmart adapté EduManage (#0A2F6B) */
+
+.student-login {
+  --sl-primary: #0A2F6B;
+  --sl-primary-hover: #06204a;
+  --sl-primary-light: #eff6ff;
+  --sl-primary-muted: #3b82f6;
+  --sl-bg: #eef3fb;
+  --sl-bg-left: linear-gradient(160deg, #f8fbff 0%, #e8f0fe 45%, #dce8fc 100%);
+  --sl-surface: #ffffff;
+  --sl-text: #0f172a;
+  --sl-text-muted: #64748b;
+  --sl-border: #e2e8f0;
+  --sl-radius: 16px;
+  --sl-shadow: 0 8px 32px rgba(10, 47, 107, 0.1), 0 2px 8px rgba(10, 47, 107, 0.06);
+
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  text-align: left;
+  background: var(--sl-bg);
+}
+
+html.dark-mode .student-login {
+  --sl-primary: #93c5fd;
+  --sl-primary-hover: #bfdbfe;
+  --sl-primary-light: rgba(59, 130, 246, 0.12);
+  --sl-bg: #0f1118;
+  --sl-bg-left: linear-gradient(160deg, #141820 0%, #111827 50%, #0f172a 100%);
+  --sl-surface: #1a1b23;
+  --sl-text: #f3f4f6;
+  --sl-text-muted: #9ca3af;
+  --sl-border: #2e303a;
+  --sl-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Left panel ── */
+.student-login__left {
+  flex: 1.15;
+  background-color: #0A2F6B;
+  background-image: url('/images/student-login-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2.5rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.student-login__left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    rgba(248, 251, 255, 0.93) 0%,
+    rgba(232, 240, 254, 0.86) 42%,
+    rgba(10, 47, 107, 0.62) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+html.dark-mode .student-login__left::before {
+  background: linear-gradient(
+    115deg,
+    rgba(15, 17, 24, 0.92) 0%,
+    rgba(17, 24, 39, 0.84) 45%,
+    rgba(10, 47, 107, 0.78) 100%
+  );
+}
+
+.student-login__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--sl-primary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 2;
+}
+
+.student-login__back:hover {
+  opacity: 1;
+  transform: translateX(-3px);
+}
+
+.student-login__left-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+  z-index: 2;
+}
+
+.student-login__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.25rem;
+}
+
+.student-login__brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: contain;
+  border: 2px solid rgba(10, 47, 107, 0.12);
+  background: white;
+  padding: 4px;
+}
+
+html.dark-mode .student-login__brand-logo {
+  background: #1f2028;
+  border-color: #3f4250;
+}
+
+.student-login__brand-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--sl-primary);
+  line-height: 1.2;
+  font-family: 'Poppins', sans-serif;
+}
+
+.student-login__brand-sub {
+  font-size: 0.8rem;
+  color: var(--sl-text-muted);
+  margin-top: 0.1rem;
+}
+
+.student-login__hero-title {
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  color: var(--sl-primary);
+  line-height: 1.25;
+  margin: 0 0 0.85rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.student-login__hero-text {
+  margin: 0 0 2rem;
+  color: var(--sl-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 420px;
+}
+
+.student-login__features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  max-width: 360px;
+  margin-bottom: 2rem;
+}
+
+.student-login__feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.student-login__feature-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.student-login__feature-icon--blue { background: linear-gradient(135deg, #0A2F6B, #2563eb); }
+.student-login__feature-icon--green { background: linear-gradient(135deg, #059669, #10b981); }
+.student-login__feature-icon--purple { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
+.student-login__feature-icon--amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.student-login__feature-icon--rose { background: linear-gradient(135deg, #db2777, #f472b6); }
+.student-login__feature-icon--cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+
+.student-login__feature span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sl-text-muted);
+}
+
+.student-login__illus {
+  margin-top: auto;
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.student-login__illus-bg {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 160px;
+  background: url('/images/student-login-bg.jpg') center 35% / cover no-repeat;
+  border-radius: 20px 20px 0 0;
+  opacity: 0.35;
+  mask-image: linear-gradient(180deg, transparent 0%, black 55%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 55%);
+}
+
+.student-login__illus-card {
+  position: relative;
+  z-index: 1;
+  background: var(--sl-surface);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--sl-shadow);
+  border: 1px solid var(--sl-border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 320px;
+}
+
+.student-login__illus-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sl-primary), #1e40af);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.student-login__illus-text strong {
+  display: block;
+  color: var(--sl-text);
+  font-size: 0.9rem;
+}
+
+.student-login__illus-text span {
+  font-size: 0.78rem;
+  color: var(--sl-text-muted);
+}
+
+/* ── Right panel ── */
+.student-login__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+
+.student-login__theme {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--sl-border);
+  background: var(--sl-surface);
+  color: var(--sl-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.student-login__theme:hover {
+  border-color: var(--sl-primary-muted);
+  color: var(--sl-primary);
+}
+
+.student-login__card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--sl-surface);
+  border-radius: var(--sl-radius);
+  box-shadow: var(--sl-shadow);
+  border: 1px solid var(--sl-border);
+  padding: 2rem 1.75rem 1.75rem;
+}
+
+.student-login__card-head {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.student-login__card-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  border: 3px solid white;
+  box-shadow: 0 4px 16px rgba(10, 47, 107, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+html.dark-mode .student-login__card-avatar {
+  background: linear-gradient(135deg, #1e3a5f, #1f2937);
+  border-color: #2e303a;
+}
+
+.student-login__card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-login__card-avatar svg {
+  color: var(--sl-primary);
+}
+
+.student-login__card-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--sl-text);
+  font-family: 'Poppins', sans-serif;
+}
+
+.student-login__card-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--sl-text-muted);
+}
+
+.student-login__error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+html.dark-mode .student-login__error {
+  background: rgba(127, 29, 29, 0.3);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+.student-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.student-login__field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sl-text);
+  margin-bottom: 0.4rem;
+}
+
+.student-login__input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--sl-border);
+  border-radius: 10px;
+  background: var(--sl-surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.student-login__input-wrap:focus-within {
+  border-color: var(--sl-primary-muted);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.student-login__input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.85rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.student-login__input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.72rem 0.85rem 0.72rem 0;
+  font-size: 0.92rem;
+  background: transparent;
+  color: var(--sl-text);
+  min-width: 0;
+}
+
+.student-login__input-wrap input::placeholder {
+  color: #94a3b8;
+}
+
+.student-login__pwd-toggle {
+  border: none;
+  background: transparent;
+  padding: 0 0.85rem;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.student-login__pwd-toggle:hover {
+  color: var(--sl-primary);
+}
+
+.student-login__forgot {
+  display: block;
+  text-align: right;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--sl-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.student-login__forgot:hover {
+  text-decoration: underline;
+}
+
+.student-login__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  margin-top: 0.35rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--sl-primary);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(10, 47, 107, 0.25);
+}
+
+.student-login__submit:hover:not(:disabled) {
+  background: var(--sl-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(10, 47, 107, 0.3);
+}
+
+html.dark-mode .student-login__submit {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.student-login__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.student-login__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--sl-text-muted);
+  font-size: 0.8rem;
+}
+
+.student-login__divider::before,
+.student-login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--sl-border);
+}
+
+.student-login__staff-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--sl-border);
+  background: var(--sl-surface);
+  color: var(--sl-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.student-login__staff-btn:hover {
+  background: var(--sl-primary-light);
+  border-color: var(--sl-primary-muted);
+}
+
+.student-login__help {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+  color: var(--sl-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.student-login__help a {
+  color: var(--sl-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.student-login__help a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile header (hidden on desktop) */
+.student-login__mobile-brand {
+  display: none;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.student-login__mobile-brand img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .student-login {
+    flex-direction: column;
+  }
+
+  .student-login__left {
+    padding: 1.5rem 1.25rem 1rem;
+  }
+
+  .student-login__illus {
+    display: none;
+  }
+
+  .student-login__features {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+    gap: 0.65rem;
+  }
+
+  .student-login__feature-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .student-login__hero-title {
+    font-size: 1.45rem;
+  }
+
+  .student-login__right {
+    padding: 1rem 1.25rem 2rem;
+    align-items: flex-start;
+  }
+
+  .student-login__mobile-brand {
+    display: flex;
+  }
+}
+
+@media (max-width: 400px) {
+  .student-login__features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .student-login__card {
+    padding: 1.5rem 1.25rem;
+  }
+}

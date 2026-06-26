@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, LogOut, Menu, UserCircle, DollarSign, Sun, Moon } from 'lucide-react';
+import { BookOpen, LogOut, Menu, UserCircle, DollarSign, Sun, Moon, Megaphone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import { api } from '../../services/api';
@@ -63,6 +63,12 @@ export default function TeacherLayout() {
       path: '/teacher/pay',
       icon: <DollarSign size={20} />,
       label: 'Ma rémunération',
+      exact: true,
+    },
+    {
+      path: '/teacher/annonces',
+      icon: <Megaphone size={20} />,
+      label: 'Annonces',
       exact: true,
     },
   ];
